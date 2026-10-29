@@ -17,3 +17,6 @@ frontend-dist/
 
 # Generated forced-offline judge demo candidate
 offline-dist/
+
+# Final evaluation inputs, approvals, responses, billing ledger and blind keys
+benchmark-private/
