@@ -1,0 +1,58 @@
+鉁?observed long copied policy passage is rejected even with a valid source ID and stop finish (2.6414ms)
+鉁?observed policy fragment ending in a dangling clause is rejected instead of displayed or silently trimmed (0.2115ms)
+鉁?source membership cannot authorize a new unsupported policy claim (0.1143ms)
+鉁?controlled complete policy statements accept harmless punctuation differences (0.6305ms)
+鉁?model can cite a supporting source without regenerating the code-owned policy sentence (0.4576ms)
+鉁?dangling analyst clauses and long source copying in analyst fields fail closed (0.3148ms)
+鉁?invalid prose causes visible fixture fallback with no live-success proof and no repair request (31.6839ms)
+鉁?unknown origin, wrong region and negated exception cannot acquire a policy-backed model draft (9.4314ms)
+鉁?policy scope statements stay within each supported context and hold for absent or conflicting evidence (0.3783ms)
+鉁?duplicate citations and copied text in other fields cannot masquerade as useful synthesis (0.2341ms)
+鉁?observed singular determiner with plural accounts is rejected without changing model prose (0.3941ms)
+鉁?correct singular and plural account phrasing remains accepted (0.1595ms)
+鉁?observed agreement error returns complete offline checks without a live proof or repair request (9.8963ms)
+鈩?tests 13
+鈩?suites 0
+鈩?pass 11
+鈩?fail 2
+鈩?cancelled 0
+鈩?skipped 0
+鈩?todo 0
+鈩?duration_ms 1773.3658
+
+鉁?failing tests:
+
+test at tests\policy-draft.test.ts:1:6505
+鉁?observed singular determiner with plural accounts is rejected without changing model prose (0.3941ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\tests\policy-draft.test.ts:89:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at tests\policy-draft.test.ts:1:7243
+鉁?observed agreement error returns complete offline checks without a live proof or repair request (9.8963ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'live' !== 'fixture'
+  
+      at TestContext.<anonymous> (C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\tests\policy-draft.test.ts:107:34)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'live',
+    expected: 'fixture',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

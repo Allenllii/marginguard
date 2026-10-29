@@ -1,0 +1,19 @@
+
+Running 11 tests using 1 worker
+
+(node:18016) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\browser.spec.ts:5:1 鈥?clarity: the evidence decision leads the draft and keeps assumptions, citations and authority explicit (781ms)
+  ok  2 tests\browser.spec.ts:29:1 鈥?desktop: overview, evidence, scenario, report, offline brief, valid and invalid import (1.5s)
+  ok  3 tests\browser.spec.ts:91:1 鈥?mobile: navigation, evidence, and layout stay usable (1.4s)
+  ok  4 tests\browser.spec.ts:116:1 鈥?cancel, repeat evidence visits and navigation preserve the current dataset (998ms)
+  ok  5 tests\browser.spec.ts:160:1 鈥?delayed explanations are discarded after a different import and repeated same-data resets (955ms)
+  ok  6 tests\browser.spec.ts:175:1 鈥?delayed policy search and remediation cannot survive a same-dataset reset (553ms)
+  ok  7 tests\browser.spec.ts:186:1 鈥?policy exception redirects a manual-discount check and missing/wrong-region context holds (827ms)
+  ok  8 tests\browser.spec.ts:197:1 鈥?a slower earlier import cannot overwrite a newer import (396ms)
+  ok  9 tests\browser.spec.ts:211:1 鈥?method text follows the applied seller assumptions and reset defaults (459ms)
+  ok 10 tests\browser.spec.ts:222:1 鈥?a rejected latest drop prevents an older pending import from becoming current (429ms)
+  ok 11 tests\browser.spec.ts:236:1 鈥?client-rejected files can be selected again after dismissing the error (764ms)
+
+  11 passed (9.9s)
+Fresh QA child stopped; existing server untouched.

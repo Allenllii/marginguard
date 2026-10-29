@@ -1,0 +1,39 @@
+{
+  "executedAt": "2026-10-29T09:16:51.878063+00:00",
+  "scope": "Offline decision-clarity and observed grammar regression phase, not final benchmark or independent whole-project review.",
+  "redBeforeImplementation": {
+    "grammarSuite": {
+      "tests": 13,
+      "passed": 11,
+      "failed": 2
+    },
+    "browserSuite": {
+      "tests": 11,
+      "passed": 10,
+      "failed": 1
+    }
+  },
+  "final": {
+    "unitApiMockIntegrationPassed": 112,
+    "failed": 0,
+    "browserPassed": 11,
+    "syntheticPolicyRoutingPassed": 12,
+    "lint": "PASS",
+    "strictTypes": "PASS",
+    "frontendWorkerArtifactBuild": "PASS",
+    "exactMoneyAndEvidenceRows": "3/3 each; clean control zero issues"
+  },
+  "invariants": "Rule math, evidence IDs, assumptions, consent, stale-response invalidation, request caps and public-live fail-closed gate unchanged.",
+  "liveCallsThisPhase": 0,
+  "revisedPromptLiveRetest": "NOT RUN; PR6 live proof is historical and identifies its own source.",
+  "hostedSecretsConfigured": false,
+  "publicDeploymentPerformed": false,
+  "finalBenchmark": "NOT RUN",
+  "moduleBoundaries": [
+    "PolicyResearch: orchestration",
+    "PolicyDecisionCard: evidence/decision presentation",
+    "PolicyDraftCard: draft presentation",
+    "policy-draft: pure provider-output validation"
+  ],
+  "costResearch": "Official source links and engineering limits are in docs/PROVIDER-COST-CONTROLS.md. No account-specific finance details are included in this public evidence."
+}

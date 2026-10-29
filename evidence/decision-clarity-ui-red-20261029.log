@@ -1,0 +1,61 @@
+
+Running 11 tests using 1 worker
+
+(node:2176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   1 tests\browser.spec.ts:5:1 鈥?clarity: the evidence decision leads the draft and keeps assumptions, citations and authority explicit (5.6s)
+(node:26020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 tests\browser.spec.ts:29:1 鈥?desktop: overview, evidence, scenario, report, offline brief, valid and invalid import (1.6s)
+  ok  3 tests\browser.spec.ts:91:1 鈥?mobile: navigation, evidence, and layout stay usable (1.4s)
+  ok  4 tests\browser.spec.ts:116:1 鈥?cancel, repeat evidence visits and navigation preserve the current dataset (1.0s)
+  ok  5 tests\browser.spec.ts:160:1 鈥?delayed explanations are discarded after a different import and repeated same-data resets (917ms)
+  ok  6 tests\browser.spec.ts:175:1 鈥?delayed policy search and remediation cannot survive a same-dataset reset (569ms)
+  ok  7 tests\browser.spec.ts:186:1 鈥?policy exception redirects a manual-discount check and missing/wrong-region context holds (831ms)
+  ok  8 tests\browser.spec.ts:197:1 鈥?a slower earlier import cannot overwrite a newer import (396ms)
+  ok  9 tests\browser.spec.ts:211:1 鈥?method text follows the applied seller assumptions and reset defaults (448ms)
+  ok 10 tests\browser.spec.ts:222:1 鈥?a rejected latest drop prevents an older pending import from becoming current (403ms)
+  ok 11 tests\browser.spec.ts:236:1 鈥?client-rejected files can be selected again after dismissing the error (768ms)
+
+
+  1) tests\browser.spec.ts:5:1 鈥?clarity: the evidence decision leads the draft and keeps assumptions, citations and authority explicit 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('region', { name: 'Evidence and next check', exact: true }).getByRole('heading', { name: 'Rule-based next check', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('region', { name: 'Evidence and next check', exact: true }).getByRole('heading', { name: 'Rule-based next check', exact: true }) with timeout 5000ms
+      - waiting for getByRole('region', { name: 'Evidence and next check', exact: true }).getByRole('heading', { name: 'Rule-based next check', exact: true })
+
+
+       9 |   await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+      10 |   const decision = page.getByRole('region', { name: 'Evidence and next check', exact: true });
+    > 11 |   await expect(decision.getByRole('heading', { name: 'Rule-based next check', exact: true })).toBeVisible();
+         |                                                                                               ^
+      12 |   await expect(decision).toContainText('28 flagged rows; $658.08 modeled exposure.');
+      13 |   await expect(decision).toContainText('20% discount ceiling');
+      14 |   await expect(decision.locator('.source-citation')).toHaveAttribute('href', 'https://help.shopify.com/en/manual/discounts/discount-combinations');
+        at C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\tests\browser.spec.ts:11:95
+
+    attachment #1: screenshot (image/png) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\browser-clarity-the-eviden-bba5b-ions-and-authority-explicit\test-failed-1.png
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    Error Context: test-results\browser-clarity-the-eviden-bba5b-ions-and-authority-explicit\error-context.md
+
+    attachment #3: trace (application/zip) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\browser-clarity-the-eviden-bba5b-ions-and-authority-explicit\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser-clarity-the-eviden-bba5b-ions-and-authority-explicit\trace.zip
+
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+  1 failed
+    tests\browser.spec.ts:5:1 鈥?clarity: the evidence decision leads the draft and keeps assumptions, citations and authority explicit 
+  10 passed (15.8s)
+Fresh QA child stopped; existing server untouched.
