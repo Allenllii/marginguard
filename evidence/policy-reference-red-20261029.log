@@ -1,0 +1,44 @@
+鉁?observed long copied policy passage is rejected even with a valid source ID and stop finish (2.2411ms)
+鉁?observed policy fragment ending in a dangling clause is rejected instead of displayed or silently trimmed (0.1835ms)
+鉁?source membership cannot authorize a new unsupported policy claim (0.1034ms)
+鉁?controlled complete policy statements accept harmless punctuation differences (0.6244ms)
+鉁?model can cite a supporting source without regenerating the code-owned policy sentence (0.4546ms)
+鉁?dangling analyst clauses and long source copying in analyst fields fail closed (0.3073ms)
+鉁?invalid prose causes visible fixture fallback with no live-success proof and no repair request (32.1728ms)
+鉁?unknown origin, wrong region and negated exception cannot acquire a policy-backed model draft (9.7066ms)
+鉁?policy scope statements stay within each supported context and hold for absent or conflicting evidence (0.9036ms)
+鉁?duplicate citations and copied text in other fields cannot masquerade as useful synthesis (0.2436ms)
+鈩?tests 10
+鈩?suites 0
+鈩?pass 9
+鈩?fail 1
+鈩?cancelled 0
+鈩?skipped 0
+鈩?todo 0
+鈩?duration_ms 352.2713
+
+鉁?failing tests:
+
+test at tests\policy-draft.test.ts:1:2951
+鉁?model can cite a supporting source without regenerating the code-owned policy sentence (0.4546ms)
+  ZodError: [
+    {
+      "expected": "string",
+      "code": "invalid_type",
+      "path": [
+        "documentedPolicy",
+        0,
+        "statement"
+      ],
+      "message": "Invalid input: expected string, received undefined"
+    }
+  ]
+      at validatePolicyDraft (C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\server\policy-draft.ts:43:24)
+      at validateRemediation (C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\server\nebius.ts:83:10)
+      at TestContext.<anonymous> (C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\tests\policy-draft.test.ts:35:18)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)

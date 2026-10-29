@@ -10,7 +10,7 @@ const tavilyKey = 'mock-tavily-private-credential';
 const nebiusKey = 'mock-nebius-private-credential';
 const source = { title: 'Combining discounts', url: 'https://help.shopify.com/en/manual/discounts/discount-combinations', content: 'Manual POS and draft order discounts always apply regardless of combination settings. Confirm the originating override and promotion intent.', score: 0.9 };
 const draft = {
-  documentedPolicy: [{ sourceId: 'S1', statement: 'Manual discounts follow the documented override exception to combination settings.' }],
+  documentedPolicy: [{ sourceId: 'S1', statement: 'The returned passage describes a manual-discount exception to combination settings.' }],
   inference: 'A settings change has not been established as a remedy for the observed anomaly.',
   nextStep: 'Audit staff manual overrides and promotion intent on a flagged order before a controlled test.',
   uncertainty: 'Verify the full policy, effective date, store eligibility and account terms; this passage does not establish the anomaly cause.',
@@ -282,7 +282,7 @@ test('schema diagnostics identify original statement bounds without retaining st
 });
 
 test('cosmetic punctuation does not reject an otherwise valid cited policy draft', async () => {
-  const statement = 'Manual POS discounts bypass combination settings';
+  const statement = draft.documentedPolicy[0].statement.slice(0, -1);
   const report = await setup(stages(completion({ ...draft, documentedPolicy: [{ sourceId: 'S1', statement }] }))).run();
   assert.equal(report.validatedLiveModelSuccess, true);
   assert.equal(report.modelDiagnostic?.schemaIssues, null);
@@ -312,7 +312,7 @@ test('schema diagnostics omit arbitrary keys messages raw values and configured 
 });
 
 test('schema diagnostic list is capped at eight issues and absent statements remain null', async () => {
-  const body = { ...draft, documentedPolicy: Array.from({ length: 3 }, () => ({ sourceId: 'unknown-id' })), inference: null, nextStep: null, uncertainty: null };
+  const body = { ...draft, documentedPolicy: Array.from({ length: 3 }, () => ({ sourceId: 'unknown-id', unexpected: true })), inference: null, nextStep: null, uncertainty: null };
   const report = await setup(stages(completion(body))).run();
   const issues = report.modelDiagnostic?.schemaIssues;
   assert.equal(issues?.length, 8);
@@ -327,4 +327,18 @@ test('failed checkpoint persistence stops before dispatch and prevents all subse
   });
   await assert.rejects(harness.run(), { message: 'Integration checkpoint persistence failed' });
   assert.equal(transportCalls, 0);
+});
+
+test('safe diagnostics distinguish unsupported scope and unfinished prose from a valid source-reference draft', async () => {
+  for (const [body, validation] of [
+    [{ ...draft, documentedPolicy: [{ sourceId: 'S1', statement: 'An unsupported policy assertion with a valid citation.' }] }, 'unsupported-policy-scope'],
+    [{ ...draft, nextStep: 'Inspect the originating promotion because' }, 'incomplete-or-copied-prose'],
+    [{ ...draft, documentedPolicy: [{ sourceId: 'S1' }] }, 'accepted'],
+  ] as const) {
+    const report = await setup(stages(completion(body))).run();
+    assert.equal(report.modelDiagnostic?.validation, validation);
+    assert.equal(report.validatedLiveModelSuccess, validation === 'accepted');
+    assert.equal(report.http.attemptedHttpRequests, 3);
+    assert.ok(!JSON.stringify(report.modelDiagnostic).includes('unsupported policy assertion'));
+  }
 });
