@@ -2,6 +2,30 @@ import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 
+test('visual: case comparison is readable at mobile width and keyboard works with reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.goto('/');
+  const hero = page.getByRole('region', { name: 'Policy counterexample demo', exact: true });
+  await expect(hero).toContainText('Initial hypothesis');
+  await expect(hero).toContainText('Changed next check');
+  await expect(hero).toContainText('Offline source preview');
+  const contrast = await hero.evaluate(node => {
+    const luminance = (color: string) => { const rgb = color.match(/\d+/g)!.slice(0, 3).map(Number).map(v => { const s = v / 255; return s <= .04045 ? s / 12.92 : ((s + .055) / 1.055) ** 2.4; }); return rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722; };
+    const description = getComputedStyle(node.querySelector('.case-description')!);
+    const a = luminance(description.color), b = luminance(getComputedStyle(node).backgroundColor);
+    return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+  });
+  expect(contrast).toBeGreaterThanOrEqual(4.5);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  const motion = await hero.evaluate(node => ({ animation: getComputedStyle(node).animationName, duration: getComputedStyle(node).transitionDuration }));
+  expect(motion.animation).toBe('none'); expect(motion.duration).toBe('0s');
+  const start = page.getByRole('button', { name: 'See the discount policy counterexample', exact: true });
+  await start.focus(); await expect(start).toBeFocused(); await page.keyboard.press('Enter');
+  await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
+  await page.screenshot({ path: 'evidence/visual-mobile-case.png', fullPage: true });
+});
+
 test('judge entry: one click shows the manual-discount action change, honest mode and working source branch', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
@@ -9,10 +33,12 @@ test('judge entry: one click shows the manual-discount action change, honest mod
   await expect(decision).toContainText('28 flagged rows; $658.08 modeled exposure.');
   await expect(decision).toContainText('20% discount ceiling');
   await expect(decision).toContainText('Initial settings fix contradicted');
+  await expect(decision.locator('.decision-change')).toContainText('Same 28 CSV rows. Same $658.08 modeled exposure.');
+  await expect(decision.locator('.decision-change')).toContainText('Offline authored summary');
   await expect(decision).toContainText('Audit staff/manual POS');
   await expect(page.locator('.policy-card')).toContainText('Offline fixture');
-  await expect(page.getByRole('link', { name: 'Source & version', exact: true })).toHaveAttribute('href', 'https://github.com/Allenllii/marginguard/tree/codex/judge-case-entry');
-  await page.locator('.policy-card').screenshot({ path: 'evidence/judge-case-entry.png' });
+  await expect(page.getByRole('link', { name: 'Source & version', exact: true })).toHaveAttribute('href', 'https://github.com/Allenllii/marginguard/tree/codex/evidence-desk');
+  await page.locator('.policy-card').screenshot({ path: 'evidence/judge-case-entry.png', animations: 'disabled' });
   await page.getByRole('button', { name: 'Overview', exact: true }).click();
   await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
   await expect(decision).toContainText('Audit staff/manual POS');

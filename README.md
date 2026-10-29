@@ -2,13 +2,13 @@
 
 **Find the leaks. Follow the evidence. Model your next move.**
 
-[Open the public judge demo](https://marginguard-evidence.liwenzhao0306.chatgpt.site) | [Source: current review branch](https://github.com/Allenllii/marginguard/tree/codex/judge-case-entry) | [Development specification](docs/SPEC.md) | [Release identities](docs/RELEASE.md)
+[Open the public judge demo](https://marginguard-evidence.liwenzhao0306.chatgpt.site) | [Source: current review branch](https://github.com/Allenllii/marginguard/tree/codex/evidence-desk) | [Development specification](docs/SPEC.md) | [Release identities](docs/RELEASE.md)
 
 MarginGuard helps small ecommerce sellers turn a margin anomaly into a specific next check. It validates an order CSV, calculates exact contribution and rule-based exposure, shows the source rows, and uses policy evidence to qualify a proposed remedy. The primary demonstration redirects an overly generic discount-settings suggestion to a manual-override audit when the applicable Shopify exception supports that change.
 
 ## What the judge demo does
 
-The public site is an **offline demonstration** with synthetic orders, authored policy summaries and deterministic guidance. It makes **no Tavily or model requests**. Live buttons are disabled, and the forced-offline Worker ignores runtime provider keys and database bindings. The current deployed version and any pending source update are recorded in [RELEASE.md](docs/RELEASE.md). Source links point to the complete current review branch while default-main integration awaits explicit approval; a new code revision is not claimed live until deployment is verified.
+The public site is an **offline demonstration** with synthetic orders, authored policy summaries and deterministic guidance. It makes **no Tavily or model requests**. Live buttons are disabled, and the forced-offline Worker ignores runtime provider keys and database bindings. The current deployed version and any pending source update are recorded in [RELEASE.md](docs/RELEASE.md). Source links point to the complete current review branch with complete baseline source now integrated into main by PR #11; a new code revision is not claimed live until deployment is verified.
 
 1. From the homepage, click **See the discount policy counterexample**. It opens the synthetic discount case with manual-origin context and offline source preview in one click: 28 rows, $658.08 modeled exposure at the default seller ceiling.
 2. Choose **Manual / POS / draft**, then **Preview source fixtures**. The rule-based decision redirects the next check to staff/manual overrides. Expand the source and inspect its limitations.
@@ -50,7 +50,7 @@ npm run build:offline-demo
 
 `check` runs lint, strict TypeScript, frontend/Worker builds, unit/API tests and small synthetic rule/routing evaluations. The offline build also checks embedded HTML/JS/CSS, disabled providers and a cross-instance fixture draft. For browser tests, run `npm run start:qa` in one terminal and `npm run test:ui` in another. Chrome must be installed; `MARGINGUARD_TEST_URL` can select another tested app origin. Browser tests use synthetic data.
 
-The review-fix suite passed **124 unit/API tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **14 browser scenarios** passed on local Node and offline Worker boundaries. New raw regression logs remain local pending separate upload approval. These are development regressions; the predeclared final benchmark has **not run**.
+The review-fix suite passed **124 unit/API tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **15 browser scenarios** passed on local Node and offline Worker boundaries. New raw regression logs remain local pending separate upload approval. These are development regressions; the predeclared final benchmark has **not run**.
 
 ## Synthetic data and calculation contract
 
@@ -92,3 +92,5 @@ Public offline hosting and genuine local sponsor calls exist. Independent review
 Submitted artifacts freeze at **October 30, 2026, 17:00 UTC**. Preserve free judge access through December 15. No automatic post-freeze updates to submitted source, site or video.
 
 MIT; see [LICENSE](LICENSE). Dependency and model/API terms apply separately.
+
+The current visual revision leads with a policy hypothesis/change comparison, a separate evidence boundary and a single case entry. It uses system fonts and CSS only, with keyboard activation, measured hero-text contrast, 320px layout checks and prefers-reduced-motion support. See [visual design rationale](docs/VISUAL-DESIGN.md).
