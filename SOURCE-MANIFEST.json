@@ -1,18 +1,10 @@
 {
-  "baseline": "Verified PR6 source plus observed agreement guard, decision clarity and public provider-cost research",
-  "scope": "Reviewed source, synthetic data and sanitized offline evidence; no credentials, account billing observations, dependencies or media. Final benchmark NOT RUN.",
-  "sourceFiles": 86,
-  "historicalEvidenceFiles": 27,
-  "currentPhaseEvidenceFiles": 5,
-  "verification": {
-    "unitApiMockIntegration": "112/112",
-    "browserOffline": "11/11",
-    "syntheticPolicyRouting": "12/12",
-    "grammarRed": "13 cases, 11 pass/2 fail",
-    "uiRed": "11 cases, 10 pass/1 fail",
-    "dependencyLockfile": "unchanged from PR5 zero-known-vulnerability audit"
-  },
-  "liveStatus": "No new provider calls in this phase. Prior PR6 live observation identifies its historical source; revised prompt not live-retested.",
+  "baseline": "PR7 exact implementation plus actual PR7 local-browser proof and documentation; later local path fixes intentionally belong to the next PR",
+  "scope": "Sanitized synthetic operator evidence, no credentials/account billing data/media. Final benchmark NOT RUN.",
+  "sourceFiles": 87,
+  "historicalEvidenceFiles": 32,
+  "currentPhaseEvidenceFiles": 1,
+  "verification": "Historical PR7 offline checks:112/112, browser11/11, routing12/12. New manual probe:3 HTTP attempts,1 accepted completion,1 reported Tavily credit,no retry.",
   "files": [
     {
       "path": ".env.example",
@@ -36,8 +28,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 22983,
-      "sha256": "df80f71536b124fe16970884ee0e8beff5b64d755909b9a9bc959e93d8468c3d"
+      "bytes": 23364,
+      "sha256": "04463225f7f05ebeeb1a1308239c9e96b58a5def2d8a73a00702423b1cb0105f"
     },
     {
       "path": "data/decision-cases.json",
@@ -113,6 +105,11 @@
       "path": "docs/POLICY-SYNTHESIS.md",
       "bytes": 5652,
       "sha256": "bef728c088673f356497bcab5bd31bf60127b45f0090de823745deb04446e943"
+    },
+    {
+      "path": "docs/PR7-LIVE-VERIFICATION.md",
+      "bytes": 2375,
+      "sha256": "9078e5aab89069e3ee58d70221385f87274555455e4c64de62f12952432e5335"
     },
     {
       "path": "docs/PROVIDER-COST-CONTROLS.md",
@@ -288,6 +285,11 @@
       "path": "evidence/policy-ui-preflight-20261029.log",
       "bytes": 139,
       "sha256": "63ff2c1e4f441f9067d8fa0d0306c18ae6a7e30c90af0ffe8f929b97f5d407cf"
+    },
+    {
+      "path": "evidence/pr7-live-journey-20261029.json",
+      "bytes": 6978,
+      "sha256": "ad3768fcc8d7720ecbc82959167af4428e1940e3b915d9a4a93f07640de7d0a7"
     },
     {
       "path": "evidence/production-20261029-smoke.json",

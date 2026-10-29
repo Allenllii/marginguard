@@ -201,3 +201,7 @@ Observed current browser proof: vidence/policy-ui-live-20261029.json retains bo
 ## Decision clarity and provider cost gate
 
 The evidence check now leads source previews and the draft. Limited source scope, a rule-based next check and an unverified model hypothesis have separate labels and export authority. The observed account-number agreement error fails closed without rewriting model text. See [DECISION-CLARITY.md](docs/DECISION-CLARITY.md) for module boundaries and regression scope, and [PROVIDER-COST-CONTROLS.md](docs/PROVIDER-COST-CONTROLS.md) for the official cap/lifecycle research. No new sponsor call or final benchmark was run for this phase; the previous live observations remain historical.
+
+## PR7 actual local browser verification
+
+The revised prompt and grammar guard passed a separately capped actual local browser probe. See [PR7-LIVE-VERIFICATION.md](docs/PR7-LIVE-VERIFICATION.md) and `evidence/pr7-live-journey-20261029.json` for the one observed response, usage and an explicitly estimated completion cost. It is not a final benchmark or public deployment claim.
