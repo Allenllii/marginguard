@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "datasetId": "development-harness-only",
+  "partition": "development",
+  "synthetic": true,
+  "cases": [{
+    "id": "dev001",
+    "stratum": "applicable-discount",
+    "kind": "discount",
+    "context": {"platform": "Shopify", "carrier": "USPS", "region": "US", "discountOrigin": "native"},
+    "issue": {"affectedOrders": 3, "modeledExposureCents": 500, "thresholdBasisPoints": 2000}
+  }]
+}
