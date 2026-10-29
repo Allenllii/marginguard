@@ -1,7 +1,7 @@
 {
-  "baselineMain": "a269e8fb7a512a2b1a63c444ac4edf4ec3620353",
-  "sourceBranch": "codex/product-step2",
-  "scope": "Reviewed source/test/documentation increment. No new raw logs, credentials, real customer data, private gold, CI changes, media or provider calls. Hosted deployment is separate.",
+  "baselineMain": "70759199ea11395284e952bfc37054f48c19edf1",
+  "sourceBranch": "codex/source-version-footer",
+  "scope": "Minimal source/footer and release-ledger correction. Sitesv5 provenance is separate from GitHub application source. No new raw logs, provider call, private data, CI or deployment.",
   "files": [
     {
       "path": ".env.example",
@@ -145,8 +145,8 @@
     },
     {
       "path": "docs/RELEASE.md",
-      "bytes": 5403,
-      "sha256": "408c90978bf1575b8da5ab91f792c3e7dfd1dad1cc4036f2655ca24f1f439cdc"
+      "bytes": 7394,
+      "sha256": "17c606eee5227be7474e3a461c7b3a888d63d7ead0e1f9adbc811d71fe8ae883"
     },
     {
       "path": "docs/SPEC.md",
@@ -700,8 +700,8 @@
     },
     {
       "path": "src/App.tsx",
-      "bytes": 39579,
-      "sha256": "340c03c8e0bff2a6b64417d03adb8e873a2956291394505007b68a5dbb4dd0d2"
+      "bytes": 39568,
+      "sha256": "1f6f3916d50fe2aef2640fd5d708c80aa059a1b0bb71ae48dc1807df1a0984ab"
     },
     {
       "path": "src/CsvMappingAssistant.css",
@@ -775,8 +775,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 37441,
-      "sha256": "0b961c6ceadeda89ff766321b2a1399b3252ba965660ca47e979b5854fddc301"
+      "bytes": 37430,
+      "sha256": "523c3681e60b89199d11fade6b51b798ba7d1999a3eb6e196f9d06f1ad7350e5"
     },
     {
       "path": "tests/budget.test.ts",
