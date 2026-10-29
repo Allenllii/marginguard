@@ -1,0 +1,28 @@
+{
+  "reviewedAt": "2026-10-27T20:43:05.366Z",
+  "observedRequest": {
+    "requestId": "75fc38ff-9fd0-4b4a-ae88-26ffc1aa57e5",
+    "latencyMs": 1682,
+    "usageCredits": 1
+  },
+  "decision": {
+    "sourceIds": [
+      "S1"
+    ],
+    "disprove": "The original promotion record, store eligibility, applicable policy effective date, and a controlled test could disprove this hypothesis.",
+    "status": "contradicted",
+    "constraint": "The policy passage describes an exception to combination settings for this seller-provided discount origin. A settings toggle is not established as a remedy. Confirm store/plan eligibility, transaction scope and the effective policy.",
+    "nextCheck": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings."
+  },
+  "primarySource": {
+    "id": "S1",
+    "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+    "support": "Manual custom POS discounts can apply despite combination restrictions; this supports a manual-override audit, not proof of an accidental discount.",
+    "scope": "Official page states POS Pro location requirements for the combination feature. Store/plan eligibility, transaction details and effective policy must be checked."
+  },
+  "excludedFromDecision": [
+    "S2 and S3 describe draft-order procedures and do not establish the combination exception."
+  ],
+  "humanReviewLimits": "Agent source review is limited to this observed passage and public page; not a comprehensive policy-fidelity evaluation or causal finding.",
+  "nvidia": "PENDING: no key or model call"
+}

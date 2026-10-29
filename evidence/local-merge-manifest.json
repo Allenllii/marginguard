@@ -1,0 +1,398 @@
+{
+  "createdAt": "2026-10-29T04:33:17.782823+00:00",
+  "localVersion": "local-merge-35a0c57e8581",
+  "scope": "Current verified local source; publication, real NVIDIA call and final independent review not complete.",
+  "previousVersion": "local-merge-70b3af9bacac",
+  "sourceSetSha256": "35a0c57e858104d69147227de323b63eb13dab8452b3e5b57a07ee55ff73657f",
+  "files": [
+    {
+      "path": ".env.example",
+      "sha256": "bacf6343a743f21ee343aee2dd25fa27ce0f0e9aa7e0c33eb95e549757e1b8d1",
+      "bytes": 370
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "f08a1b7b69b429b2708e616be16055495870f7b06529e64b6b4f3061cfa9b847",
+      "bytes": 266
+    },
+    {
+      "path": ".openai/hosting.json",
+      "sha256": "3851ff3ccbfe2658e6c1f7d9da9997e47cfbd3ba0380571efe616f4309d3d53a",
+      "bytes": 96
+    },
+    {
+      "path": "data/decision-cases.json",
+      "sha256": "7cd5dd179984fd207a2e94e2317bd6376a6515961e05ac9e00ff047921fe4088",
+      "bytes": 5555
+    },
+    {
+      "path": "data/demo-context.json",
+      "sha256": "8824d7510e20d3adad5f85d1f1356da58ffca27f7984a35fa3ef60fd5e3350ca",
+      "bytes": 642
+    },
+    {
+      "path": "data/ground-truth.json",
+      "sha256": "bd7e30c35372a58d4228330552b9cbd4d0660d381c0a432a2b4de3f4cda9c486",
+      "bytes": 1734
+    },
+    {
+      "path": "data/invalid-example.csv",
+      "sha256": "630af61e3ab336efbeaffaad6894858781237d259942aa70ae4acc3b82bc58db",
+      "bytes": 201
+    },
+    {
+      "path": "data/northstar-clean-control.csv",
+      "sha256": "bdc73f511a97fffbaf3f7c4575dec222449a8cb16e3ba8ed592eddf54cb60561",
+      "bytes": 39769
+    },
+    {
+      "path": "data/northstar-demo.csv",
+      "sha256": "0aca9bee505e7050506c316d002346b8fe4a7007f4eccab8836c15acfe108ec3",
+      "bytes": 39811
+    },
+    {
+      "path": "data/template.csv",
+      "sha256": "6adf56b964f625a0746607fa08f65f5e1cb256b7939a48083adb3f707ad046fd",
+      "bytes": 201
+    },
+    {
+      "path": "db/schema.ts",
+      "sha256": "717f7304b7dafbfdb35abdfcddb961891496a82c21718a70bdb0422182645ff9",
+      "bytes": 1005
+    },
+    {
+      "path": "deploy/migrations/0001_budget_and_policy_cache.sql",
+      "sha256": "d26fe8bcad6c1ea80a6b04b15e95d321d36f1ba9be4d25405602471b282e1c6e",
+      "bytes": 453
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "44485839151904a9eae1f6ecc398bcd4ff6fd53738be26d5febc9ef669d3edd0",
+      "bytes": 4162
+    },
+    {
+      "path": "docs/demo-script.md",
+      "sha256": "f4528835b7107015811fae7577b06711dc2ed8868ded75b84f1bc325cee18087",
+      "bytes": 3152
+    },
+    {
+      "path": "docs/DEPLOYMENT.md",
+      "sha256": "809c91c131046d3ccc8fd8ff01fe86cb1b23ebc0b1bf3c446a7237bd7fe48867",
+      "bytes": 5973
+    },
+    {
+      "path": "docs/RELEASE.md",
+      "sha256": "3fb45ea0e40396aa5c87f0ab73adfb682fc2771b2a8c83b4a962d240ad121ad9",
+      "bytes": 2622
+    },
+    {
+      "path": "docs/submission-draft.md",
+      "sha256": "77ad07d3d01d59a8320abad32b5facec989e0ed8445db112e0f70382435fe3e8",
+      "bytes": 8860
+    },
+    {
+      "path": "drizzle/0000_open_lightspeed.sql",
+      "sha256": "d74b27520edc0df7ddf3940455e61b9091b1688e007180b9a1290532bfc4e167",
+      "bytes": 745
+    },
+    {
+      "path": "drizzle/meta/0000_snapshot.json",
+      "sha256": "eacdc7198a164f6725a4dac74a2861fec570c6e3491bfb6273c1c1e82fdacdc0",
+      "bytes": 3543
+    },
+    {
+      "path": "drizzle/meta/_journal.json",
+      "sha256": "297ee44527b866ed39e6f16999bf4753a4f747b3d419fe3610a9f7f2b42aef28",
+      "bytes": 205
+    },
+    {
+      "path": "drizzle.config.ts",
+      "sha256": "af081f7384aaeb0082cf422e29f139d137ca2f6a57c69b2c37b9fb1f8479867b",
+      "bytes": 148
+    },
+    {
+      "path": "eslint.config.js",
+      "sha256": "71920aed932c20ca6b7c90f4f22b67b3f8b16d539c08a2c6712e917662f7d6d0",
+      "bytes": 705
+    },
+    {
+      "path": "index.html",
+      "sha256": "b220397e204842d62a26e9a4b4a79e73fe280b83bc5e50f9d7d8e5ec41a6c853",
+      "bytes": 450
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "4121c9fc4640dba535b9d6d7484658bd441f8598dcf6082ac88062587e14f018",
+      "bytes": 1081
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "5da7039ab2e04a252438ba725135b13f43b569c21daf466c90407b8098d63dbc",
+      "bytes": 188775
+    },
+    {
+      "path": "package.json",
+      "sha256": "adbdbd650821978a7bc114f35a075d6c61a8b5868521d534dc031e26338db832",
+      "bytes": 2584
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "130097d771b8e0a07a6001ceb72fb89d15796519b50b278549ef1a6eefb3163d",
+      "bytes": 447
+    },
+    {
+      "path": "README.md",
+      "sha256": "95f6c647ace8917df9e3532fc36971b25a1fd9c6bbd7be6f12add60c495cd8da",
+      "bytes": 19457
+    },
+    {
+      "path": "scripts/build-sites.mjs",
+      "sha256": "e2ebea7bb4c8d53d9a3a3ea440e68590cf0684fec49f66192c9e8150434eb58e",
+      "bytes": 1307
+    },
+    {
+      "path": "scripts/build-sites.sh",
+      "sha256": "76bddebeb2accb38b37de0673778d7bf3119bc7da7ed5ae4c1d4c9884969848f",
+      "bytes": 366
+    },
+    {
+      "path": "scripts/build-worker.ts",
+      "sha256": "d10efbd455254470251aabdcab9289c7bd762c2215d473a11534a36dd36ac648",
+      "bytes": 3633
+    },
+    {
+      "path": "scripts/evaluate-live.ts",
+      "sha256": "1f72fd46c3619e9539c586084fbc2cc65134af556f0e3e87973c66876d0b2981",
+      "bytes": 4223
+    },
+    {
+      "path": "scripts/evaluate-policy.ts",
+      "sha256": "ecc4fac5e0313f3d0fef045ae5345fc9b42b5dda43028841f41a4493eb110285",
+      "bytes": 2634
+    },
+    {
+      "path": "scripts/evaluate.ts",
+      "sha256": "90397709031b1aed213c865fadb6968419211d61b3324e97f19bf62ca372351c",
+      "bytes": 2369
+    },
+    {
+      "path": "scripts/generate-data.ts",
+      "sha256": "8de8c3f3f5270e380d01c69744c92a88303896f31814788e3f55a2ff76269427",
+      "bytes": 679
+    },
+    {
+      "path": "scripts/record-demo.ts",
+      "sha256": "868ccbac9bdd0624c6717440005834bfd8744050598848bdd0ec42a2ccc99618",
+      "bytes": 7409
+    },
+    {
+      "path": "scripts/render-demo.py",
+      "sha256": "fc2242ee05deeb39f0396a099018c9d8d276b6d84d75e773a4b758b3400905ea",
+      "bytes": 2161
+    },
+    {
+      "path": "scripts/synthesize-narration.ps1",
+      "sha256": "70e67021891c7514259f45cfd63975562fb20f3c8dabff22d9adf587f29b6755",
+      "bytes": 1040
+    },
+    {
+      "path": "scripts/validate-artifact.mjs",
+      "sha256": "39d9df53ac2461962466d5965c5f4d06f08024ceca40605952d8b753b88d41fd",
+      "bytes": 953
+    },
+    {
+      "path": "scripts/verify-live.ts",
+      "sha256": "1ced73538d406e82088646116b1d0a1f5d8c147fb748d22ee4737abc573eed7f",
+      "bytes": 1396
+    },
+    {
+      "path": "scripts/verify-policy-live.ts",
+      "sha256": "f5f330ef8f27cecb9ecc5aed59c64c6d763bfff06c2a201cc295184f0ee51d4b",
+      "bytes": 2718
+    },
+    {
+      "path": "scripts/verify-tavily-ui.ts",
+      "sha256": "cea8d694234db1fb850254ffe002d35e4b8b9ff7695bc1d0c94ca55f7442d366",
+      "bytes": 2947
+    },
+    {
+      "path": "server/analysis.ts",
+      "sha256": "cdad4cb6c91f0e12d8e6bf73bd883d3ee361dcb52337b8a3fff3dcbae0688b08",
+      "bytes": 10191
+    },
+    {
+      "path": "server/app.ts",
+      "sha256": "ad9b08d71ea26e05bcf45fe880c0a528b95a449085b23bfc13f4f08955d0c604",
+      "bytes": 2480
+    },
+    {
+      "path": "server/budget.ts",
+      "sha256": "124bef71f377137f7555a7f149496cc73f938dd29bdf3204d9d825326fff0004",
+      "bytes": 3830
+    },
+    {
+      "path": "server/demo.ts",
+      "sha256": "e64a117e46aa72e444561b9d95ccb0a3939552bbe9faba782304a86ebc142414",
+      "bytes": 1514
+    },
+    {
+      "path": "server/http.ts",
+      "sha256": "bac1011c132cef6add6b14639ed771a5e94d448e368ecfc7fe71c67f49fa30e5",
+      "bytes": 684
+    },
+    {
+      "path": "server/index.ts",
+      "sha256": "1693a5f19245ad33e18ef1f68196b9bd797b96486b48c25cf62236e25f04f978",
+      "bytes": 1760
+    },
+    {
+      "path": "server/nebius.ts",
+      "sha256": "b765f6100a379d7683d202cd727a7705212ea587fdb52161df7ba27aac952212",
+      "bytes": 14085
+    },
+    {
+      "path": "server/service.ts",
+      "sha256": "1e0ba2a51a3c0eb43ec3eaec33e6ef19168cd491e6bd220ab696ce3230da5a59",
+      "bytes": 8587
+    },
+    {
+      "path": "server/tavily.ts",
+      "sha256": "866087e9f258e91ff0d1e2ab67b2fd2731d2e05e745d2f4181e80af19481c8f1",
+      "bytes": 10520
+    },
+    {
+      "path": "shared/assumptions.ts",
+      "sha256": "9119790002b156dc645c3ab113df2410e8ebf58ce7f17b3b14192027a0630628",
+      "bytes": 484
+    },
+    {
+      "path": "shared/build-paths.ts",
+      "sha256": "dceab4b1a9c19971283eda395594488dfe3e30820b580d11011dd2f51173afe2",
+      "bytes": 136
+    },
+    {
+      "path": "shared/policy-decision.ts",
+      "sha256": "bcc3897f3c152a5519d1ab9ac6bdcba70bae5058aed5c47344dfb46b5c218dd2",
+      "bytes": 5460
+    },
+    {
+      "path": "shared/types.ts",
+      "sha256": "b1ec3628d0a9542372a4b8c220f108f6ce5e8d25e8ef44aef25d955ca1f30620",
+      "bytes": 2932
+    },
+    {
+      "path": "src/App.tsx",
+      "sha256": "772947658810fbbf108dc16ff52acd2053bbb7a17e9c36652a69e59352dcee62",
+      "bytes": 35837
+    },
+    {
+      "path": "src/main.tsx",
+      "sha256": "1bc19ec2f6e0b2f3a0a3febc84b659394812943c83b2364b5e8be91890a00049",
+      "bytes": 224
+    },
+    {
+      "path": "src/PolicyResearch.tsx",
+      "sha256": "50f52492e2d44101297a8d04588d4b82488846cf26531ab8964b695f6c3bcfe9",
+      "bytes": 14134
+    },
+    {
+      "path": "src/styles.css",
+      "sha256": "7dea26c7cd0aa732cbad09acf5ffa9ea8f9036479719f75dcd65a5f11bf0dee2",
+      "bytes": 30846
+    },
+    {
+      "path": "tests/analysis.test.ts",
+      "sha256": "42616a7e2256b73851a04b21f537f59c0b00a41f3903e676c408189ea910599b",
+      "bytes": 6005
+    },
+    {
+      "path": "tests/api.test.ts",
+      "sha256": "1fe9ef41f766b7250f850ab54eec6de24fe267bf80764040a247fca21b2b3bff",
+      "bytes": 3301
+    },
+    {
+      "path": "tests/browser.spec.ts",
+      "sha256": "71a9b1ea849098d895b0e5942cbaeb266fda0cb2c6cbb9ba64ce50d65be635da",
+      "bytes": 18621
+    },
+    {
+      "path": "tests/budget.test.ts",
+      "sha256": "35e9df20cb16a84e336b81fc899f3fa7b9b9c470c339df963cbb0c05c9c7b32d",
+      "bytes": 3632
+    },
+    {
+      "path": "tests/build-layout.test.ts",
+      "sha256": "867e2a0edf7d662831069583ca8643c782a335367a6356a9612bb7605dd4e265",
+      "bytes": 3151
+    },
+    {
+      "path": "tests/migration.test.ts",
+      "sha256": "ae43d72839474bf6e42e2f28f4021f77063c57a868e5939f451336d7f4df3561",
+      "bytes": 4488
+    },
+    {
+      "path": "tests/nebius.test.ts",
+      "sha256": "b84d9831acc2f8fd143eeea159adb9fe384ebb135775ae1425c155c8f679176e",
+      "bytes": 4565
+    },
+    {
+      "path": "tests/tavily.test.ts",
+      "sha256": "815e09267264c134c635524b734e22a6ae3d439e0546e89c3ca713b9c93184c2",
+      "bytes": 12972
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "8cb92809c11a7ebeb32af2e88f8e4439893a8145ef06bc493c0c94cb6eaf5824",
+      "bytes": 608
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "d3206382521dc372c4d9d1b7e5db11e8d761cdf4b2b6b855446fe01dde4d6a13",
+      "bytes": 268
+    },
+    {
+      "path": "worker/entry.ts",
+      "sha256": "687a20805f3eec3678152273d5f9f0cefb5a85435a874381069c054c8488c1f2",
+      "bytes": 4255
+    }
+  ],
+  "artifactAndEvidenceSha256": {
+    "frontend-dist/index.html": "255ac42b0a904f4dada0a513a2a59bd8cd22e0143b406204df19f5ffef9c5bc9",
+    "worker/index.js": "f1e76b94b1d8f6dbd16488f98a07b851e8e8b09e6f0449263d8b65e917ddd41e",
+    "dist/server/index.js": "f1e76b94b1d8f6dbd16488f98a07b851e8e8b09e6f0449263d8b65e917ddd41e",
+    "dist/.openai/hosting.json": "3851ff3ccbfe2658e6c1f7d9da9997e47cfbd3ba0380571efe616f4309d3d53a",
+    "evidence/check-20261029.log": "34dafad36d1cc0a46910cad02ad95b3268a1be99927500f459aae10333ce8f7d",
+    "evidence/browser-results.json": "a2a032d5c8827028b617ac78176f4d60f12e7e2c3608c00f99fff0a3d7ac7a68",
+    "evidence/production-20261029-smoke.json": "fe810202e60c719ef1dd9f97add08a89fef6fedd1b4b23a3ca80ecf28151018f",
+    "evidence/readiness-20261029.md": "8d1ce7e5d939c3a1520fe80b99170997979504fd38de43fe54cdf896c27f352d",
+    "evidence/migration-generation-proof.json": "24e8569e6271571dcf0effcf453ae9d89892d4e77ae76066ae5089fd514d4601"
+  },
+  "checks": {
+    "unitApiBuildMigrationPassed": 61,
+    "unitFailed": 0,
+    "unitSkipped": 0,
+    "browserPassed": 10,
+    "browserFailed": 0,
+    "browserSeconds": 9.5,
+    "policyCasesPassed": 12,
+    "goldenExposuresPassed": 3,
+    "productionHttp": "HTML/JS/CSS/health 200; correct MIME; providers fixture"
+  },
+  "providerCallsThisTurn": 0,
+  "secretFilePreserved": true,
+  "localBlockers": [],
+  "remainingGates": [
+    "Approved NVIDIA/Nebius runtime inference proof",
+    "Final public source commit and demo deployment",
+    "Hosted migration and free judge access",
+    "Fresh independent review before final video/submission"
+  ],
+  "publicRepositoryObserved": {
+    "url": "https://github.com/Allenllii/marginguard",
+    "head": "64ea74e216b8c7de50662c10ec43b86e743da9f3",
+    "files": [
+      "LICENSE"
+    ]
+  },
+  "externalMutations": false
+}

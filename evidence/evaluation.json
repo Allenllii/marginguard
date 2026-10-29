@@ -1,0 +1,18 @@
+{
+  "executedAt": "2026-10-29T04:28:21.427Z",
+  "scope": "Two synthetic fixtures; deterministic rules only. No live inference and no claims about real-world accuracy.",
+  "plantedFixture": {
+    "orders": 504,
+    "expectedIssues": 3,
+    "detectedIssues": 3,
+    "exactExposureChecks": "3/3",
+    "exactEvidenceRowChecks": "3/3",
+    "evidenceRows": 63
+  },
+  "cleanControl": {
+    "orders": 504,
+    "detectedIssues": 0
+  },
+  "reproducibleFingerprint": "0aca9bee505e7050",
+  "status": "PASS"
+}

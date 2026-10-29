@@ -1,0 +1,30 @@
+{
+  "executedAt": "2026-10-29T04:30:44.908Z",
+  "scope": "Local production npm start, no provider calls; runtime enable flags and provider assertion false.",
+  "page": {
+    "status": 200,
+    "contentType": "text/html; charset=utf-8"
+  },
+  "assets": [
+    {
+      "url": "/assets/index-lqNuPtG7.js",
+      "status": 200,
+      "contentType": "text/javascript; charset=utf-8",
+      "bytes": 281869
+    },
+    {
+      "url": "/assets/index-SQuWKpb3.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "bytes": 30670
+    }
+  ],
+  "providerModes": {
+    "nvidia": "fixture",
+    "tavily": "fixture"
+  },
+  "workerLayout": [
+    ".openai",
+    "server"
+  ]
+}
