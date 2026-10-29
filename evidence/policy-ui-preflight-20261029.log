@@ -1,0 +1,1 @@
+No live UI requests attempted. Requires --live --max-http-requests=3, both approved enabled local providers and an explicit NVIDIA model.
