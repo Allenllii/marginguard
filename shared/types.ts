@@ -24,7 +24,7 @@ export interface Explanation {
 }
 export interface ProviderStatus { mode: 'fixture' | 'configured'; model: string | null; endpoint: string; }
 export interface ResearchContext { platform: 'Shopify' | 'WooCommerce'; carrier: 'USPS' | 'UPS'; region: 'US' | 'UK' | 'unknown'; discountOrigin?: 'native' | 'manual' | 'scripts-api' | 'app' | 'app-script' | 'unknown'; }
-export interface PolicySource { id: string; title: string; url: string; snippet: string; publishedDate: string | null; savedAt?: string; sourceRegion?: 'US' | 'UK' | 'global'; }
+export interface PolicySource { id: string; title: string; url: string; snippet: string; publishedDate: string | null; savedAt?: string; sourceRegion?: 'US' | 'UK' | 'global' | 'other'; }
 export interface PolicyDecision { status: 'review' | 'hold' | 'contradicted' | 'insufficient'; constraint: string; nextCheck: string; disprove: string; sourceIds: string[]; }
 export interface ResearchPacket {
   researchId: string; kind: IssueKind; context: ResearchContext; mode: 'fixture' | 'live';

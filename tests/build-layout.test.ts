@@ -1,11 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, readdir, writeFile, copyFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, writeFile, copyFile, unlink, rmdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFileSync, execFile } from 'node:child_process';
 import { createServer } from 'node:net';
 import { FRONTEND_DIRECTORY } from '../shared/build-paths.js';
+
+test('frontend configuration never autoloads server environment files', async () => {
+  const { resolveConfig } = await import('vite');
+  const { default: frontend } = await import('../vite.config.js');
+  const root = await mkdtemp(path.join(tmpdir(), 'marginguard-env-canary-'));
+  const names = ['.env', '.env.local'];
+  try {
+    await writeFile(path.join(root, '.env'), 'VITE_MARGINGUARD_ENV_CANARY=synthetic-base-canary\n');
+    await writeFile(path.join(root, '.env.local'), 'VITE_MARGINGUARD_ENV_CANARY=synthetic-local-canary\n');
+    const config = await resolveConfig({ ...frontend, root, configFile: false }, 'build', 'production');
+    assert.equal(config.env.VITE_MARGINGUARD_ENV_CANARY, undefined, 'frontend must ignore environment files, including VITE-prefixed entries');
+  } finally {
+    for (const name of names) await unlink(path.join(root, name));
+    await rmdir(root);
+  }
+});
 
 test('Worker packaging preserves the independent Node frontend and copies only deployment inputs', async () => {
   assert.equal(FRONTEND_DIRECTORY, 'frontend-dist');

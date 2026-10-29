@@ -400,7 +400,7 @@ test('delayed policy search and remediation cannot survive a same-dataset reset'
     if (endpoint.endsWith('remediate')) { await page.getByRole('button', { name: 'Preview source fixtures' }).click(); await expect(page.getByText('EXACT GENERIC QUERY')).toBeVisible(); }
     const held = await holdResponse(page, endpoint);
     await page.getByRole('button', { name: endpoint.endsWith('research') ? 'Preview source fixtures' : 'Draft offline checks' }).click(); await held.entered;
-    await page.getByRole('button', { name: 'Reset demo' }).click(); await expect(page.getByRole('status')).toContainText('Synthetic demo loaded'); await held.finish();
+    await page.getByRole('button', { name: 'Reset demo' }).click(); await expect(page.getByRole('status').filter({ hasText: 'Synthetic demo loaded' })).toBeVisible(); await held.finish();
     await expect(page.getByText('EXACT GENERIC QUERY')).toHaveCount(0); await expect(page.getByText('Offline analyst checks', { exact: true })).toHaveCount(0);
   }
 });
