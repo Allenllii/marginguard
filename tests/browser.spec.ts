@@ -2,6 +2,27 @@ import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 
+test('review: ordinary apps hold, confirmed Scripts API uses its own exception, and privacy names the server', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /^Findings/ }).click();
+  await expect(page.locator('.analyst-card')).toContainText("CSV uploads are sent to this app's server");
+  await expect(page.locator('.analyst-card')).not.toContainText('stay local');
+  await page.getByLabel('Discount origin').selectOption('app');
+  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  const decision = page.getByRole('region', { name: 'Evidence and next check', exact: true });
+  await expect(decision).toContainText('An app is not necessarily using the Scripts API');
+  await expect(page.getByRole('button', { name: 'Draft with NVIDIA', exact: true })).toBeDisabled();
+  await page.getByLabel('Discount origin').selectOption('scripts-api');
+  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  await expect(decision).toContainText('Audit the originating Scripts API');
+  await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
+  await expect(page.locator('.remediation')).toContainText('Scripts API exception');
+  await page.getByRole('button', { name: 'Data & method', exact: true }).click();
+  await expect(page.locator('.method-card')).toContainText("CSV content is sent to this app's server");
+  await expect(page.locator('.method-card')).toContainText('use synthetic or non-sensitive data');
+  await expect(page.locator('.method-card')).not.toContainText('local server memory');
+});
+
 test('journey: policy evidence survives scenario navigation but a different dataset clears it', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByText("CSV uploads are sent to this app's server for validation and calculation; use synthetic or non-sensitive data.", { exact: true })).toBeVisible();

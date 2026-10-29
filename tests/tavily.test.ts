@@ -86,9 +86,9 @@ test('manual-exception decision cites only the operative supporting passage', ()
 test('exception routing abstains for negated, unrelated and conflicting origin claims', () => {
   for (const [origin, snippet, expected] of [
     ['manual', 'Manual POS discounts cannot bypass combination settings and are not an exception.', 'hold'],
-    ['app-script', 'App and script discounts do not bypass combination settings; this policy describes no exception.', 'hold'],
-    ['app-script', 'Manual discounts always apply regardless of combination settings; confirm the applicable store policy.', 'hold'],
-    ['app-script', 'App discounts can bypass combination settings. Script discounts can never bypass combination settings.', 'insufficient'],
+    ['scripts-api', 'Scripts API discounts do not bypass combination settings; this policy describes no exception.', 'hold'],
+    ['scripts-api', 'Manual discounts always apply regardless of combination settings; confirm the applicable store policy.', 'hold'],
+    ['scripts-api', 'Scripts API discounts can bypass combination settings. Scripts API discounts can never bypass combination settings.', 'insufficient'],
   ] as const) {
     const decision = decidePolicy('discount', { context: { ...context, discountOrigin: origin }, status: 'ok', sources: [{ id: 'S1', title: 'Adversarial policy fixture', url: result.url, snippet, publishedDate: null }] });
     assert.equal(decision.status, expected, snippet); assert.deepEqual(decision.sourceIds, []);
