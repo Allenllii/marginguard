@@ -31,3 +31,7 @@
 @media(max-width:700px){.decision-change>div{grid-template-columns:1fr;gap:14px}.decision-change strong{font-size:13px}}
 .policy-source p,.decision-card dd,.method-text{font-size:14px}.judge-entry .case-start{min-height:44px}
 @media(max-width:680px){.button,.icon-button,.nav-item,.policy-form select,.assumption-bar input{min-height:44px}.consent{min-height:44px}.case-start.button{font-size:12px}}
+
+.decision-card h3{scroll-margin-top:96px}
+@media(max-width:680px){.sidebar{visibility:hidden}.sidebar.open{visibility:visible}}
+.assumption-bar small,.assumption-bar>small,.finding-value>span,.kpi-foot,.kpi-foot .muted,.mini-badge,.opportunity .kpi-foot>span:last-child{font-size:11px;line-height:1.5}.kpi-foot{flex-wrap:wrap}.page-footer{font-size:12px}.assumption-bar label,.assumption-bar strong,.kpi-label,.finding-copy>span:last-child{font-size:12px}
