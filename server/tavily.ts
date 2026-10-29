@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { IssueKind, PolicySource, ResearchContext, ResearchPacket } from '../shared/types.js';
 import { boundedJson } from './http.js';
+import { inferredSourceRegion, unresolvedPolicyStatement } from '../shared/policy-source-scope.js';
 
 export const ContextSchema = z.object({ platform: z.enum(['Shopify', 'WooCommerce']), carrier: z.enum(['USPS', 'UPS']), region: z.enum(['US', 'UK', 'unknown']), discountOrigin: z.enum(['native', 'manual', 'scripts-api', 'app', 'app-script', 'unknown']).default('unknown') }).strict();
 export const KindSchema = z.enum(['discount', 'shipping']);
@@ -34,7 +35,10 @@ export function safeSources(raw: unknown, kind: IssueKind, context: ResearchCont
     if (!content || /ignore.{0,30}(instructions|previous)|system prompt|api.?key|execute.{0,20}(code|command)|send.{0,20}(secret|credential)|you are (chatgpt|an assistant)/i.test(content)) continue;
     if (seen.has(url.href)) continue; seen.add(url.href);
     if (!plan.relevant.test(content) || content.length < 40) continue;
-    accepted.push({ id: `S${accepted.length + 1}`, title: cleanText(item.title).slice(0, 180), url: url.href, snippet: selectPassage(item.content, kind, context), publishedDate: item.published_date ? cleanText(item.published_date).slice(0, 40) : null, sourceRegion: /united kingdom|\bUK only\b|british/i.test(content) ? 'UK' : 'global' });
+    // Inspect the complete returned text before selecting a short passage, so
+    // truncation cannot discard an expiry or known contrary rule.
+    if (unresolvedPolicyStatement(item.title, content)) continue;
+    accepted.push({ id: `S${accepted.length + 1}`, title: cleanText(item.title).slice(0, 180), url: url.href, snippet: selectPassage(item.content, kind, context), publishedDate: item.published_date ? cleanText(item.published_date).slice(0, 40) : null, sourceRegion: inferredSourceRegion(item.title, content) });
     if (accepted.length === 3) break;
   }
   return accepted;
