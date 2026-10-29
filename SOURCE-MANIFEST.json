@@ -17,8 +17,8 @@
     "providerCallsThisPhase": 0
   },
   "deployment": "Candidate requires exact-source Sites synchronization.",
-  "mainBase": "f5a264e1e05c86e81b1814c2b04bf533d234a975",
-  "pr13Merge": "Denied before execution; waiting explicit confirmation",
+  "mainBase": "ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0",
+  "pr13Merge": "Completed after explicit confirmation at ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0",
   "finalBenchmark": "NOT RUN",
   "files": [
     {
@@ -138,8 +138,8 @@
     },
     {
       "path": "docs/RELEASE.md",
-      "bytes": 5360,
-      "sha256": "188558c48c7c11e8e39190f02685f1d91ed031ba4545f480cd489aa55add4a5e"
+      "bytes": 5403,
+      "sha256": "408c90978bf1575b8da5ab91f792c3e7dfd1dad1cc4036f2655ca24f1f439cdc"
     },
     {
       "path": "docs/SPEC.md",
