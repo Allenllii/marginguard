@@ -39,7 +39,7 @@ export type ModelDiagnostic = {
   contentCharacters: number | null;
   usage: { promptTokens: number | null; completionTokens: number | null; totalTokens: number | null; reasoningTokens: number | null };
   schemaIssues: SchemaIssueDiagnostic[] | null;
-  validation: 'not-evaluated' | 'invalid-json' | 'unknown-citation' | 'unsupported-claim' | 'invalid-schema' | 'accepted';
+  validation: 'not-evaluated' | 'invalid-json' | 'unknown-citation' | 'unsupported-claim' | 'unsupported-policy-scope' | 'incomplete-or-copied-prose' | 'invalid-schema' | 'accepted';
 };
 export type IntegrationReport = {
   schemaVersion: 1;
@@ -137,7 +137,7 @@ async function diagnosticJson(response: Response): Promise<unknown> {
 
 // Inspect a bounded response clone, retaining fixed enums/counts only. Never save
 // model prose, reasoning, arbitrary provider errors, response headers or bodies.
-async function diagnose(response: Response, supported: ResearchPacket): Promise<ModelDiagnostic> {
+export async function diagnosePolicyResponse(response: Response, supported: ResearchPacket): Promise<ModelDiagnostic> {
   const result: ModelDiagnostic = { body: 'invalid-json-or-oversized', finishReason: 'missing', refusalPresent: false, reasoningContentPresent: false, content: 'missing', contentCharacters: null, usage: { promptTokens: null, completionTokens: null, totalTokens: null, reasoningTokens: null }, schemaIssues: null, validation: 'not-evaluated' };
   let raw: Record<string, unknown> | null;
   try { raw = object(await diagnosticJson(response)); result.body = 'parsed-json'; } catch { return result; }
@@ -159,7 +159,7 @@ async function diagnose(response: Response, supported: ResearchPacket): Promise<
   catch (error) {
     if (error instanceof ZodError) result.schemaIssues = schemaIssues(error, parsed);
     // Only classify known validator literals; never export error.message itself.
-    result.validation = error instanceof Error && error.message === 'Unknown citation' ? 'unknown-citation' : error instanceof Error && error.message === 'Unsupported claim' ? 'unsupported-claim' : 'invalid-schema';
+    result.validation = error instanceof Error && error.message === 'Unknown citation' ? 'unknown-citation' : error instanceof Error && error.message === 'Unsupported claim' ? 'unsupported-claim' : error instanceof Error && error.message === 'Unsupported policy statement' ? 'unsupported-policy-scope' : error instanceof Error && error.message === 'Incomplete or copied policy prose' ? 'incomplete-or-copied-prose' : 'invalid-schema';
   }
   return result;
 }
@@ -213,7 +213,7 @@ export async function verifyPolicyIntegration(options: IntegrationOptions): Prom
     catch { await checkpoint(`http-${expected.name}-unknown`); throw new Error('Integration transport did not establish a response'); }
     await checkpoint(`http-${expected.name}-response`);
     if (expected.name === 'completion' && supported) {
-      report.modelDiagnostic = await diagnose(response.clone(), supported);
+      report.modelDiagnostic = await diagnosePolicyResponse(response.clone(), supported);
       await checkpoint('model-response-diagnosed');
     }
     return response;
