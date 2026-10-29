@@ -38,7 +38,7 @@ test('judge entry: one click shows the manual-discount action change, honest mod
   await expect(decision).toContainText('Audit staff/manual POS');
   await expect(page.locator('.policy-card')).toContainText('Offline fixture');
   await expect(page.getByRole('link', { name: 'Source & version', exact: true })).toHaveAttribute('href', 'https://github.com/Allenllii/marginguard/tree/codex/evidence-desk');
-  await page.locator('.policy-card').screenshot({ path: 'evidence/judge-case-entry.png' });
+  await page.locator('.policy-card').screenshot({ path: 'evidence/judge-case-entry.png', animations: 'disabled' });
   await page.getByRole('button', { name: 'Overview', exact: true }).click();
   await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
   await expect(decision).toContainText('Audit staff/manual POS');
