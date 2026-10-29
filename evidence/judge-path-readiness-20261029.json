@@ -1,0 +1,70 @@
+{
+  "recordedAt": "2026-10-29T09:56:16.564588+00:00",
+  "scope": "Local user-path fixes and forced-offline deployment candidate; not a deployed judge URL, final benchmark or independent whole-project review.",
+  "regressions": {
+    "navigationRed": "One new journey failed while eleven previous browser scenarios passed.",
+    "privacyRed": "Focused journey failed on the previous local-server-only processing wording.",
+    "offlineBoundaryRed": "Import of the not-yet-implemented offline entry failed before implementation."
+  },
+  "final": {
+    "unitApiTestsPassed": 115,
+    "failed": 0,
+    "policyRoutingCasesPassed": 12,
+    "nodeBrowserScenariosPassed": 12,
+    "forcedOfflineWorkerBrowserScenariosPassed": 12,
+    "browserScope": "Same twelve scenarios on two local production boundaries, not independent benchmark samples. Worker browser run uses a loopback HTTP bridge, not native Cloudflare hosting.",
+    "lint": "PASS",
+    "strictTypes": "PASS",
+    "standardBuild": "PASS",
+    "forcedOfflineBuild": "PASS",
+    "goldenMoneyAndEvidenceRows": "3/3 each; clean control zero findings"
+  },
+  "fixedPaths": [
+    "Policy fixture/evidence/draft survives scenario navigation for the same dataset",
+    "Invalid import preserves current valid evidence",
+    "Valid new dataset/reset/applied assumptions invalidate old policy results",
+    "Server-processing location stated before upload and after import"
+  ],
+  "liveObservation": {
+    "proof": "evidence/pr7-live-journey-20261029.json",
+    "sourceCommitAtProbe": "373d7616511cfcd6811637734b9be73d4026b2e8",
+    "httpAttempts": 3,
+    "acceptedCompletions": 1,
+    "reportedTavilyCredits": 1,
+    "automaticRetries": 0,
+    "note": "The real probe precedes these UI navigation/privacy patches. The model/policy contracts were unchanged; later paths have separate offline regressions."
+  },
+  "offlineArtifact": {
+    "executedAt": "2026-10-29T09:49:18.273Z",
+    "scope": "Local forced-offline Worker candidate, not a deployed Site or final benchmark",
+    "routeChecks": 12,
+    "embeddedAssetChecks": 2,
+    "outboundAttempts": 0,
+    "runtimeConfigIgnored": true,
+    "databaseBindingRequired": false,
+    "candidateAndStagedDistMatch": true,
+    "workerSha256": "28117df513d5ab4308f5d2d9fea68f0aecaf0027c26df7c4e964e94b1ba68603",
+    "manifestSha256": "dabb31cced8c0700cbf6f1b6dfc83232ba3cbcb3f0b35c198741e8fd6dbc7857",
+    "hostingUrl": null
+  },
+  "siteReadOnlyState": {
+    "projectId": "appgprj_6ae108e911088191834d591d732db251",
+    "status": "active",
+    "savedVersionNumber": 0,
+    "liveUrl": null,
+    "expectedUrl": null,
+    "deploymentPerformed": false,
+    "accessChanged": false,
+    "credentialOperationPerformed": false
+  },
+  "sourceHostingManifestUnchanged": true,
+  "runtimeSecretConfigured": false,
+  "providerPublicLive": "forced disabled in offline entry; general monetary-cap gate still unverified",
+  "nativeReleaseGates": [
+    "Source-helper packaging/provenance under approval",
+    "Generated no-storage profile accepted by native hosting",
+    "Approved public audience and saved-version deployment",
+    "Anonymous-device HTTP/UI smoke and free access through December15",
+    "Independent review/fixes and final frozen benchmark before video/submission"
+  ]
+}

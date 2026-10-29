@@ -1,10 +1,20 @@
 {
-  "baseline": "PR7 exact implementation plus actual PR7 local-browser proof and documentation; later local path fixes intentionally belong to the next PR",
-  "scope": "Sanitized synthetic operator evidence, no credentials/account billing data/media. Final benchmark NOT RUN.",
-  "sourceFiles": 87,
-  "historicalEvidenceFiles": 32,
-  "currentPhaseEvidenceFiles": 1,
-  "verification": "Historical PR7 offline checks:112/112, browser11/11, routing12/12. New manual probe:3 HTTP attempts,1 accepted completion,1 reported Tavily credit,no retry.",
+  "baseline": "PR8 actual-integration record plus same-dataset policy navigation retention, hosted-accurate processing wording and forced-offline judge candidate",
+  "scope": "Source, synthetic data, public docs and sanitized local verification only; no credentials/account finance/media/generated bundles. Final benchmark NOT RUN.",
+  "sourceFiles": 91,
+  "historicalEvidenceFiles": 33,
+  "currentPhaseEvidenceFiles": 9,
+  "verification": {
+    "unitApiTests": "115/115",
+    "nodeBrowser": "12/12",
+    "forcedOfflineWorkerBrowser": "12/12 (same scenarios via local bridge)",
+    "syntheticPolicyRouting": "12/12",
+    "offlineArtifactRoutes": 12,
+    "offlineOutboundAttempts": 0,
+    "strictTypesLintBuild": "PASS"
+  },
+  "liveStatus": "PR7 prompt/guard passed one actual capped probe, recorded in PR8. Navigation/privacy patches have separate offline regressions. No new inference for those patches.",
+  "deploymentStatus": "Local forced-offline candidate only; no source-write credential, access change, saved version or deployment executed.",
   "files": [
     {
       "path": ".env.example",
@@ -13,8 +23,8 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 266,
-      "sha256": "f08a1b7b69b429b2708e616be16055495870f7b06529e64b6b4f3061cfa9b847"
+      "bytes": 313,
+      "sha256": "2d0f807b12bf04098aa708708c8dc632710e472c43660fc506ceba8b3e21a1b3"
     },
     {
       "path": ".openai/hosting.json",
@@ -28,8 +38,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 23364,
-      "sha256": "04463225f7f05ebeeb1a1308239c9e96b58a5def2d8a73a00702423b1cb0105f"
+      "bytes": 23900,
+      "sha256": "d4e4198fb421ed5da9e51d80163f93ad0ed90cf235e9318d4c6e9f70dc5323ca"
     },
     {
       "path": "data/decision-cases.json",
@@ -88,8 +98,8 @@
     },
     {
       "path": "docs/DEPLOYMENT.md",
-      "bytes": 5973,
-      "sha256": "809c91c131046d3ccc8fd8ff01fe86cb1b23ebc0b1bf3c446a7237bd7fe48867"
+      "bytes": 5903,
+      "sha256": "a32e7692c7c540537c26c1b58d81ec57a5a40be2ae5936782cd970ddb52ccbb5"
     },
     {
       "path": "docs/DEVELOPMENT.md",
@@ -100,6 +110,11 @@
       "path": "docs/INTEGRATION.md",
       "bytes": 4950,
       "sha256": "162e4955d19e0855c778cac64aa2b4ad3b43f9dc2b25aadde7d548565d992c4c"
+    },
+    {
+      "path": "docs/JUDGE-DEMO-PLAN.md",
+      "bytes": 5424,
+      "sha256": "8678e5b617747abccb5a796b8bc81b896f74f9e9327070a424c8e05e155dfe2b"
     },
     {
       "path": "docs/POLICY-SYNTHESIS.md",
@@ -158,13 +173,23 @@
     },
     {
       "path": "eslint.config.js",
-      "bytes": 705,
-      "sha256": "71920aed932c20ca6b7c90f4f22b67b3f8b16d539c08a2c6712e917662f7d6d0"
+      "bytes": 734,
+      "sha256": "e5e3a526bb2b705f17a171b22b12067765fd248fcfa663ca9ad415872d4a5479"
     },
     {
       "path": "evidence/browser-decision-clarity-20261029.log",
       "bytes": 1657,
       "sha256": "722a3c6342772bac7b9262a54bb78f0077bf6b41aab3581c693a3e1eea2c02ec"
+    },
+    {
+      "path": "evidence/browser-judge-path-node-20261029.log",
+      "bytes": 1794,
+      "sha256": "8d445133d0c452bdccd1447c2da1d7ad199a16a0c53ee730538b046194c83eac"
+    },
+    {
+      "path": "evidence/browser-judge-path-worker-20261029.log",
+      "bytes": 1809,
+      "sha256": "eba10e2f74698801fb33f3b06aa63987e32feb530e1e4086f829a8ce15732933"
     },
     {
       "path": "evidence/browser-live-integration-20261029.log",
@@ -182,6 +207,11 @@
       "sha256": "a2a032d5c8827028b617ac78176f4d60f12e7e2c3608c00f99fff0a3d7ac7a68"
     },
     {
+      "path": "evidence/build-offline-demo-20261029.log",
+      "bytes": 1524,
+      "sha256": "0a76650b61de621054441099119e66b9ba147163842b2dcd7358af0ef798d06f"
+    },
+    {
       "path": "evidence/check-20261029.log",
       "bytes": 6873,
       "sha256": "34dafad36d1cc0a46910cad02ad95b3268a1be99927500f459aae10333ce8f7d"
@@ -190,6 +220,11 @@
       "path": "evidence/check-decision-clarity-20261029.log",
       "bytes": 12118,
       "sha256": "e200eef16652b348adfb2736aafe0c31c5b310d4c2bb478c3335c8aa6eaa1e26"
+    },
+    {
+      "path": "evidence/check-judge-path-20261029.log",
+      "bytes": 12457,
+      "sha256": "0497b026b94f48d8e91c40c7a5a66266903bf6647614936b6f901b5f53e8a9ce"
     },
     {
       "path": "evidence/check-live-integration-final-20261029.log",
@@ -227,6 +262,11 @@
       "sha256": "fa888e2fd8c7557ff36b085013d9b5149c41e049f1aa21321bdb2b0f2f70114c"
     },
     {
+      "path": "evidence/judge-path-readiness-20261029.json",
+      "bytes": 3260,
+      "sha256": "4b38f156647151251d72b7fdedcd1a9e5744b0bfe76d24192a68ab7623c35082"
+    },
+    {
       "path": "evidence/live-integration-proof.json",
       "bytes": 12884,
       "sha256": "7305b6c4370191da81e5ffa548389d52b36d044168a0aadec295b3344d37473f"
@@ -247,6 +287,16 @@
       "sha256": "24e8569e6271571dcf0effcf453ae9d89892d4e77ae76066ae5089fd514d4601"
     },
     {
+      "path": "evidence/navigation-journey-red-20261029.log",
+      "bytes": 5745,
+      "sha256": "d1b1fd6e67f2cbd87d90fa9d8413d2cb5a9ed3755eea488fa460afca34d33359"
+    },
+    {
+      "path": "evidence/navigation-privacy-red-20261029.log",
+      "bytes": 4587,
+      "sha256": "e08041bd01fe9cad253ba91b1e2b94c8e898eb012bc618e9f577c3697e89eb46"
+    },
+    {
       "path": "evidence/npm-audit-integration-20261029.json",
       "bytes": 387,
       "sha256": "56c3a199dde621c2ff69d4af425b14711b4224c92919b0f6ddaba3f5cc63fc87"
@@ -255,6 +305,16 @@
       "path": "evidence/npm-audit-merge.json",
       "bytes": 387,
       "sha256": "56c3a199dde621c2ff69d4af425b14711b4224c92919b0f6ddaba3f5cc63fc87"
+    },
+    {
+      "path": "evidence/offline-artifact-proof.json",
+      "bytes": 516,
+      "sha256": "b7ae811d17abf4ff187fd497077661d3a202b6201f0051589d7bdf130e4a7737"
+    },
+    {
+      "path": "evidence/offline-demo-red-20261029.log",
+      "bytes": 1791,
+      "sha256": "17d89241738a809875b06de093b95ec5c75bb5fa43fae4468a5bb9eabafa623d"
     },
     {
       "path": "evidence/policy-fixture-evaluation.json",
@@ -338,8 +398,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 2768,
-      "sha256": "cb8fb79d6cb28cbbd03dc604e581a05bb0acc5a3f4301dc3c04e21bad843d1e3"
+      "bytes": 2915,
+      "sha256": "bb192e26ab4034a2a69daa8e588354a06e18967a3742ab93ce5a1999664a1d68"
     },
     {
       "path": "playwright.config.ts",
@@ -358,8 +418,8 @@
     },
     {
       "path": "scripts/build-worker.ts",
-      "bytes": 3633,
-      "sha256": "d10efbd455254470251aabdcab9289c7bd762c2215d473a11534a36dd36ac648"
+      "bytes": 4844,
+      "sha256": "9de7f0d6284d65ab8da17c2821b718884448a6e88b85b8760234e3b4340bfc4b"
     },
     {
       "path": "scripts/evaluate-live.ts",
@@ -415,6 +475,11 @@
       "path": "scripts/verify-live.ts",
       "bytes": 1396,
       "sha256": "1ced73538d406e82088646116b1d0a1f5d8c147fb748d22ee4737abc573eed7f"
+    },
+    {
+      "path": "scripts/verify-offline-artifact.mjs",
+      "bytes": 5235,
+      "sha256": "60285fa77b4710a8ccaf7208f4866d7781857008ffa5f3ccb0a7650b9741277c"
     },
     {
       "path": "scripts/verify-policy-integration.ts",
@@ -508,8 +573,8 @@
     },
     {
       "path": "src/App.tsx",
-      "bytes": 35837,
-      "sha256": "772947658810fbbf108dc16ff52acd2053bbb7a17e9c36652a69e59352dcee62"
+      "bytes": 35915,
+      "sha256": "03dbdc56eba5082cf8703db894479564e92126da9b066b94f43e607f135f99e3"
     },
     {
       "path": "src/PolicyDecisionCard.tsx",
@@ -533,8 +598,8 @@
     },
     {
       "path": "src/styles.css",
-      "bytes": 31048,
-      "sha256": "9919ee7ee7027986d6f9c6c431a74b39b0533ee5e66a7b855dfb565a2d5e6e8a"
+      "bytes": 31099,
+      "sha256": "3e6da7791d5dffbbc18536a82e52115f60061b7b48bd6fa16aa8a223f9cf31e0"
     },
     {
       "path": "tests/analysis.test.ts",
@@ -548,8 +613,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 20692,
-      "sha256": "308d14fe91bb0b46f5c2c7b3b1870a631476ca4e86fdc87a5840d8ffbfcb75f4"
+      "bytes": 22873,
+      "sha256": "ce69e936c26a16dd252d931547ae07cc432eaff135ee933410001e8fcf2dcf84"
     },
     {
       "path": "tests/budget.test.ts",
@@ -570,6 +635,11 @@
       "path": "tests/nebius.test.ts",
       "bytes": 6947,
       "sha256": "abdfe80481db3b233d8795b6a05cbc0535735c922fc35332bdd5f011d9c56003"
+    },
+    {
+      "path": "tests/offline-demo.test.ts",
+      "bytes": 2942,
+      "sha256": "838c40ddf2e8747bd504bae8e32455319fba3fb2e2e407b4fbae66d35150529e"
     },
     {
       "path": "tests/policy-draft.test.ts",
@@ -605,6 +675,11 @@
       "path": "worker/entry.ts",
       "bytes": 4255,
       "sha256": "687a20805f3eec3678152273d5f9f0cefb5a85435a874381069c054c8488c1f2"
+    },
+    {
+      "path": "worker/offline-entry.ts",
+      "bytes": 483,
+      "sha256": "ea07ae8664a685c6e02e92f4aead18a839ae65159cf2400dc84ef0357361fb8a"
     }
   ]
 }

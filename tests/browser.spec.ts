@@ -2,6 +2,34 @@ import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 
+test('journey: policy evidence survives scenario navigation but a different dataset clears it', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText("CSV uploads are sent to this app's server for validation and calculation; use synthetic or non-sensitive data.", { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /^Findings/ }).click();
+  await page.getByLabel('Discount origin').selectOption('manual');
+  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
+  await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
+  await page.getByRole('button', { name: 'Scenario lab', exact: true }).click();
+  await page.getByRole('button', { name: 'Set all to zero', exact: true }).click();
+  await expect(page.locator('.scenario-big')).toHaveText('+$0');
+  await page.getByRole('button', { name: /^Findings/ }).click();
+  await expect(page.getByLabel('Discount origin')).toHaveValue('manual');
+  await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
+  await page.getByLabel('Import order CSV').setInputFiles(path.resolve('data/invalid-example.csv'));
+  await expect(page.getByRole('alert')).toBeVisible();
+  await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export policy evidence & provenance', exact: true }).click();
+  await (await download).saveAs('evidence/navigation-policy-export.md');
+  expect(await readFile('evidence/navigation-policy-export.md', 'utf8')).toContain('discount origin manual');
+  await page.getByLabel('Import order CSV').setInputFiles(path.resolve('data/template.csv'));
+  await expect(page.locator('.dataset-strip')).toContainText('1 validated order');
+  await expect(page.getByRole('status')).toContainText("the app server's transient memory");
+  await page.getByRole('button', { name: /^Findings/ }).click();
+  await expect(page.locator('.remediation')).toHaveCount(0);
+});
+
 test('clarity: the evidence decision leads the draft and keeps assumptions, citations and authority explicit', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /^Findings/ }).click();

@@ -15,3 +15,5 @@
 @media(max-width:680px){.policy-form{grid-template-columns:1fr 1fr}.assumption-bar{padding:12px;gap:9px;margin-bottom:16px}.assumption-bar label{font-size:8px}.assumption-bar>small{width:100%}.decision-card{padding:15px}.decision-card>.section-title{flex-direction:column;gap:10px}.decision-card dl{grid-template-columns:1fr;gap:8px}.decision-card dd{margin-bottom:10px;font-size:10px}.decision-card dt{font-size:8px}.decision-status{text-align:left}}
 
 .decision-card h3{font-size:17px;line-height:1.5;font-weight:500;color:#617a4c;margin:8px 0 0}.remediation>.draft-authority{padding-top:14px;margin-top:18px;border-top:1px solid #dce6cd;font-size:10px;color:#657e4f}
+
+.data-privacy{margin:-7px 0 18px;line-height:1.8}

@@ -14,3 +14,6 @@ test-results/
 # Generated portable Worker bundle and independent Node frontend
 worker/index.js
 frontend-dist/
+
+# Generated forced-offline judge demo candidate
+offline-dist/

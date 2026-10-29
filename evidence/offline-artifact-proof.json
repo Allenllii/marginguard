@@ -1,0 +1,13 @@
+{
+  "executedAt": "2026-10-29T09:49:18.273Z",
+  "scope": "Local forced-offline Worker candidate, not a deployed Site or final benchmark",
+  "routeChecks": 12,
+  "embeddedAssetChecks": 2,
+  "outboundAttempts": 0,
+  "runtimeConfigIgnored": true,
+  "databaseBindingRequired": false,
+  "candidateAndStagedDistMatch": true,
+  "workerSha256": "28117df513d5ab4308f5d2d9fea68f0aecaf0027c26df7c4e964e94b1ba68603",
+  "manifestSha256": "dabb31cced8c0700cbf6f1b6dfc83232ba3cbcb3f0b35c198741e8fd6dbc7857",
+  "hostingUrl": null
+}

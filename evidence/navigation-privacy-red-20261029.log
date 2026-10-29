@@ -1,0 +1,48 @@
+
+Running 1 test using 1 worker
+
+(node:22212) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 tests\browser.spec.ts:5:1 鈥?journey: policy evidence survives scenario navigation but a different dataset clears it (5.3s)
+
+
+  1) tests\browser.spec.ts:5:1 鈥?journey: policy evidence survives scenario navigation but a different dataset clears it 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('CSV uploads are sent to this app\'s server for validation and calculation; use synthetic or non-sensitive data.', { exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('CSV uploads are sent to this app\'s server for validation and calculation; use synthetic or non-sensitive data.', { exact: true }) with timeout 5000ms
+      - waiting for getByText('CSV uploads are sent to this app\'s server for validation and calculation; use synthetic or non-sensitive data.', { exact: true })
+
+
+       5 | test('journey: policy evidence survives scenario navigation but a different dataset clears it', async ({ page }) => {
+       6 |   await page.goto('/');
+    >  7 |   await expect(page.getByText("CSV uploads are sent to this app's server for validation and calculation; use synthetic or non-sensitive data.", { exact: true })).toBeVisible();
+         |                                                                                                                                                                   ^
+       8 |   await page.getByRole('button', { name: /^Findings/ }).click();
+       9 |   await page.getByLabel('Discount origin').selectOption('manual');
+      10 |   await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+        at C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\tests\browser.spec.ts:7:163
+
+    attachment #1: screenshot (image/png) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\browser-journey-policy-evi-84e00-different-dataset-clears-it\test-failed-1.png
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    Error Context: test-results\browser-journey-policy-evi-84e00-different-dataset-clears-it\error-context.md
+
+    attachment #3: trace (application/zip) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\browser-journey-policy-evi-84e00-different-dataset-clears-it\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser-journey-policy-evi-84e00-different-dataset-clears-it\trace.zip
+
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+  1 failed
+    tests\browser.spec.ts:5:1 鈥?journey: policy evidence survives scenario navigation but a different dataset clears it 
+Fresh QA child stopped; existing server untouched.
