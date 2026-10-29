@@ -3,8 +3,8 @@ import helmet from 'helmet';
 import { createDemoCsv } from './demo.js';
 import { createService } from './service.js';
 
-export function createApp(production = false, env: Record<string, string | undefined> = process.env) {
-  const app = express(), service = createService({ env });
+export function createApp(production = false, env: Record<string, string | undefined> = process.env, request: typeof fetch = fetch) {
+  const app = express(), service = createService({ env, request });
   app.disable('x-powered-by');
   const origin = env.APP_ORIGIN ? new URL(env.APP_ORIGIN) : null;
   if (origin && (origin.protocol !== 'https:' || origin.username || origin.password || origin.pathname !== '/' || origin.search || origin.hash)) throw new Error('APP_ORIGIN must be a plain HTTPS origin.');
