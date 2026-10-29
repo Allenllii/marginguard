@@ -98,3 +98,9 @@ The current visual revision leads with a policy hypothesis/change comparison, a 
 ## Controlled final benchmark preparation
 
 The evaluation-only framework is described in [docs/FINAL-BENCHMARK.md](docs/FINAL-BENCHMARK.md). `npm run benchmark:test` runs offline harness regressions with injected transports. `npm run benchmark:plan -- --config scripts/benchmark/example.config.json --dataset scripts/benchmark/fixture.dataset.json` prints a disabled development plan without provider calls or credential loading. The exploratory `evaluate:live` script is not a fair final benchmark and must not be used to claim retrieval superiority. Final independent holdout/gold, pricing/budget review, exact frozen candidate, concrete plan approval and human blinding remain pending. No final benchmark has run.
+
+## CSV column mapping
+
+On **Data & method**, the mapping assistant previews different export headers in browser memory. Every analysis field is required and every omitted column needs explicit review. It never infers totals, currencies, dates or missing costs. Only the selected columns are sent to the app server after **Analyze mapped CSV**; local preview, validation and download send no CSV requests. The built-in example remains labeled synthetic through recalculation. See [CSV mapping contract and limitations](docs/CSV-MAPPING.md).
+
+The default `npm run test:ui` includes the mapping regressions. A focused run uses `npx playwright test --config playwright.csv-mapping.config.ts` against the documented local offline server.

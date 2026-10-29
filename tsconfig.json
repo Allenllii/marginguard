@@ -28,6 +28,7 @@
     "tests",
     "vite.config.ts",
     "playwright.config.ts",
+    "playwright.csv-mapping.config.ts",
     "db",
     "drizzle.config.ts"
   ]
