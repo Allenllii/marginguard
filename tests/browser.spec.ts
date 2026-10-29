@@ -1,6 +1,86 @@
 import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
+
+// Measure rendered text, compositing translucent ancestors and checking gradient endpoints.
+// This is a bounded regression for these synthetic pages, not a full WCAG certification.
+async function textContrast(page: Page) {
+  return page.evaluate(() => {
+    type Color = [number, number, number, number];
+    const parse = (raw: string): Color => {
+      const v = raw.match(/[\d.]+/g)?.map(Number) || [];
+      return [v[0] || 0, v[1] || 0, v[2] || 0, v[3] ?? 1];
+    };
+    const over = (front: Color, back: Color): Color => {
+      const a = front[3] + back[3] * (1 - front[3]);
+      return [0, 1, 2].map(i => (front[i] * front[3] + back[i] * back[3] * (1 - front[3])) / a).concat(a) as Color;
+    };
+    const luminance = (color: Color) => {
+      const c = color.slice(0, 3).map(v => { const s = v / 255; return s <= .04045 ? s / 12.92 : ((s + .055) / 1.055) ** 2.4; });
+      return c[0] * .2126 + c[1] * .7152 + c[2] * .0722;
+    };
+    const root = document.querySelector('[role="dialog"]') || document.body;
+    return Array.from(root.querySelectorAll('*')).flatMap(node => {
+      if (node.closest('script,style,option,[aria-hidden="true"],:disabled') || !Array.from(node.childNodes).some(n => n.nodeType === Node.TEXT_NODE && n.textContent?.trim())) return [];
+      const style = getComputedStyle(node), rect = node.getBoundingClientRect();
+      if (style.visibility !== 'visible' || style.display === 'none' || !rect.width || !rect.height || rect.right <= 0 || rect.left >= innerWidth) return [];
+      const chain: Element[] = []; for (let n: Element | null = node; n; n = n.parentElement) chain.unshift(n);
+      let backgrounds: Color[] = [[255, 255, 255, 1]], opacity = 1;
+      for (const ancestor of chain) {
+        const s = getComputedStyle(ancestor); opacity *= Number(s.opacity);
+        const bg = parse(s.backgroundColor); backgrounds = backgrounds.map(b => over(bg, b));
+        if (bg[3] === 1) backgrounds = [backgrounds[0]];
+        const stops = s.backgroundImage.match(/rgba?\([^)]*\)/g);
+        if (stops) backgrounds = backgrounds.flatMap(b => stops.map(stop => over(parse(stop), b)));
+      }
+      if (!opacity) return [];
+      const foreground = parse(node.tagName.toLowerCase() === 'text' ? style.fill : style.color); foreground[3] *= opacity;
+      const ratios = backgrounds.map(b => { const a = luminance(over(foreground, b)), c = luminance(b); return (Math.max(a, c) + .05) / (Math.min(a, c) + .05); });
+      const ratio = Math.min(...ratios), size = parseFloat(style.fontSize);
+      const minimum = size >= 24 || (size >= 18.6667 && Number(style.fontWeight) >= 700) ? 3 : 4.5;
+      return [{ text: node.textContent?.trim().replace(/\s+/g, ' ').slice(0, 80), selector: `${node.tagName.toLowerCase()}.${Array.from(node.classList).join('.')}`, foreground: node.tagName.toLowerCase() === 'text' ? style.fill : style.color, backgrounds, ratio, minimum, size }];
+    });
+  });
+}
+
+for (const width of [1280, 393]) test(`contrast: ${width}px auxiliary text across the full fixture journey meets minimum ratios`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 }); await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
+  const groups: { view: string; measurements: Awaited<ReturnType<typeof textContrast>> }[] = [];
+  const measure = async (view: string) => groups.push({ view, measurements: await textContrast(page) });
+  const nav = async (name: string) => {
+    const button = page.locator('.sidebar').getByRole('button', { name: new RegExp(`^${name}`) });
+    if (!await button.isVisible()) await page.getByRole('button', { name: 'Toggle navigation', exact: true }).click();
+    await button.click();
+  };
+  await measure('overview');
+  await page.getByRole('button', { name: 'Recalculate', exact: true }).click();
+  await expect(page.locator('.alert.notice')).toBeVisible(); await measure('notice');
+  await nav('Findings'); await measure('findings');
+  await page.getByRole('button', { name: 'Generate offline brief', exact: true }).click();
+  await expect(page.locator('.brief-result').getByText('No model called', { exact: true })).toBeVisible(); await measure('offline-brief');
+  await page.getByLabel('Discount origin').selectOption('manual');
+  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
+  for (const summary of await page.locator('.policy-source summary').all()) await summary.click();
+  await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
+  await expect(page.locator('.remediation')).toBeVisible(); await measure('policy-expanded');
+  await page.locator('.decision-card').screenshot({ path: `evidence/contrast-decision-${width}.png`, animations: 'disabled' });
+  await nav('Scenario lab'); await measure('scenarios');
+  await nav('Data & method'); await measure('data');
+  await nav('Overview'); await page.locator('.finding-row').first().click();
+  await expect(page.getByRole('dialog')).toBeVisible(); await measure('evidence-drawer');
+  await page.screenshot({ path: `evidence/contrast-drawer-${width}.png`, animations: 'disabled' });
+  await page.getByRole('button', { name: 'Close evidence', exact: true }).click();
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: `evidence/contrast-overview-${width}.png`, fullPage: true, animations: 'disabled' });
+  await page.getByLabel('Import order CSV').setInputFiles(path.resolve('data/invalid-example.csv'));
+  await expect(page.locator('.alert.error')).toBeVisible(); await measure('validation-error');
+  const failures = groups.flatMap(group => group.measurements.filter(m => m.ratio < m.minimum).map(m => ({ view: group.view, ...m })));
+  await writeFile(`evidence/contrast-${width}.json`, JSON.stringify({ width, groups, failures }, null, 2) + '\n');
+  expect(failures, JSON.stringify(failures.slice(0, 12), null, 2)).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
 
 test('readability: mobile assumptions, finding labels, KPI notes and footer use legible text without overflow', async ({ page }) => {
   await page.setViewportSize({ width: 393, height: 800 }); await page.goto('/');

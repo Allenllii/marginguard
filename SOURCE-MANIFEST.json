@@ -1,7 +1,7 @@
 {
-  "baselineSource": "18f4fdadf0f1f55fec510860441e8b7e3fa27830",
-  "sourceBranch": "codex/interaction-accessibility",
-  "scope": "Observed result-focus, stale-case navigation, hidden mobile navigation and caption readability fixes. New raw QA evidence and separate CI proposal excluded.",
+  "baselineSource": "868ff2e813ff21f33edf713bd46eebae506ca865",
+  "sourceBranch": "codex/supporting-text-contrast",
+  "scope": "Runtime change is supporting-text color only; includes computed contrast/browser regressions and exact source manifest. New raw measurements, screenshots, logs and private files excluded.",
   "verification": {
     "lint": "PASS",
     "strictTypes": "PASS",
@@ -9,15 +9,32 @@
     "unitApi": "124/124",
     "syntheticRouting": "12/12",
     "artifactRoutes": 13,
-    "browserNode": "20/20",
-    "browserOfflineWorker": "20/20 same scenarios",
+    "browserNode": "22/22",
+    "browserOfflineWorker": "22/22 same scenarios",
     "focusedDecisionViewport": "1280px mouse; 390px keyboard/reduced motion",
     "mobileMenu": "393px closed hidden, opening focus, Escape restoration, desktop resize",
     "captionMinimumFontPx": 11,
-    "providerCallsThisPhase": 0
+    "providerCallsThisPhase": 0,
+    "renderedTextContrast": [
+      {
+        "width": 1280,
+        "states": 9,
+        "measuredNormalTextInstances": 966,
+        "minimumNormalTextRatio": 4.535675964065117,
+        "failures": 0
+      },
+      {
+        "width": 393,
+        "states": 9,
+        "measuredNormalTextInstances": 798,
+        "minimumNormalTextRatio": 4.535675964065117,
+        "failures": 0
+      }
+    ],
+    "contrastScope": "Nine synthetic UI states at1280px and393px; computed alpha compositing and conservative gradient endpoints. Bounded regression, not full accessibility certification."
   },
   "deployment": "Candidate requires exact-source Sites synchronization.",
-  "mainBase": "ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0",
+  "mainBase": "868ff2e813ff21f33edf713bd46eebae506ca865",
   "pr13Merge": "Completed after explicit confirmation at ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0",
   "finalBenchmark": "NOT RUN",
   "files": [
@@ -618,8 +635,8 @@
     },
     {
       "path": "src/styles.css",
-      "bytes": 37016,
-      "sha256": "b8b962cca32de7767c82b2089ad9fe4a144655f99d97cb935855c11e6854c720"
+      "bytes": 38819,
+      "sha256": "b4360d41a83de7f791fc7908fae28c36c7840369e07c2439e71f3edad13bdbf0"
     },
     {
       "path": "tests/analysis.test.ts",
@@ -633,8 +650,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 31236,
-      "sha256": "52c678a85a36cd0622b947132971986416363b1ddb09028cfc4c8022482727ca"
+      "bytes": 37421,
+      "sha256": "b1f285c3933ac4791643c509d5ec419a0908e95f158bcc05c5a40543e88efd8f"
     },
     {
       "path": "tests/budget.test.ts",
@@ -711,5 +728,6 @@
       "bytes": 483,
       "sha256": "ea07ae8664a685c6e02e92f4aead18a839ae65159cf2400dc84ef0357361fb8a"
     }
-  ]
+  ],
+  "pr14Merge": "868ff2e813ff21f33edf713bd46eebae506ca865"
 }
