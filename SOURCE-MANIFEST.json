@@ -2,7 +2,7 @@
   "baselineMain": "5350428a4c92b2484631c6cc6f83e1f1608835ed",
   "sourceBranch": "codex/csv-mapping",
   "pullRequestBase": "main",
-  "scope": "LOCAL staging for twelve-file CSV change only. Retains the already public PR15 framework and PR16 contrast unchanged; no CI proposal or newer Policy-to-Test/Preflight modules. Publication remains blocked pending specific authorization.",
+  "scope": "CSV mapping source candidate against main5350428. Twelve-file approved change; existing public PR15 framework and PR16 contrast retained unchanged. No newer Policy-to-Test, Preflight, CI proposal, credentials or private data.",
   "csvLocalCommit": "70e267b279b0ec0b5ac0a6f148c5465866d02f36",
   "verification": {
     "csvApplicationTests": "139/139 on exact source slice",
@@ -803,5 +803,6 @@
       "bytes": 483,
       "sha256": "ea07ae8664a685c6e02e92f4aead18a839ae65159cf2400dc84ef0357361fb8a"
     }
-  ]
+  ],
+  "publication": "codex/csv-mapping; full159-file remote tree verified before PR review. No deployment or final benchmark performed."
 }
