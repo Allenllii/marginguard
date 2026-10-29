@@ -1,17 +1,7 @@
 {
-  "baselineMain": "5350428a4c92b2484631c6cc6f83e1f1608835ed",
-  "sourceBranch": "codex/csv-mapping",
-  "pullRequestBase": "main",
-  "scope": "CSV mapping source candidate against main5350428. Twelve-file approved change; existing public PR15 framework and PR16 contrast retained unchanged. No newer Policy-to-Test, Preflight, CI proposal, credentials or private data.",
-  "csvLocalCommit": "70e267b279b0ec0b5ac0a6f148c5465866d02f36",
-  "verification": {
-    "csvApplicationTests": "139/139 on exact source slice",
-    "csvBrowserNode": "27/27 on exact source slice",
-    "csvBrowserWorker": "27/27 on exact source slice",
-    "benchmarkHarnessSelfTests": "65/65; actual framework modules match main exactly",
-    "providerCalls": 0,
-    "finalBenchmark": "NOT RUN"
-  },
+  "baselineMain": "8b6df602903f04b964dd44a1853c00eed2137826",
+  "sourceBranch": "codex/product-step1",
+  "scope": "Reviewed source/test/documentation increment. No new raw logs, credentials, real customer data, private gold, CI changes, media or provider calls. Hosted deployment is separate.",
   "files": [
     {
       "path": ".env.example",
@@ -27,6 +17,16 @@
       "path": ".openai/hosting.json",
       "bytes": 96,
       "sha256": "3851ff3ccbfe2658e6c1f7d9da9997e47cfbd3ba0380571efe616f4309d3d53a"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1081,
+      "sha256": "4121c9fc4640dba535b9d6d7484658bd441f8598dcf6082ac88062587e14f018"
+    },
+    {
+      "path": "README.md",
+      "bytes": 11184,
+      "sha256": "adeb181b292e8013d29ca94566814ce4ef2d0cb8c76f9dc6af0f4b7001fc054f"
     },
     {
       "path": "data/decision-cases.json",
@@ -89,11 +89,6 @@
       "sha256": "1a04f5314073269417f5b124bb7e4aaca519cb2d20f912662c5bea84a06c4497"
     },
     {
-      "path": "docs/demo-script.md",
-      "bytes": 3152,
-      "sha256": "f4528835b7107015811fae7577b06711dc2ed8868ded75b84f1bc325cee18087"
-    },
-    {
       "path": "docs/DEPLOYMENT.md",
       "bytes": 5903,
       "sha256": "a32e7692c7c540537c26c1b58d81ec57a5a40be2ae5936782cd970ddb52ccbb5"
@@ -124,6 +119,11 @@
       "sha256": "bef728c088673f356497bcab5bd31bf60127b45f0090de823745deb04446e943"
     },
     {
+      "path": "docs/POLICY-TO-TEST.md",
+      "bytes": 7095,
+      "sha256": "8acb87776379feaf2e5348003675c1ec722d2fc3f9cbfbb31a94717edc6b3b82"
+    },
+    {
       "path": "docs/PR7-LIVE-VERIFICATION.md",
       "bytes": 2375,
       "sha256": "9078e5aab89069e3ee58d70221385f87274555455e4c64de62f12952432e5335"
@@ -144,14 +144,24 @@
       "sha256": "1b8752d656f805120aa297d746b47c4b838adf1a984e30699377c17d573e08ec"
     },
     {
+      "path": "docs/VISUAL-DESIGN.md",
+      "bytes": 1946,
+      "sha256": "065f574ff011497f7ec3e51f414078cf57991b44ddc0460d221ae4dfb1c18a9a"
+    },
+    {
+      "path": "docs/demo-script.md",
+      "bytes": 3152,
+      "sha256": "f4528835b7107015811fae7577b06711dc2ed8868ded75b84f1bc325cee18087"
+    },
+    {
       "path": "docs/submission-draft.md",
       "bytes": 4956,
       "sha256": "ee185022e7e6b1a47aafa0c225c9411d02e002e89f612b68cbfc3337accebef5"
     },
     {
-      "path": "docs/VISUAL-DESIGN.md",
-      "bytes": 1946,
-      "sha256": "065f574ff011497f7ec3e51f414078cf57991b44ddc0460d221ae4dfb1c18a9a"
+      "path": "drizzle.config.ts",
+      "bytes": 148,
+      "sha256": "af081f7384aaeb0082cf422e29f139d137ca2f6a57c69b2c37b9fb1f8479867b"
     },
     {
       "path": "drizzle/0000_open_lightspeed.sql",
@@ -167,11 +177,6 @@
       "path": "drizzle/meta/_journal.json",
       "bytes": 205,
       "sha256": "297ee44527b866ed39e6f16999bf4753a4f747b3d419fe3610a9f7f2b42aef28"
-    },
-    {
-      "path": "drizzle.config.ts",
-      "bytes": 148,
-      "sha256": "af081f7384aaeb0082cf422e29f139d137ca2f6a57c69b2c37b9fb1f8479867b"
     },
     {
       "path": "eslint.config.js",
@@ -394,11 +399,6 @@
       "sha256": "b220397e204842d62a26e9a4b4a79e73fe280b83bc5e50f9d7d8e5ec41a6c853"
     },
     {
-      "path": "LICENSE",
-      "bytes": 1081,
-      "sha256": "4121c9fc4640dba535b9d6d7484658bd441f8598dcf6082ac88062587e14f018"
-    },
-    {
       "path": "package-lock.json",
       "bytes": 188775,
       "sha256": "5da7039ab2e04a252438ba725135b13f43b569c21daf466c90407b8098d63dbc"
@@ -410,18 +410,13 @@
     },
     {
       "path": "playwright.config.ts",
-      "bytes": 516,
-      "sha256": "3f98d6e438b01ca4b2f17e4880b24e840f1a98585d72422253c9f7763e5805bc"
+      "bytes": 550,
+      "sha256": "4dab4ab653f3895944b3f31481eff5df8f35926fa8c32822177a4ffda7cdd46d"
     },
     {
       "path": "playwright.csv-mapping.config.ts",
       "bytes": 515,
       "sha256": "ca55d6607a961c52bd4cdc77cde799ac7c56c7d35a9a379e7dafaf21c0f2c5c6"
-    },
-    {
-      "path": "README.md",
-      "bytes": 10763,
-      "sha256": "d07a1b0fd385790b4d77f86a14b499983541619b0d8b44d36718c5de7c9a0da3"
     },
     {
       "path": "scripts/benchmark/blind.mjs",
@@ -569,6 +564,11 @@
       "sha256": "f5f330ef8f27cecb9ecc5aed59c64c6d763bfff06c2a201cc295184f0ee51d4b"
     },
     {
+      "path": "scripts/verify-policy-to-test-ui.ts",
+      "bytes": 8571,
+      "sha256": "604bb357dda43716705b1bbcf9efab9c10e67551397ed39c6acdcf7300daa99b"
+    },
+    {
       "path": "scripts/verify-policy-ui.ts",
       "bytes": 9308,
       "sha256": "8a221c9940d49be69ae1627c6414aeee0f8e2a00d554fdc3d160b33dc7f805e3"
@@ -630,8 +630,8 @@
     },
     {
       "path": "server/tavily.ts",
-      "bytes": 10619,
-      "sha256": "2767de3f882fbb34483d0479fa1f5cb14619cbe235dfc24af8f41d441dc93a58"
+      "bytes": 10903,
+      "sha256": "84c373fb88095c5c212b07cd93fa904636a3588c353edfeada24380fec0d4ddc"
     },
     {
       "path": "shared/assumptions.ts",
@@ -650,13 +650,23 @@
     },
     {
       "path": "shared/policy-decision.ts",
-      "bytes": 5933,
-      "sha256": "2e965e463d00052957ef6666483a5e9c6d9ef15defd0c3f7ab22ef203d0c331b"
+      "bytes": 6378,
+      "sha256": "a61fdf1ef22764aa6278d7b9795e3eacf4d431906a6ebf5a1398480c7ad49ea0"
+    },
+    {
+      "path": "shared/policy-source-scope.ts",
+      "bytes": 2281,
+      "sha256": "4a6e61885d32786a6bdc5c8d38be14cbe05fd14ffa0a3c3673fdb46730ffc574"
+    },
+    {
+      "path": "shared/policy-to-test.ts",
+      "bytes": 13754,
+      "sha256": "e6530bb9f6c104d427c0db121209ced3bee96591fc5eaa8eab5c56faed79de4d"
     },
     {
       "path": "shared/types.ts",
-      "bytes": 2956,
-      "sha256": "bdeab601417a4e25ac6007d5f9eec24fce252ae39b2af3d0896b0843e6cc3135"
+      "bytes": 2966,
+      "sha256": "fcc8e1feedc18620b83c81c22625046dfabcbe89c3e1fcdc8eab10be0eeb63c5"
     },
     {
       "path": "src/App.tsx",
@@ -679,11 +689,6 @@
       "sha256": "a3d69cc009312144a7de4f0fe116f57cc4c1ee54a8a0c8674ac0f0db7aa6ffeb"
     },
     {
-      "path": "src/main.tsx",
-      "bytes": 224,
-      "sha256": "1bc19ec2f6e0b2f3a0a3febc84b659394812943c83b2364b5e8be91890a00049"
-    },
-    {
       "path": "src/PolicyDecisionCard.tsx",
       "bytes": 2809,
       "sha256": "c3c6c8531aaf4c3a1b575e3a8d634962d59a079bff4aa95196eb973c379892b0"
@@ -695,8 +700,23 @@
     },
     {
       "path": "src/PolicyResearch.tsx",
-      "bytes": 12493,
-      "sha256": "a1882e63b25d575551607302f80a0ad4dbefcc40e44aed61ad3467d5408809f3"
+      "bytes": 12644,
+      "sha256": "2f41b7b70ffb06af19b47dd8c62e810d0faacd91e3804b246111105aca874ecd"
+    },
+    {
+      "path": "src/PolicyTestLab.css",
+      "bytes": 6227,
+      "sha256": "65fe2283f3b7bd47379f68f5305e66ffac89e8162436e3ab90ae77350ae9270e"
+    },
+    {
+      "path": "src/PolicyTestLab.tsx",
+      "bytes": 5232,
+      "sha256": "0ab7dd28a8c28b250dea917812508058077017c9a33c1a68b36eedc2b049cc26"
+    },
+    {
+      "path": "src/main.tsx",
+      "bytes": 224,
+      "sha256": "1bc19ec2f6e0b2f3a0a3febc84b659394812943c83b2364b5e8be91890a00049"
     },
     {
       "path": "src/styles.css",
@@ -715,8 +735,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 37421,
-      "sha256": "b1f285c3933ac4791643c509d5ec419a0908e95f158bcc05c5a40543e88efd8f"
+      "bytes": 37441,
+      "sha256": "0b961c6ceadeda89ff766321b2a1399b3252ba965660ca47e979b5854fddc301"
     },
     {
       "path": "tests/budget.test.ts",
@@ -725,8 +745,8 @@
     },
     {
       "path": "tests/build-layout.test.ts",
-      "bytes": 3151,
-      "sha256": "867e2a0edf7d662831069583ca8643c782a335367a6356a9612bb7605dd4e265"
+      "bytes": 4066,
+      "sha256": "fe143e27f69336faa8862b9d8ed4590ac4d789e12454f82d3ef68287a7f55a41"
     },
     {
       "path": "tests/csv-mapping.browser.spec.ts",
@@ -742,6 +762,16 @@
       "path": "tests/fixture-state.test.ts",
       "bytes": 3431,
       "sha256": "4e95b29e0ae389ca4e44ec4a4cec819e45c1f088c3bffdf97b238138037fca58"
+    },
+    {
+      "path": "tests/fixtures/policy-to-test.html",
+      "bytes": 692,
+      "sha256": "ba9dea93e79ba1776d900b7a46cf420ca113c7c30a9acb53c7ce3a57a9a31f8f"
+    },
+    {
+      "path": "tests/fixtures/policy-to-test.tsx",
+      "bytes": 1508,
+      "sha256": "f84e0c166ea02f6affe4587083f6a8b40dbf5323d5fe1caffeb6a413eb5746c2"
     },
     {
       "path": "tests/migration.test.ts",
@@ -769,6 +799,16 @@
       "sha256": "7958205e1fe5a1a6f3e35590dee673a3248a54f8a857008425aee6630f52e867"
     },
     {
+      "path": "tests/policy-to-test.browser.spec.ts",
+      "bytes": 6124,
+      "sha256": "ad7b4e261bb896951cd3a87e8db11cdb01c0250731c1d926c65c73d4aa9e7ab7"
+    },
+    {
+      "path": "tests/policy-to-test.test.ts",
+      "bytes": 19901,
+      "sha256": "0270e45c750a80408676e245e1ef9d393ace9a59ec45b88d3c5a79ce6385e824"
+    },
+    {
       "path": "tests/provider-integration.test.ts",
       "bytes": 24908,
       "sha256": "143dca5579f03f8da974c89b770713b2c9b1e486d8d927e62bf1a0f55d184d04"
@@ -790,8 +830,8 @@
     },
     {
       "path": "vite.config.ts",
-      "bytes": 268,
-      "sha256": "d3206382521dc372c4d9d1b7e5db11e8d761cdf4b2b6b855446fe01dde4d6a13"
+      "bytes": 436,
+      "sha256": "368efcf888cc689af92081c1722d767dff430b88e3ed0532dce4ff599a441911"
     },
     {
       "path": "worker/entry.ts",
@@ -803,6 +843,5 @@
       "bytes": 483,
       "sha256": "ea07ae8664a685c6e02e92f4aead18a839ae65159cf2400dc84ef0357361fb8a"
     }
-  ],
-  "publication": "codex/csv-mapping; full159-file remote tree verified before PR review. No deployment or final benchmark performed."
+  ]
 }
