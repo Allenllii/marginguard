@@ -31,6 +31,11 @@ test('controlled complete policy statements accept harmless punctuation differen
   assert.doesNotThrow(() => validateRemediation({ ...valid(), nextStep: 'Confirm which promotion class the order belongs to' }, packet));
 });
 
+test('model can cite a supporting source without regenerating the code-owned policy sentence', () => {
+  const result = validateRemediation({ ...valid(), documentedPolicy: [{ sourceId: 'S1' }] }, packet);
+  assert.deepEqual(result.documentedPolicy, [{ sourceId: 'S1', statement }]);
+});
+
 test('dangling analyst clauses and long source copying in analyst fields fail closed', () => {
   for (const field of ['inference', 'nextStep', 'uncertainty'] as const) {
     assert.throws(() => validateRemediation({ ...valid(), [field]: 'Review the originating promotion because' }, packet));
