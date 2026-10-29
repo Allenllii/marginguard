@@ -21,3 +21,7 @@ Before submission: verify default main exposes the complete tested source; compa
 **Freeze: October 30, 2026 at 17:00:00 UTC (13:00 Toronto).** Do not edit submitted repository, site, video or materials after this deadline, including minor corrections, unless the organizer expressly instructs it. No automatic push/deploy workflow may mutate frozen artifacts. Keep judge access free through December 15, 2026.
 
 Rules reference: https://nebiusglobalaihackathon.devpost.com/rules. The parent coordinates final eligibility and submission approval.
+
+## Judge-entry follow-up
+
+Current complete source branch: https://github.com/Allenllii/marginguard/tree/codex/judge-case-entry, based on review-fix commit `57b71a4effe33a3ee5808afe8c9a9568765185ad`. PR #11 main integration remains approval-blocked. The follow-up adds a homepage one-click manual-discount counterexample, explicitly using authored offline source summaries and a rule-based decision; it does not claim a live search or independent model discovery. Deployment synchronization and anonymous smoke must record the new saved version and exact source SHA before this entry is described as live. Final benchmark remains NOT RUN.
