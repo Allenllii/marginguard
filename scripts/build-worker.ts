@@ -3,6 +3,8 @@ import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { FRONTEND_DIRECTORY } from '../shared/build-paths.js';
+const offlineOnly = process.argv.includes('--offline-only');
+assert.ok(process.argv.slice(2).every(arg => arg === '--offline-only'), 'Unknown Worker build option');
 const assets: Record<string, { body: string; type: string }> = {};
 async function collect(dir: string) {
   for (const item of await readdir(dir, { withFileTypes: true })) {
@@ -13,13 +15,24 @@ async function collect(dir: string) {
   }
 }
 await collect(FRONTEND_DIRECTORY);
-const result = await build({ entryPoints: ['worker/entry.ts'], bundle: true, platform: 'browser', format: 'esm', target: 'es2022', write: false, minify: true, legalComments: 'inline', define: { 'process.env': '{}', __MG_ASSETS__: JSON.stringify(assets) } });
+const result = await build({ entryPoints: [offlineOnly ? 'worker/offline-entry.ts' : 'worker/entry.ts'], bundle: true, platform: 'browser', format: 'esm', target: 'es2022', write: false, minify: true, legalComments: 'inline', define: { 'process.env': '{}', __MG_ASSETS__: JSON.stringify(assets) } });
 const code = result.outputFiles[0].text;
 assert.ok(!/from\s*["']node:|require\(["']node:/.test(code), 'Worker must not depend on Node builtins');
-const out = '.'; await mkdir('worker', { recursive: true });
-await writeFile('worker/index.js', code);
+const out = offlineOnly ? 'offline-dist' : '.';
+if (offlineOnly) {
+  await mkdir('offline-dist/server', { recursive: true }); await mkdir('offline-dist/.openai', { recursive: true });
+  await writeFile('offline-dist/server/index.js', code);
+} else { await mkdir('worker', { recursive: true }); await writeFile('worker/index.js', code); }
 // The source manifest is copied by packaging; never rewrite its registered identity here.
-JSON.parse(await readFile('.openai/hosting.json', 'utf8'));
+const sourceManifest = JSON.parse(await readFile('.openai/hosting.json', 'utf8'));
+if (offlineOnly) {
+  const offlineManifest = JSON.stringify({ ...sourceManifest, d1: null, r2: null }, null, 2) + '\n';
+  await writeFile('offline-dist/.openai/hosting.json', offlineManifest);
+  // Native Sites packaging consumes dist/. The offline command first performs
+  // the standard clean build, then selects these two verified candidate files.
+  await mkdir('dist/server', { recursive: true }); await mkdir('dist/.openai', { recursive: true });
+  await writeFile('dist/server/index.js', code); await writeFile('dist/.openai/hosting.json', offlineManifest);
+}
 const module = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
 assert.equal(typeof module.default.fetch, 'function');
 const health = await module.default.fetch(new Request('https://marginguard.example/api/health'), {});
@@ -34,4 +47,4 @@ assert.equal(packet.mode, 'fixture'); assert.equal(packet.checkedAt, null);
 const remedy = await (await post('/api/remediate', { csv: demo.csv, issueId: 'discount-stacking', researchId: packet.researchId, live: false })).json();
 assert.equal(remedy.mode, 'fixture'); assert.ok(remedy.nextStep.includes('Audit staff/manual POS'));
 assert.equal((await module.default.fetch(new Request('https://marginguard.example/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }), env)).status, 403);
-console.log(`Portable Worker ESM built: ${out}/worker/index.js (${Buffer.byteLength(code)} bytes), ${Object.keys(assets).length} embedded assets, no Node builtins; offline health/page smoke passed.`);
+console.log(`Portable Worker ESM built: ${offlineOnly ? out + '/server/index.js' : './worker/index.js'} (${Buffer.byteLength(code)} bytes), ${Object.keys(assets).length} embedded assets, no Node builtins; offline health/page smoke passed. Profile: ${offlineOnly ? 'forced offline, ignores runtime provider configuration' : 'standard, hosted live gates enforced'}.`);
