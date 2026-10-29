@@ -4,7 +4,7 @@ This ledger separates observed development artifacts from the final submission. 
 
 | Artifact | Observed state |
 | --- | --- |
-| Public repository | https://github.com/Allenllii/marginguard; MIT. PRs 1-9 contain the tracked source history. Default-branch integration is being verified in the review-fix phase. |
+| Public repository | https://github.com/Allenllii/marginguard; MIT. PRs 1-9 contain the tracked source history. PR #11 integrated the complete verified baseline into main at `d9867a0279f35d8990d9402d5b57b99db037583e`; 137 file hashes matched. |
 | Previously deployed source | `804e44eaf92186a781002db041d17c68adccd6bd` plus the forced-offline build profile |
 | Public judge URL | https://marginguard-evidence.liwenzhao0306.chatgpt.site |
 | Site identity | `appgprj_6ae108e911088191834d591d732db251`; public saved version 1 was observed. Deployment owner must record each subsequent saved version and source commit. |
@@ -24,4 +24,10 @@ Rules reference: https://nebiusglobalaihackathon.devpost.com/rules. The parent c
 
 ## Judge-entry follow-up
 
-Current complete source branch: https://github.com/Allenllii/marginguard/tree/codex/judge-case-entry, based on review-fix commit `57b71a4effe33a3ee5808afe8c9a9568765185ad`. PR #11 main integration remains approval-blocked. The follow-up adds a homepage one-click manual-discount counterexample, explicitly using authored offline source summaries and a rule-based decision; it does not claim a live search or independent model discovery. Deployment synchronization and anonymous smoke must record the new saved version and exact source SHA before this entry is described as live. Final benchmark remains NOT RUN.
+Current complete source branch: https://github.com/Allenllii/marginguard/tree/codex/judge-case-entry, based on review-fix commit `57b71a4effe33a3ee5808afe8c9a9568765185ad`. PR #11 main integration completed at `d9867a0279f35d8990d9402d5b57b99db037583e`; PR #12 records the subsequent one-click entry. The follow-up adds a homepage one-click manual-discount counterexample, explicitly using authored offline source summaries and a rule-based decision; it does not claim a live search or independent model discovery. Deployment synchronization and anonymous smoke must record the new saved version and exact source SHA before this entry is described as live. Final benchmark remains NOT RUN.
+
+## Visual follow-up
+
+Current complete visual source branch: https://github.com/Allenllii/marginguard/tree/codex/evidence-desk, based on PR #12 commit `01ac90f91a84dd097682bcc6949e1399811f4b57`. Dedicated case comparison, evidence boundary, readable policy text and a brief decision reveal are documented in VISUAL-DESIGN.md. Final-source local checks passed 124 unit/API tests, 12 routing cases, 13 artifact routes and the same 15 browser scenarios on Node and offline Worker. The public site needs a source/version synchronization and anonymous smoke before these changes are claimed live. No new provider call, final benchmark or video. GitHub Actions had zero runs at the baseline merge; local passes are not CI passes.
+
+Main also integrated the one-click follow-up through PR #12 at `f5a264e1e05c86e81b1814c2b04bf533d234a975`.
