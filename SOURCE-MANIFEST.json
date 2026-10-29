@@ -1,6 +1,6 @@
 {
-  "baselineMain": "8b6df602903f04b964dd44a1853c00eed2137826",
-  "sourceBranch": "codex/product-step1",
+  "baselineMain": "a269e8fb7a512a2b1a63c444ac4edf4ec3620353",
+  "sourceBranch": "codex/product-step2",
   "scope": "Reviewed source/test/documentation increment. No new raw logs, credentials, real customer data, private gold, CI changes, media or provider calls. Hosted deployment is separate.",
   "files": [
     {
@@ -25,8 +25,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 11184,
-      "sha256": "adeb181b292e8013d29ca94566814ce4ef2d0cb8c76f9dc6af0f4b7001fc054f"
+      "bytes": 11845,
+      "sha256": "3ec1f08f693e4c7dc0f4694100e394c43b0f638cf5bcb03917dc3359b0c3e33e"
     },
     {
       "path": "data/decision-cases.json",
@@ -79,6 +79,11 @@
       "sha256": "5e545242428b2b5830d39bea1ad5756cdf53e653dcf0a15c1a051fc7ad6fdf19"
     },
     {
+      "path": "docs/AUDIT-FOLLOWUP.md",
+      "bytes": 3814,
+      "sha256": "f6764fcb4cfaa1b5e9250cc8616801241d24d3d40d3471f7cd54fdba91f93fbc"
+    },
+    {
       "path": "docs/CSV-MAPPING.md",
       "bytes": 4984,
       "sha256": "edf3e44716a94bc9899b19fcb76bc42061ac99a6c2fc59149f7efb3c93d0b72a"
@@ -127,6 +132,11 @@
       "path": "docs/PR7-LIVE-VERIFICATION.md",
       "bytes": 2375,
       "sha256": "9078e5aab89069e3ee58d70221385f87274555455e4c64de62f12952432e5335"
+    },
+    {
+      "path": "docs/PROMO-PREFLIGHT.md",
+      "bytes": 9322,
+      "sha256": "70974be4d5fbe609443ae377e2b464c99ebc2b7513dd891e32255097044c3839"
     },
     {
       "path": "docs/PROVIDER-COST-CONTROLS.md",
@@ -410,8 +420,8 @@
     },
     {
       "path": "playwright.config.ts",
-      "bytes": 550,
-      "sha256": "4dab4ab653f3895944b3f31481eff5df8f35926fa8c32822177a4ffda7cdd46d"
+      "bytes": 579,
+      "sha256": "fef858605880c1d6ab38f1363cf407c871e795eaa270229719144476559574ec"
     },
     {
       "path": "playwright.csv-mapping.config.ts",
@@ -522,6 +532,16 @@
       "path": "scripts/lib/verify-policy-integration.ts",
       "bytes": 16238,
       "sha256": "aa7bee314ea64af62ff8b9a374c2fac00f8b9b8791af5f2f62721b8a7eba89af"
+    },
+    {
+      "path": "scripts/preflight-demo.ts",
+      "bytes": 1083,
+      "sha256": "fb04d77106a4d0a40fd04218c4bac6c2765b0fe4b0cb23abd47b9ee1b5b5e3b8"
+    },
+    {
+      "path": "scripts/preflight-playwright.config.ts",
+      "bytes": 1078,
+      "sha256": "ef97b21cc98ff30475faa7ce26cc11009aef22362817df3549aa959693b61674"
     },
     {
       "path": "scripts/record-demo.ts",
@@ -664,14 +684,24 @@
       "sha256": "e6530bb9f6c104d427c0db121209ced3bee96591fc5eaa8eab5c56faed79de4d"
     },
     {
+      "path": "shared/preflight-adapters.ts",
+      "bytes": 8960,
+      "sha256": "ae14eca75770074c9920cf6ce1abee05ae2e5524ce55b4933c48c10a27247b1f"
+    },
+    {
+      "path": "shared/preflight.ts",
+      "bytes": 16252,
+      "sha256": "6c0e1e9223752aba6517c819943f6e6c799e51dffe5450ed6486752966341f41"
+    },
+    {
       "path": "shared/types.ts",
       "bytes": 2966,
       "sha256": "fcc8e1feedc18620b83c81c22625046dfabcbe89c3e1fcdc8eab10be0eeb63c5"
     },
     {
       "path": "src/App.tsx",
-      "bytes": 39253,
-      "sha256": "d266f2deffa56dd2fe3c37d74d52fbe4bd10ddafcfa6968dfdb49e551460a58a"
+      "bytes": 39579,
+      "sha256": "340c03c8e0bff2a6b64417d03adb8e873a2956291394505007b68a5dbb4dd0d2"
     },
     {
       "path": "src/CsvMappingAssistant.css",
@@ -714,9 +744,19 @@
       "sha256": "0ab7dd28a8c28b250dea917812508058077017c9a33c1a68b36eedc2b049cc26"
     },
     {
+      "path": "src/PromoPreflight.tsx",
+      "bytes": 24824,
+      "sha256": "b4d9fda4bba5d6d059d64d6e41722861788e6e9727ff63e0f1cdc4e1689e0ab2"
+    },
+    {
       "path": "src/main.tsx",
-      "bytes": 224,
-      "sha256": "1bc19ec2f6e0b2f3a0a3febc84b659394812943c83b2364b5e8be91890a00049"
+      "bytes": 1952,
+      "sha256": "9e8223a5a43beb8ab3f20a92d6d2376cee9dd4581b0250c4160e54410f88ba34"
+    },
+    {
+      "path": "src/promo-preflight.css",
+      "bytes": 17532,
+      "sha256": "5eb7e6fc88f35eace097bf27489338e671538917f03518e64fc55234b463b489"
     },
     {
       "path": "src/styles.css",
@@ -807,6 +847,21 @@
       "path": "tests/policy-to-test.test.ts",
       "bytes": 19901,
       "sha256": "0270e45c750a80408676e245e1ef9d393ace9a59ec45b88d3c5a79ce6385e824"
+    },
+    {
+      "path": "tests/preflight-adapters.test.ts",
+      "bytes": 9648,
+      "sha256": "3ea95de8fb0441f7fdb24cd4db57f5bcf2e929de33a3ac2f1594ecfed81ac14f"
+    },
+    {
+      "path": "tests/preflight.browser.spec.ts",
+      "bytes": 11570,
+      "sha256": "36cb1481b7588425181deecc448d3e4559165cc00908126aed0103e8e9e34fd8"
+    },
+    {
+      "path": "tests/preflight.test.ts",
+      "bytes": 12712,
+      "sha256": "73007db8c15a2a9b3e1aa3acf67f225b882d059ad5278fc0bb425ac59e4891e4"
     },
     {
       "path": "tests/provider-integration.test.ts",
