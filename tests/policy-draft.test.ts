@@ -83,3 +83,27 @@ test('duplicate citations and copied text in other fields cannot masquerade as u
   assert.throws(() => validateRemediation({ ...valid(), documentedPolicy: [...valid().documentedPolicy, ...valid().documentedPolicy] }, packet));
   assert.throws(() => validateRemediation({ ...valid(), nextStep: 'A copied lead-in: ' + snippet }, packet));
 });
+
+test('observed singular determiner with plural accounts is rejected without changing model prose', () => {
+  for (const text of ['The policy does not confirm eligibility for this specific accounts.', 'Verify the terms for this accounts before acting.', 'The rule may differ for these specific account.']) {
+    assert.throws(() => validateRemediation({ ...valid(), inference: text }, packet));
+  }
+});
+
+test('correct singular and plural account phrasing remains accepted', () => {
+  for (const text of ['The policy does not confirm eligibility for this specific account.', 'The policy may differ for these specific accounts.', 'Verify the selected store and its account terms before acting.']) {
+    assert.doesNotThrow(() => validateRemediation({ ...valid(), inference: text }, packet));
+  }
+});
+
+test('observed agreement error returns complete offline checks without a live proof or repair request', async () => {
+  const issue = analyze(createDemoCsv()).issues.find(item => item.kind === 'discount')!;
+  let calls = 0;
+  const result = await remediate(issue, packet, true, { enabled: true, key: 'mock-key', model: 'nvidia/mock' }, (async (_url, init) => {
+    calls++;
+    const body = init?.body ? { choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ ...valid(), inference: 'The policy does not confirm eligibility for this specific accounts.' }) } }] } : { data: [{ id: 'nvidia/mock' }] };
+    return new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' } });
+  }) as typeof fetch);
+  assert.equal(calls, 2); assert.equal(result.mode, 'fixture'); assert.equal(result.proof, undefined);
+  assert.ok(!JSON.stringify(result).includes('this specific accounts'));
+});

@@ -1,17 +1,18 @@
 {
-  "baseline": "Verified PR #5 source plus complete policy-scope contract and bounded browser integration journey",
-  "scope": "Reviewed source, synthetic data and sanitized verification evidence; no credentials, account notes, dependencies or media. Final benchmark NOT RUN.",
-  "sourceFiles": 82,
-  "historicalEvidenceFiles": 20,
-  "currentPhaseEvidenceFiles": 7,
+  "baseline": "Verified PR6 source plus observed agreement guard, decision clarity and public provider-cost research",
+  "scope": "Reviewed source, synthetic data and sanitized offline evidence; no credentials, account billing observations, dependencies or media. Final benchmark NOT RUN.",
+  "sourceFiles": 86,
+  "historicalEvidenceFiles": 27,
+  "currentPhaseEvidenceFiles": 5,
   "verification": {
-    "unitApiMockIntegration": "109/109",
-    "browserOffline": "10/10",
+    "unitApiMockIntegration": "112/112",
+    "browserOffline": "11/11",
     "syntheticPolicyRouting": "12/12",
-    "redBeforeImplementation": "7 cases; 5 failed, 2 passed; later source-reference acceptance regression failed before contract update",
-    "dependencyLockfile": "unchanged from zero-vulnerability PR #5 audit"
+    "grammarRed": "13 cases, 11 pass/2 fail",
+    "uiRed": "11 cases, 10 pass/1 fail",
+    "dependencyLockfile": "unchanged from PR5 zero-known-vulnerability audit"
   },
-  "liveObservation": "Read evidence/policy-ui-live-20261029.json if present; do not infer current live success from the historical PR #5 observations.",
+  "liveStatus": "No new provider calls in this phase. Prior PR6 live observation identifies its historical source; revised prompt not live-retested.",
   "files": [
     {
       "path": ".env.example",
@@ -35,8 +36,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 22353,
-      "sha256": "44bbaea51a329163bba52ad7672f1f7f2f4299ece96553ed88e34d0df008ef69"
+      "bytes": 22983,
+      "sha256": "df80f71536b124fe16970884ee0e8beff5b64d755909b9a9bc959e93d8468c3d"
     },
     {
       "path": "data/decision-cases.json",
@@ -89,6 +90,11 @@
       "sha256": "44485839151904a9eae1f6ecc398bcd4ff6fd53738be26d5febc9ef669d3edd0"
     },
     {
+      "path": "docs/DECISION-CLARITY.md",
+      "bytes": 2930,
+      "sha256": "1a04f5314073269417f5b124bb7e4aaca519cb2d20f912662c5bea84a06c4497"
+    },
+    {
       "path": "docs/DEPLOYMENT.md",
       "bytes": 5973,
       "sha256": "809c91c131046d3ccc8fd8ff01fe86cb1b23ebc0b1bf3c446a7237bd7fe48867"
@@ -107,6 +113,11 @@
       "path": "docs/POLICY-SYNTHESIS.md",
       "bytes": 5652,
       "sha256": "bef728c088673f356497bcab5bd31bf60127b45f0090de823745deb04446e943"
+    },
+    {
+      "path": "docs/PROVIDER-COST-CONTROLS.md",
+      "bytes": 3130,
+      "sha256": "b371a89fbf5653bb7b8a58623ac532f1fb80d0d4b44fd500fbe14a8fd1f57f5d"
     },
     {
       "path": "docs/RELEASE.md",
@@ -154,6 +165,11 @@
       "sha256": "71920aed932c20ca6b7c90f4f22b67b3f8b16d539c08a2c6712e917662f7d6d0"
     },
     {
+      "path": "evidence/browser-decision-clarity-20261029.log",
+      "bytes": 1657,
+      "sha256": "722a3c6342772bac7b9262a54bb78f0077bf6b41aab3581c693a3e1eea2c02ec"
+    },
+    {
       "path": "evidence/browser-live-integration-20261029.log",
       "bytes": 1504,
       "sha256": "56dff254336197ef1741afea1f4a3381ebb3e7cfe8844bd0e0dbc6bc83593012"
@@ -174,6 +190,11 @@
       "sha256": "34dafad36d1cc0a46910cad02ad95b3268a1be99927500f459aae10333ce8f7d"
     },
     {
+      "path": "evidence/check-decision-clarity-20261029.log",
+      "bytes": 12118,
+      "sha256": "e200eef16652b348adfb2736aafe0c31c5b310d4c2bb478c3335c8aa6eaa1e26"
+    },
+    {
       "path": "evidence/check-live-integration-final-20261029.log",
       "bytes": 10646,
       "sha256": "7c13a922eda9c4145b2c9ddc5aad53bfd8b092993f71f7c5d2270101d5ee3946"
@@ -187,6 +208,21 @@
       "path": "evidence/check-spec-request-budget-20261029.log",
       "bytes": 7795,
       "sha256": "70d0a668a9ef07281fa8e44335dd05c5426cf253dbd3552d5bf1d4092ad72228"
+    },
+    {
+      "path": "evidence/decision-clarity-grammar-red-20261029.log",
+      "bytes": 3101,
+      "sha256": "21e6485ad1928e19a1f5a64cc7503a28f6ad4c001d71a89c6c54f0f00dc37a9b"
+    },
+    {
+      "path": "evidence/decision-clarity-regression-20261029.json",
+      "bytes": 1482,
+      "sha256": "3d3bcb8a59832e519a95ecb4201b7204d1e07db4ba448cbd4c17c75e45587149"
+    },
+    {
+      "path": "evidence/decision-clarity-ui-red-20261029.log",
+      "bytes": 6024,
+      "sha256": "a4c146620fc01ce67dabae2f62427062a3b54be529b963e5c01a62d119396b89"
     },
     {
       "path": "evidence/evaluation.json",
@@ -350,8 +386,8 @@
     },
     {
       "path": "scripts/lib/verify-policy-integration.ts",
-      "bytes": 16094,
-      "sha256": "ad338d40111ef71de427855430e27387e0949b8de87744ea671badfbcd9ded6a"
+      "bytes": 16238,
+      "sha256": "aa7bee314ea64af62ff8b9a374c2fac00f8b9b8791af5f2f62721b8a7eba89af"
     },
     {
       "path": "scripts/record-demo.ts",
@@ -430,13 +466,13 @@
     },
     {
       "path": "server/nebius.ts",
-      "bytes": 13977,
-      "sha256": "5098c7f8d1441f74533a133ee1445ed73d53e7c208bb6e4b0cb4b90381cfb5fe"
+      "bytes": 14220,
+      "sha256": "e53f04981396b1e01e788f4158640b3d72103e5c590bc0f5e71d63b5463e9f23"
     },
     {
       "path": "server/policy-draft.ts",
-      "bytes": 3858,
-      "sha256": "779a66d875192213c0869743059f276b39b41b74173047a6a9bc87e011f12275"
+      "bytes": 4245,
+      "sha256": "1aca441e2253ef5836ee9b8a3253c25f0dfad1b71068b7a063573ca85dcd6453"
     },
     {
       "path": "server/service.ts",
@@ -474,9 +510,19 @@
       "sha256": "772947658810fbbf108dc16ff52acd2053bbb7a17e9c36652a69e59352dcee62"
     },
     {
+      "path": "src/PolicyDecisionCard.tsx",
+      "bytes": 2058,
+      "sha256": "c2b6c13a017ff6e957fc4b565b389a9e3082b0b3afb83bea8d3d1ee9285f29b4"
+    },
+    {
+      "path": "src/PolicyDraftCard.tsx",
+      "bytes": 1754,
+      "sha256": "671dc56b38f7378ccb701d89f998df6fa85e3299565cb7f2e8005dcc7e3de311"
+    },
+    {
       "path": "src/PolicyResearch.tsx",
-      "bytes": 14090,
-      "sha256": "da0ced619b134c17720e9e61677c125535159574c36d23b54867476e0aeb8d26"
+      "bytes": 11935,
+      "sha256": "f808b7872bd36a00a2ee66cf0cd4f928a456fd968a6b3e973bbadee8603bd215"
     },
     {
       "path": "src/main.tsx",
@@ -485,8 +531,8 @@
     },
     {
       "path": "src/styles.css",
-      "bytes": 30846,
-      "sha256": "7dea26c7cd0aa732cbad09acf5ffa9ea8f9036479719f75dcd65a5f11bf0dee2"
+      "bytes": 31048,
+      "sha256": "9919ee7ee7027986d6f9c6c431a74b39b0533ee5e66a7b855dfb565a2d5e6e8a"
     },
     {
       "path": "tests/analysis.test.ts",
@@ -500,8 +546,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 18621,
-      "sha256": "71a9b1ea849098d895b0e5942cbaeb266fda0cb2c6cbb9ba64ce50d65be635da"
+      "bytes": 20692,
+      "sha256": "308d14fe91bb0b46f5c2c7b3b1870a631476ca4e86fdc87a5840d8ffbfcb75f4"
     },
     {
       "path": "tests/budget.test.ts",
@@ -525,13 +571,13 @@
     },
     {
       "path": "tests/policy-draft.test.ts",
-      "bytes": 7214,
-      "sha256": "60b56555160edefcc356523299dfd202d0a08dbfd2906145a7d079390770d100"
+      "bytes": 8934,
+      "sha256": "a306886e7713f60135f123f6bec1fa1994193c748e3b927ff58f5db000ec4df8"
     },
     {
       "path": "tests/provider-integration.test.ts",
-      "bytes": 24778,
-      "sha256": "8dbc4d3cbd34768dfb82e6703b534e609d3b52408a07e68773a837e099a63f43"
+      "bytes": 24908,
+      "sha256": "143dca5579f03f8da974c89b770713b2c9b1e486d8d927e62bf1a0f55d184d04"
     },
     {
       "path": "tests/request-meter.test.ts",

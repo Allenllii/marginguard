@@ -47,6 +47,9 @@ export function validatePolicyDraft(raw: unknown, packet: ResearchPacket) {
   if (new Set(ids).size !== ids.length || value.documentedPolicy.some(item => !allowed.has(item.sourceId) || (item.statement !== undefined && normalizeStatement(item.statement) !== normalizeStatement(allowed.get(item.sourceId)!)))) throw new Error('Unsupported policy statement');
   const prose = [...value.documentedPolicy.flatMap(item => item.statement === undefined ? [] : [item.statement]), value.inference, value.nextStep, value.uncertainty];
   if (prose.some(text => /[\d$%]|https?:|<[^>]+>|guaranteed savings|definitely caused|proves.{0,20}(cause|defect)/iu.test(text))) throw new Error('Unsupported claim');
+  // Reproduce the observed determiner/account-number mismatch specifically.
+  // Do not rewrite model prose or claim this is a general grammar checker.
+  if (prose.some(text => /\b(?:this\s+(?:(?:specific|particular|selected)\s+)?accounts|these\s+(?:(?:specific|particular|selected)\s+)?account|an\s+accounts)\b/iu.test(text))) throw new Error('Observed policy prose agreement error');
   // These are observed failure-shape checks, not a general grammar verifier.
   // No terminal punctuation is required and preposition-ending sentences pass.
   if ([value.inference, value.nextStep, value.uncertainty].some(text => {

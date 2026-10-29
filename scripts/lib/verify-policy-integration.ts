@@ -39,7 +39,7 @@ export type ModelDiagnostic = {
   contentCharacters: number | null;
   usage: { promptTokens: number | null; completionTokens: number | null; totalTokens: number | null; reasoningTokens: number | null };
   schemaIssues: SchemaIssueDiagnostic[] | null;
-  validation: 'not-evaluated' | 'invalid-json' | 'unknown-citation' | 'unsupported-claim' | 'unsupported-policy-scope' | 'incomplete-or-copied-prose' | 'invalid-schema' | 'accepted';
+  validation: 'not-evaluated' | 'invalid-json' | 'unknown-citation' | 'unsupported-claim' | 'unsupported-policy-scope' | 'incomplete-or-copied-prose' | 'observed-agreement-error' | 'invalid-schema' | 'accepted';
 };
 export type IntegrationReport = {
   schemaVersion: 1;
@@ -159,7 +159,7 @@ export async function diagnosePolicyResponse(response: Response, supported: Rese
   catch (error) {
     if (error instanceof ZodError) result.schemaIssues = schemaIssues(error, parsed);
     // Only classify known validator literals; never export error.message itself.
-    result.validation = error instanceof Error && error.message === 'Unknown citation' ? 'unknown-citation' : error instanceof Error && error.message === 'Unsupported claim' ? 'unsupported-claim' : error instanceof Error && error.message === 'Unsupported policy statement' ? 'unsupported-policy-scope' : error instanceof Error && error.message === 'Incomplete or copied policy prose' ? 'incomplete-or-copied-prose' : 'invalid-schema';
+    result.validation = error instanceof Error && error.message === 'Unknown citation' ? 'unknown-citation' : error instanceof Error && error.message === 'Unsupported claim' ? 'unsupported-claim' : error instanceof Error && error.message === 'Unsupported policy statement' ? 'unsupported-policy-scope' : error instanceof Error && error.message === 'Incomplete or copied policy prose' ? 'incomplete-or-copied-prose' : error instanceof Error && error.message === 'Observed policy prose agreement error' ? 'observed-agreement-error' : 'invalid-schema';
   }
   return result;
 }

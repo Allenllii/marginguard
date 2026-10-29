@@ -2,6 +2,30 @@ import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 
+test('clarity: the evidence decision leads the draft and keeps assumptions, citations and authority explicit', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /^Findings/ }).click();
+  await page.getByLabel('Discount origin').selectOption('manual');
+  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  const decision = page.getByRole('region', { name: 'Evidence and next check', exact: true });
+  await expect(decision.getByRole('heading', { name: 'Rule-based next check', exact: true })).toBeVisible();
+  await expect(decision).toContainText('28 flagged rows; $658.08 modeled exposure.');
+  await expect(decision).toContainText('20% discount ceiling');
+  await expect(decision.locator('.source-citation')).toHaveAttribute('href', 'https://help.shopify.com/en/manual/discounts/discount-combinations');
+  expect(await decision.evaluate(node => Boolean(node.compareDocumentPosition(document.querySelector('.policy-source')!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+  await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
+  await expect(page.locator('.remediation')).toContainText('Policy scope is limited to the cited passage.');
+  await expect(page.locator('.remediation')).toContainText('Rule-based rationale');
+  await expect(page.locator('.remediation')).toContainText('A draft cannot approve a remedy or estimate recovery.');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export policy evidence & provenance', exact: true }).click();
+  const file = await download; await file.saveAs('evidence/decision-clarity-export.md');
+  const text = await readFile('evidence/decision-clarity-export.md', 'utf8');
+  expect(text).toContain('Decision authority: Rule-based policy check');
+  expect(text).toContain('Draft authority: Review aid; cannot approve a remedy or estimate recovery');
+  await page.locator('.policy-card').screenshot({ path: 'evidence/decision-clarity.png' });
+});
+
 test('desktop: overview, evidence, scenario, report, offline brief, valid and invalid import', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push(e.message));
