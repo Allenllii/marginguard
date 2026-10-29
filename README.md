@@ -2,15 +2,15 @@
 
 **Find the leaks. Follow the evidence. Model your next move.**
 
-[Open the public judge demo](https://marginguard-evidence.liwenzhao0306.chatgpt.site) | [Source](https://github.com/Allenllii/marginguard) | [Development specification](docs/SPEC.md) | [Release identities](docs/RELEASE.md)
+[Open the public judge demo](https://marginguard-evidence.liwenzhao0306.chatgpt.site) | [Source: current review branch](https://github.com/Allenllii/marginguard/tree/codex/judge-case-entry) | [Development specification](docs/SPEC.md) | [Release identities](docs/RELEASE.md)
 
 MarginGuard helps small ecommerce sellers turn a margin anomaly into a specific next check. It validates an order CSV, calculates exact contribution and rule-based exposure, shows the source rows, and uses policy evidence to qualify a proposed remedy. The primary demonstration redirects an overly generic discount-settings suggestion to a manual-override audit when the applicable Shopify exception supports that change.
 
 ## What the judge demo does
 
-The public site is an **offline demonstration** with synthetic orders, authored policy summaries and deterministic guidance. It makes **no Tavily or model requests**. Live buttons are disabled, and the forced-offline Worker ignores runtime provider keys and database bindings. The current deployed version and any pending source update are recorded in [RELEASE.md](docs/RELEASE.md).
+The public site is an **offline demonstration** with synthetic orders, authored policy summaries and deterministic guidance. It makes **no Tavily or model requests**. Live buttons are disabled, and the forced-offline Worker ignores runtime provider keys and database bindings. The current deployed version and any pending source update are recorded in [RELEASE.md](docs/RELEASE.md). Source links point to the complete current review branch while default-main integration awaits explicit approval; a new code revision is not claimed live until deployment is verified.
 
-1. Open **Findings** and inspect the stacked-discount finding: 28 rows, $658.08 modeled exposure.
+1. From the homepage, click **See the discount policy counterexample**. It opens the synthetic discount case with manual-origin context and offline source preview in one click: 28 rows, $658.08 modeled exposure at the default seller ceiling.
 2. Choose **Manual / POS / draft**, then **Preview source fixtures**. The rule-based decision redirects the next check to staff/manual overrides. Expand the source and inspect its limitations.
 3. Choose an unknown origin, ordinary app mechanism, or wrong region to see the recommendation held. A confirmed Scripts API origin is distinct from an ordinary app.
 4. Draft offline checks, change recovery assumptions in **Scenario lab**, return to the evidence, then export the report. Importing another dataset or changing rule assumptions clears old results.
@@ -50,7 +50,7 @@ npm run build:offline-demo
 
 `check` runs lint, strict TypeScript, frontend/Worker builds, unit/API tests and small synthetic rule/routing evaluations. The offline build also checks embedded HTML/JS/CSS, disabled providers and a cross-instance fixture draft. For browser tests, run `npm run start:qa` in one terminal and `npm run test:ui` in another. Chrome must be installed; `MARGINGUARD_TEST_URL` can select another tested app origin. Browser tests use synthetic data.
 
-The review-fix suite passed **124 unit/API tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **13 browser scenarios** passed on local Node and offline Worker boundaries. New raw regression logs remain local pending separate upload approval. These are development regressions; the predeclared final benchmark has **not run**.
+The review-fix suite passed **124 unit/API tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **14 browser scenarios** passed on local Node and offline Worker boundaries. New raw regression logs remain local pending separate upload approval. These are development regressions; the predeclared final benchmark has **not run**.
 
 ## Synthetic data and calculation contract
 
