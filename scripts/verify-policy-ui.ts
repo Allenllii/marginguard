@@ -7,6 +7,8 @@ import { once } from 'node:events';
 import { createApp } from '../server/app.js';
 import { FRONTEND_DIRECTORY } from '../shared/build-paths.js';
 import { createRequestMeter, serializeEvaluationEvidence } from './lib/request-meter.js';
+import { diagnosePolicyResponse } from './lib/verify-policy-integration.js';
+import { decidePolicy } from '../shared/policy-decision.js';
 import type { Remediation, ResearchPacket } from '../shared/types.js';
 
 // Operator-only integration journey, deliberately excluded from offline tests.
@@ -22,6 +24,7 @@ if (!approved || keys.length !== 2 || process.env.TAVILY_ENABLE_LIVE !== 'true' 
   const directory = resolve('evidence', runId);
   await mkdir(directory, { recursive: true });
   let checkpointNumber = 0;
+  let supportedPacket: ResearchPacket | null = null;
   const report: Record<string, unknown> = {
     scope: 'ACTUAL_LOCAL_BROWSER_PROVIDER_INTEGRATION_NOT_FINAL_BENCHMARK', runId,
     synthetic: true, model: process.env.NEBIUS_MODEL, outcome: 'running',
@@ -37,7 +40,12 @@ if (!approved || keys.length !== 2 || process.env.TAVILY_ENABLE_LIVE !== 'true' 
     return fetch(input, init);
   }) as typeof fetch);
   const request: typeof fetch = async (input, init) => {
-    try { return await meter.request(input, init); }
+    try {
+      const response = await meter.request(input, init);
+      const url = input instanceof Request ? input.url : String(input);
+      if (url === 'https://api.tokenfactory.nebius.com/v1/chat/completions' && supportedPacket) report.modelDiagnostic = await diagnosePolicyResponse(response.clone(), supportedPacket);
+      return response;
+    }
     finally { await save('http-outcome'); }
   };
   const identities: Record<string, string> = {};
@@ -75,6 +83,8 @@ if (!approved || keys.length !== 2 || process.env.TAVILY_ENABLE_LIVE !== 'true' 
     const packet = await returnedSearch.json() as ResearchPacket;
     expect(returnedSearch.status()).toBe(200); expect(packet.mode).toBe('live'); expect(packet.status).toBe('ok'); expect(packet.proof?.requestId).toBeTruthy();
     report.search = { mode: packet.mode, status: packet.status, proof: packet.proof, checkedAt: packet.checkedAt, sources: packet.sources.map(source => ({ id: source.id, url: source.url, excerptSha256: createHash('sha256').update(source.snippet).digest('hex') })) };
+    const decision = decidePolicy('discount', packet);
+    supportedPacket = { ...packet, sources: packet.sources.filter(source => decision.sourceIds.includes(source.id)) };
     await expect(page.locator('.decision-status')).toHaveText('Initial settings fix contradicted');
     await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
     await save('live-search-visible');
@@ -84,6 +94,11 @@ if (!approved || keys.length !== 2 || process.env.TAVILY_ENABLE_LIVE !== 'true' 
     const remedy = await returnedModel.json() as Remediation;
     expect(returnedModel.status()).toBe(200);
     report.remediation = remedy;
+    if (remedy.mode !== 'live') {
+      await expect(page.locator('.remediation')).toContainText('Offline analyst checks');
+      await expect(page.locator('.remediation .proof')).toHaveCount(0);
+      report.fallbackVisibleWithoutLiveProof = true;
+    }
     expect(remedy.mode).toBe('live'); expect(remedy.proof?.requestId).toBeTruthy();
     expect(keys.some(key => JSON.stringify(remedy).includes(key))).toBe(false);
     await expect(page.locator('.remediation')).toContainText('NVIDIA / Nebius');
