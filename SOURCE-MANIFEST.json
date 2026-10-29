@@ -3,12 +3,12 @@
   "scope": "Reviewed source, synthetic data and sanitized verification evidence; no credentials, account notes, dependencies or media. Final benchmark NOT RUN.",
   "sourceFiles": 82,
   "historicalEvidenceFiles": 20,
-  "currentPhaseEvidenceFiles": 5,
+  "currentPhaseEvidenceFiles": 7,
   "verification": {
-    "unitApiMockIntegration": "107/107",
+    "unitApiMockIntegration": "109/109",
     "browserOffline": "10/10",
     "syntheticPolicyRouting": "12/12",
-    "redBeforeImplementation": "7 cases; 5 failed, 2 passed",
+    "redBeforeImplementation": "7 cases; 5 failed, 2 passed; later source-reference acceptance regression failed before contract update",
     "dependencyLockfile": "unchanged from zero-vulnerability PR #5 audit"
   },
   "liveObservation": "Read evidence/policy-ui-live-20261029.json if present; do not infer current live success from the historical PR #5 observations.",
@@ -35,8 +35,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 21768,
-      "sha256": "c4448a39c61113fb5435469f476bf0a053597e9b2b5ac4c1f678c590bffa340a"
+      "bytes": 22353,
+      "sha256": "44bbaea51a329163bba52ad7672f1f7f2f4299ece96553ed88e34d0df008ef69"
     },
     {
       "path": "data/decision-cases.json",
@@ -105,8 +105,8 @@
     },
     {
       "path": "docs/POLICY-SYNTHESIS.md",
-      "bytes": 4175,
-      "sha256": "504a3d7dc23d9b4b0d5d47930394a78bc47ffcdc3d957583252296e2b62482ed"
+      "bytes": 5652,
+      "sha256": "bef728c088673f356497bcab5bd31bf60127b45f0090de823745deb04446e943"
     },
     {
       "path": "docs/RELEASE.md",
@@ -161,7 +161,7 @@
     {
       "path": "evidence/browser-policy-prose-20261029.log",
       "bytes": 1504,
-      "sha256": "f01980a3818951c3f755a3bd36410dbf857ce817ac3614c8388a609e76ded476"
+      "sha256": "4e380f05daf3de9dbeaf676bbf2143f5c0eb8e231bc7dcdc407a843867b8f03e"
     },
     {
       "path": "evidence/browser-results.json",
@@ -180,8 +180,8 @@
     },
     {
       "path": "evidence/check-policy-prose-20261029.log",
-      "bytes": 11599,
-      "sha256": "01931f8c9b365dfa39cafc0b32708513a244a5cef4620eb2587c9a25d180bfc0"
+      "bytes": 11821,
+      "sha256": "a172960741092f6097e779e7fe5df001aa908061d3ff5cdd3279ea3e603bacf1"
     },
     {
       "path": "evidence/check-spec-request-budget-20261029.log",
@@ -230,13 +230,23 @@
     },
     {
       "path": "evidence/policy-prose-focused-20261029.log",
-      "bytes": 6335,
-      "sha256": "95454d4d203ebc2db518abd8633ed3c4af0bfa41d557183b0dc876ab486fbb0d"
+      "bytes": 6558,
+      "sha256": "e68b73b3660be6c86a3592aae32bf342ae2ca4d43700061f66028e77cc017bb7"
     },
     {
       "path": "evidence/policy-prose-red-20261029.log",
       "bytes": 5026,
       "sha256": "73f254ef8cefdc73c0c838089a241e9fc65a2143849a57404d762d31be105e73"
+    },
+    {
+      "path": "evidence/policy-reference-red-20261029.log",
+      "bytes": 2364,
+      "sha256": "f8995bbfa3a009059826555af52adb443d5fb2fc7b3fb371d10ab599b306e316"
+    },
+    {
+      "path": "evidence/policy-ui-live-20261029.json",
+      "bytes": 12587,
+      "sha256": "f52265698760a868a5d9a729dbe9473f29bc3420f26ea2fc44c8eb7fa6cd4943"
     },
     {
       "path": "evidence/policy-ui-preflight-20261029.log",
@@ -340,8 +350,8 @@
     },
     {
       "path": "scripts/lib/verify-policy-integration.ts",
-      "bytes": 15780,
-      "sha256": "8f6113ddcc393919ffd40b143d443a9c3d28b3b793b0da5c70099129352458c2"
+      "bytes": 16094,
+      "sha256": "ad338d40111ef71de427855430e27387e0949b8de87744ea671badfbcd9ded6a"
     },
     {
       "path": "scripts/record-demo.ts",
@@ -380,8 +390,8 @@
     },
     {
       "path": "scripts/verify-policy-ui.ts",
-      "bytes": 8387,
-      "sha256": "4e65939871e9df2de8ca43801bf6fd0af7dfcfbb211e064797d7d3446d635373"
+      "bytes": 9308,
+      "sha256": "8a221c9940d49be69ae1627c6414aeee0f8e2a00d554fdc3d160b33dc7f805e3"
     },
     {
       "path": "scripts/verify-tavily-ui.ts",
@@ -420,13 +430,13 @@
     },
     {
       "path": "server/nebius.ts",
-      "bytes": 14127,
-      "sha256": "368b92bb65b754b988cd425cc0d98525270e23fe59c5545b87bea70f5ba5bc9e"
+      "bytes": 13977,
+      "sha256": "5098c7f8d1441f74533a133ee1445ed73d53e7c208bb6e4b0cb4b90381cfb5fe"
     },
     {
       "path": "server/policy-draft.ts",
-      "bytes": 3771,
-      "sha256": "8fe0060b6fe41a59940efaa2789c7eec433f28b8aedf2f6f0b570ebb33f33ebd"
+      "bytes": 3858,
+      "sha256": "779a66d875192213c0869743059f276b39b41b74173047a6a9bc87e011f12275"
     },
     {
       "path": "server/service.ts",
@@ -515,13 +525,13 @@
     },
     {
       "path": "tests/policy-draft.test.ts",
-      "bytes": 6926,
-      "sha256": "770572020b3982e0fbc26d23f4714a2086949f8d98d546ef24f7e9b1117b6a3d"
+      "bytes": 7214,
+      "sha256": "60b56555160edefcc356523299dfd202d0a08dbfd2906145a7d079390770d100"
     },
     {
       "path": "tests/provider-integration.test.ts",
-      "bytes": 23876,
-      "sha256": "c3ca5fbe1a6120b2f056b75b9e07dcfac2d3123fd1c49349371fb1d6c380f07e"
+      "bytes": 24778,
+      "sha256": "8dbc4d3cbd34768dfb82e6703b534e609d3b52408a07e68773a837e099a63f43"
     },
     {
       "path": "tests/request-meter.test.ts",
