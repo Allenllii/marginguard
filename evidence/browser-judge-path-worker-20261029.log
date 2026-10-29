@@ -1,0 +1,20 @@
+
+Running 12 tests using 1 worker
+
+(node:19416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 tests\browser.spec.ts:5:1 鈥?journey: policy evidence survives scenario navigation but a different dataset clears it (795ms)
+  ok  2 tests\browser.spec.ts:33:1 鈥?clarity: the evidence decision leads the draft and keeps assumptions, citations and authority explicit (660ms)
+  ok  3 tests\browser.spec.ts:57:1 鈥?desktop: overview, evidence, scenario, report, offline brief, valid and invalid import (1.5s)
+  ok  4 tests\browser.spec.ts:119:1 鈥?mobile: navigation, evidence, and layout stay usable (1.4s)
+  ok  5 tests\browser.spec.ts:144:1 鈥?cancel, repeat evidence visits and navigation preserve the current dataset (989ms)
+  ok  6 tests\browser.spec.ts:188:1 鈥?delayed explanations are discarded after a different import and repeated same-data resets (939ms)
+  ok  7 tests\browser.spec.ts:203:1 鈥?delayed policy search and remediation cannot survive a same-dataset reset (567ms)
+  ok  8 tests\browser.spec.ts:214:1 鈥?policy exception redirects a manual-discount check and missing/wrong-region context holds (811ms)
+  ok  9 tests\browser.spec.ts:225:1 鈥?a slower earlier import cannot overwrite a newer import (363ms)
+  ok 10 tests\browser.spec.ts:239:1 鈥?method text follows the applied seller assumptions and reset defaults (459ms)
+  ok 11 tests\browser.spec.ts:250:1 鈥?a rejected latest drop prevents an older pending import from becoming current (398ms)
+  ok 12 tests\browser.spec.ts:264:1 鈥?client-rejected files can be selected again after dismissing the error (761ms)
+
+  12 passed (10.5s)
+Owned offline Worker bridge stopped; existing servers untouched.

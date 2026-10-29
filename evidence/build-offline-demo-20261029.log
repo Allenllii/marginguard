@@ -1,0 +1,31 @@
+
+> margin-guard@0.1.0 build:offline-demo
+> npm run build && node --import tsx scripts/build-worker.ts --offline-only && node scripts/verify-offline-artifact.mjs
+
+
+> margin-guard@0.1.0 build
+> npm run build:frontend && npm run build:worker && node scripts/build-sites.mjs && node scripts/validate-artifact.mjs
+
+
+> margin-guard@0.1.0 build:frontend
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+鉁?1944 modules transformed.
+rendering chunks...
+computing gzip size...
+frontend-dist/index.html                   0.54 kB 鈹?gzip:  0.35 kB
+frontend-dist/assets/index-Dpfh0q1_.css   30.93 kB 鈹?gzip:  7.50 kB
+frontend-dist/assets/index-BEaG5cKk.js   283.06 kB 鈹?gzip: 87.50 kB
+
+鉁?built in 340ms
+
+> margin-guard@0.1.0 build:worker
+> node --import tsx scripts/build-worker.ts
+
+Portable Worker ESM built: ./worker/index.js (869613 bytes), 3 embedded assets, no Node builtins; offline health/page smoke passed. Profile: standard, hosted live gates enforced.
+Built C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\dist
+Artifact is valid ESM and exports default.fetch
+Portable Worker ESM built: offline-dist/server/index.js (869766 bytes), 3 embedded assets, no Node builtins; offline health/page smoke passed. Profile: forced offline, ignores runtime provider configuration.
+Forced-offline candidate passed 12 route checks; 2 embedded assets; zero outbound attempts; no runtime credential or DB access. No deployment performed.

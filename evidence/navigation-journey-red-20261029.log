@@ -1,0 +1,64 @@
+
+Running 12 tests using 1 worker
+
+(node:34668) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   1 tests\browser.spec.ts:5:1 鈥?journey: policy evidence survives scenario navigation but a different dataset clears it (5.6s)
+(node:10060) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 tests\browser.spec.ts:31:1 鈥?clarity: the evidence decision leads the draft and keeps assumptions, citations and authority explicit (771ms)
+  ok  3 tests\browser.spec.ts:55:1 鈥?desktop: overview, evidence, scenario, report, offline brief, valid and invalid import (1.5s)
+  ok  4 tests\browser.spec.ts:117:1 鈥?mobile: navigation, evidence, and layout stay usable (1.4s)
+  ok  5 tests\browser.spec.ts:142:1 鈥?cancel, repeat evidence visits and navigation preserve the current dataset (992ms)
+  ok  6 tests\browser.spec.ts:186:1 鈥?delayed explanations are discarded after a different import and repeated same-data resets (917ms)
+  ok  7 tests\browser.spec.ts:201:1 鈥?delayed policy search and remediation cannot survive a same-dataset reset (590ms)
+  ok  8 tests\browser.spec.ts:212:1 鈥?policy exception redirects a manual-discount check and missing/wrong-region context holds (820ms)
+  ok  9 tests\browser.spec.ts:223:1 鈥?a slower earlier import cannot overwrite a newer import (372ms)
+  ok 10 tests\browser.spec.ts:237:1 鈥?method text follows the applied seller assumptions and reset defaults (443ms)
+  ok 11 tests\browser.spec.ts:248:1 鈥?a rejected latest drop prevents an older pending import from becoming current (398ms)
+  ok 12 tests\browser.spec.ts:262:1 鈥?client-rejected files can be selected again after dismissing the error (731ms)
+
+
+  1) tests\browser.spec.ts:5:1 鈥?journey: policy evidence survives scenario navigation but a different dataset clears it 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByLabel('Discount origin')
+    Expected: "manual"
+    Received: "unknown"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByLabel('Discount origin') with timeout 5000ms
+      - waiting for getByLabel('Discount origin')
+        14 脳 locator resolved to <select aria-label="Discount origin">鈥?/select>
+           - unexpected value "unknown"
+
+
+      14 |   await expect(page.locator('.scenario-big')).toHaveText('+$0');
+      15 |   await page.getByRole('button', { name: /^Findings/ }).click();
+    > 16 |   await expect(page.getByLabel('Discount origin')).toHaveValue('manual');
+         |                                                    ^
+      17 |   await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
+      18 |   await page.getByLabel('Import order CSV').setInputFiles(path.resolve('data/invalid-example.csv'));
+      19 |   await expect(page.getByRole('alert')).toBeVisible();
+        at C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\tests\browser.spec.ts:16:52
+
+    attachment #1: screenshot (image/png) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\browser-journey-policy-evi-84e00-different-dataset-clears-it\test-failed-1.png
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    Error Context: test-results\browser-journey-policy-evi-84e00-different-dataset-clears-it\error-context.md
+
+    attachment #3: trace (application/zip) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    test-results\browser-journey-policy-evi-84e00-different-dataset-clears-it\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser-journey-policy-evi-84e00-different-dataset-clears-it\trace.zip
+
+    鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+  1 failed
+    tests\browser.spec.ts:5:1 鈥?journey: policy evidence survives scenario navigation but a different dataset clears it 
+  11 passed (16.3s)
+Fresh QA child stopped; existing server untouched.

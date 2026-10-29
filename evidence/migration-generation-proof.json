@@ -1,0 +1,11 @@
+{
+  "canonicalGenerationReturnCode": 0,
+  "canonicalHistoryUnchanged": true,
+  "canonicalFiles": {
+    "0000_open_lightspeed.sql": "d74b27520edc0df7ddf3940455e61b9091b1688e007180b9a1290532bfc4e167",
+    "meta/0000_snapshot.json": "eacdc7198a164f6725a4dac74a2861fec570c6e3491bfb6273c1c1e82fdacdc0",
+    "meta/_journal.json": "297ee44527b866ed39e6f16999bf4753a4f747b3d419fe3610a9f7f2b42aef28"
+  },
+  "output": "\n> margin-guard@0.1.0 db:generate\n> drizzle-kit generate\n\nNo config path provided, using default 'drizzle.config.ts'\nReading config file 'C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\margin-guard\\drizzle.config.ts'\n3 tables\nlive_request_days 3 columns 0 indexes 0 fks\nlive_request_minutes 3 columns 0 indexes 0 fks\npolicy_cache 3 columns 1 indexes 0 fks\n\nNo schema changes, nothing to migrate \ud83d\ude34\n",
+  "scope": "Actual canonical db:generate; no provider/database network request and no secret file access."
+}

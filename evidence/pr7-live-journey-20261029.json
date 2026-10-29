@@ -1,0 +1,156 @@
+{
+  "recordedAt": "2026-10-29T09:45:59.343025+00:00",
+  "scope": "One explicitly authorized synthetic local browser integration of PR7 prompt/grammar guard, not final benchmark or independent project review.",
+  "sourceCommitAtProbe": "373d7616511cfcd6811637734b9be73d4026b2e8",
+  "localReport": "evidence/policy-ui-2026-10-29T09-28-29-504Z-82e6642e-10e6-4559-bbaa-65f0f4f03b2e/009-complete.json",
+  "localReportSha256": "f29e7fef657c26978bbc6e8530cab3e30c350ac9fadaaf83893c916ad0478d3a",
+  "manualProbeCount": 1,
+  "actualHttpAttempts": 3,
+  "actualCompletions": 1,
+  "reportedTavilyCredits": 1,
+  "automaticRetries": 0,
+  "cost": {
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "catalogUrl": "https://tokenfactory.nebius.com/models/catalog/text2text/nvidia%2FNemotron-3_5-Lightning",
+    "catalogObserved": "1M Input $0.06; 1M Output $0.24",
+    "completionListRateEstimateUsd": "0.0000585",
+    "formula": "(579 * 0.06 + 99 * 0.24) / 1000000",
+    "actualInvoiceChargeConfirmed": false,
+    "assumptions": "Completion-only estimate at observed list rates, all input assumed uncached; excludes taxes, discounts or other service charges. Reported Tavily usage is one credit, not a confirmed fiat charge."
+  },
+  "observation": {
+    "scope": "ACTUAL_LOCAL_BROWSER_PROVIDER_INTEGRATION_NOT_FINAL_BENCHMARK",
+    "runId": "policy-ui-2026-10-29T09-28-29-504Z-82e6642e-10e6-4559-bbaa-65f0f4f03b2e",
+    "synthetic": true,
+    "model": "nvidia/Nemotron-3_5-Lightning",
+    "outcome": "passed",
+    "validatedLiveModelSuccess": true,
+    "semanticFidelityReview": "pending",
+    "limit": "Three actual HTTP attempts total; no retries, repair calls, or alternate provider.",
+    "sourceIdentities": {
+      "server/nebius.ts": "e53f04981396b1e01e788f4158640b3d72103e5c590bc0f5e71d63b5463e9f23",
+      "server/policy-draft.ts": "1aca441e2253ef5836ee9b8a3253c25f0dfad1b71068b7a063573ca85dcd6453",
+      "server/app.ts": "b78db5c11516d61a9621c1fb2d7bc8683461a888c4b020b3078e2924e31dd67c",
+      "src/PolicyResearch.tsx": "f808b7872bd36a00a2ee66cf0cd4f928a456fd968a6b3e973bbadee8603bd215"
+    },
+    "loopbackOnly": true,
+    "search": {
+      "mode": "live",
+      "status": "ok",
+      "proof": {
+        "requestId": "8df2a245-7576-48d3-9d40-ffb7b7213991",
+        "latencyMs": 1851,
+        "usageCredits": 1
+      },
+      "checkedAt": "2026-10-29T09:28:31.997Z",
+      "sources": [
+        {
+          "id": "S1",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+          "excerptSha256": "e6e92cab307532f92c4689c2e012dcf6820142bf18ddfd0a74f2b23d0d473e8b"
+        },
+        {
+          "id": "S2",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/save-retrieve-order",
+          "excerptSha256": "c4827435505cb4f8bd3794bc9048b90b7a590cd609afdccbe560beebff783470"
+        },
+        {
+          "id": "S3",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/draft-orders",
+          "excerptSha256": "c4827435505cb4f8bd3794bc9048b90b7a590cd609afdccbe560beebff783470"
+        }
+      ]
+    },
+    "modelDiagnostic": {
+      "body": "parsed-json",
+      "finishReason": "stop",
+      "refusalPresent": false,
+      "reasoningContentPresent": false,
+      "content": "present",
+      "contentCharacters": 487,
+      "usage": {
+        "promptTokens": 579,
+        "completionTokens": 99,
+        "totalTokens": 678,
+        "reasoningTokens": 0
+      },
+      "schemaIssues": null,
+      "validation": "accepted"
+    },
+    "remediation": {
+      "documentedPolicy": [
+        {
+          "sourceId": "S1",
+          "statement": "The returned passage describes a manual-discount exception to combination settings."
+        }
+      ],
+      "inference": "The manual discount exception to combination settings may apply to the affected orders, but the policy effective date and store plan eligibility have not been verified.",
+      "nextStep": "Audit store configuration, promotion intent, and policy effective dates before adjusting combination settings.",
+      "uncertainty": "Policy effective dates and account terms are unverified; an exception does not establish the cause of the exposure.",
+      "mode": "live",
+      "model": "nvidia/Nemotron-3_5-Lightning",
+      "proof": {
+        "requestedAt": "2026-10-29T09:28:32.044Z",
+        "requestId": "196038cb42e7180cb4fb6c1b30977819",
+        "latencyMs": 2164,
+        "inputTokens": 579,
+        "outputTokens": 99
+      }
+    },
+    "exportVerified": true,
+    "browser": {
+      "liveSearchPosts": 1,
+      "liveModelPosts": 1,
+      "pageErrorCount": 0,
+      "unknownContextHeld": true,
+      "resetClearedResults": true
+    },
+    "stage": "complete",
+    "http": {
+      "maximumApprovedHttpRequests": 3,
+      "attemptedHttpRequests": 3,
+      "blockedAttempts": 0,
+      "unknownOutcomes": 0,
+      "traces": [
+        {
+          "sequence": 1,
+          "provider": "tavily",
+          "endpoint": "search",
+          "method": "POST",
+          "startedAt": "2026-10-29T09:28:30.146Z",
+          "outcome": "response",
+          "status": 200,
+          "requestId": null,
+          "responseLatencyMs": 1847
+        },
+        {
+          "sequence": 2,
+          "provider": "nebius",
+          "endpoint": "models",
+          "method": "GET",
+          "startedAt": "2026-10-29T09:28:32.044Z",
+          "outcome": "response",
+          "status": 200,
+          "requestId": "3ba0d489ec75b0590eb88753b9ddb33d",
+          "responseLatencyMs": 312
+        },
+        {
+          "sequence": 3,
+          "provider": "nebius",
+          "endpoint": "completion",
+          "method": "POST",
+          "startedAt": "2026-10-29T09:28:32.358Z",
+          "outcome": "response",
+          "status": 200,
+          "requestId": "196038cb42e7180cb4fb6c1b30977819",
+          "responseLatencyMs": 1845
+        }
+      ],
+      "latencyDefinition": "Per HTTP attempt to response headers or rejection; excludes response-body consumption. Logical adapter proof includes validation and is reported separately.",
+      "usageNote": "HTTP response status does not establish valid model output or policy fidelity. Unknown fetch outcomes can still consume provider usage."
+    }
+  },
+  "laterChanges": "Navigation persistence and the forced-offline build are subsequent local patches. Their acceptance is covered by separate offline regressions; do not attribute those paths to this earlier live probe.",
+  "qualityReview": "No observed account-number agreement error, long source copy or dangling clause in this response. The model check is less specific than the rule-based manual-override check; the UI keeps that evidence decision authoritative. Independent semantic review remains pending.",
+  "eligibility": "No hosted key, public deployment, final benchmark or video was performed. Successful runtime output alone does not complete release gates."
+}

@@ -1,0 +1,19 @@
+node_modules/
+.npm-cache/
+dist/
+deploy/sites/
+.playwright-browsers/
+evidence/video-raw/
+.env
+.env.*
+!.env.example
+*.log
+playwright-report/
+test-results/
+
+# Generated portable Worker bundle and independent Node frontend
+worker/index.js
+frontend-dist/
+
+# Generated forced-offline judge demo candidate
+offline-dist/

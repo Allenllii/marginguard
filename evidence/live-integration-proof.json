@@ -1,0 +1,295 @@
+{
+  "scope": "OBSERVED_OPERATOR_INTEGRATION_NOT_FINAL_BENCHMARK",
+  "syntheticCase": "Shopify / US / seller-provided manual discount origin",
+  "datasetFingerprint": "0aca9bee505e7050",
+  "totalActualHttpAttempts": 9,
+  "totalCompletionAttempts": 3,
+  "observedTavilyCredits": 3,
+  "currentAdapterMatches": "released-adapter-profile; experimental prose-only hard constraints were not released",
+  "currentAdapterSha256": "e31a9752e8963b42b3f195d9d01c101247d9df6c83628c4522efde2e7bb4ae17",
+  "publicSummaryRedactions": "Long source extracts and copied model policy prose are omitted. Raw local reports remain unchanged and their hashes are recorded. No credentials or private account details are included.",
+  "limitations": [
+    "One development case repeated during diagnosed integration work; not an independent sample or benchmark.",
+    "Source IDs and schema acceptance do not establish semantic policy fidelity.",
+    "The accepted model statement copied a long source excerpt and ended mid-clause; prose quality remains an explicit review item.",
+    "First truncated run did not retain token usage; its token count and total model charge remain unknown.",
+    "No successful browser-triggered NVIDIA call or hosted integration is claimed by this operator check."
+  ],
+  "runs": [
+    {
+      "candidate": "initial-default-thinking",
+      "rawLocalReport": "evidence/policy-integration-2026-10-29T07-38-29-157Z-bc9f40fd-33e9-4355-b4ed-4a6146f120c9/014-complete.json",
+      "rawReportSha256": "491df468aac1958fcc709134a44dd0cb98d8a7eb0c98f3de4decd8f6083bec91",
+      "outcomeAsRecorded": "model-not-validated",
+      "validatedLiveModelSuccessAsRecorded": false,
+      "configuredModel": "nvidia/Nemotron-3_5-Lightning",
+      "http": {
+        "maximumApprovedHttpRequests": 3,
+        "attemptedHttpRequests": 3,
+        "blockedAttempts": 0,
+        "unknownOutcomes": 0,
+        "traces": [
+          {
+            "sequence": 1,
+            "provider": "tavily",
+            "endpoint": "search",
+            "method": "POST",
+            "startedAt": "2026-10-29T07:38:29.191Z",
+            "outcome": "response",
+            "status": 200,
+            "requestId": null,
+            "responseLatencyMs": 2624
+          },
+          {
+            "sequence": 2,
+            "provider": "nebius",
+            "endpoint": "models",
+            "method": "GET",
+            "startedAt": "2026-10-29T07:38:31.822Z",
+            "outcome": "response",
+            "status": 200,
+            "requestId": "3764c9ac75d1d2a86fd1af277102113e",
+            "responseLatencyMs": 338
+          },
+          {
+            "sequence": 3,
+            "provider": "nebius",
+            "endpoint": "completion",
+            "method": "POST",
+            "startedAt": "2026-10-29T07:38:32.163Z",
+            "outcome": "response",
+            "status": 200,
+            "requestId": "2a9175a29d70ec802364bd3ed06dd52c",
+            "responseLatencyMs": 8303
+          }
+        ],
+        "latencyDefinition": "Per HTTP attempt to response headers or rejection; excludes response-body consumption. Logical adapter proof includes validation and is reported separately.",
+        "usageNote": "HTTP response status does not establish valid model output or policy fidelity. Unknown fetch outcomes can still consume provider usage."
+      },
+      "requestedControls": null,
+      "modelDiagnostic": {
+        "body": "parsed-json",
+        "finishReason": "length",
+        "refusalPresent": false,
+        "reasoningContentPresent": true,
+        "content": "missing",
+        "contentCharacters": null,
+        "validation": "not-evaluated"
+      },
+      "tavilyProof": {
+        "requestId": "a5eba1e5-bc82-4c08-b52c-fca0f5d5e6fd",
+        "latencyMs": 2638,
+        "usageCredits": 1
+      },
+      "supportingSourceUrls": [
+        "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts"
+      ],
+      "decision": {
+        "sourceIds": [
+          "S1"
+        ],
+        "disprove": "The original promotion record, store eligibility, applicable policy effective date, and a controlled test could disprove this hypothesis.",
+        "status": "contradicted",
+        "constraint": "The policy passage describes an exception to combination settings for this seller-provided discount origin. A settings toggle is not established as a remedy. Confirm store/plan eligibility, transaction scope and the effective policy.",
+        "nextCheck": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings."
+      },
+      "modelProof": null,
+      "modelPolicyStatementSha256": [
+        "010a91619c1c36eb50fa57f6eb1113b850b2dc5594eab52f5b2396f4acdfa34e"
+      ],
+      "nextStep": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings."
+    },
+    {
+      "candidate": "released-adapter-profile",
+      "rawLocalReport": "evidence/policy-integration-2026-10-29T07-47-14-163Z-6099ac86-febc-4ee6-bdf4-3f6afb061249/015-complete.json",
+      "rawReportSha256": "61e0fdbf13fd111ce147fc7c70f511a52f063f9d8e3d107f634e2be4e7620d4c",
+      "outcomeAsRecorded": "validated-live-model",
+      "validatedLiveModelSuccessAsRecorded": true,
+      "configuredModel": "nvidia/Nemotron-3_5-Lightning",
+      "http": {
+        "maximumApprovedHttpRequests": 3,
+        "attemptedHttpRequests": 3,
+        "blockedAttempts": 0,
+        "unknownOutcomes": 0,
+        "traces": [
+          {
+            "sequence": 1,
+            "provider": "tavily",
+            "endpoint": "search",
+            "method": "POST",
+            "startedAt": "2026-10-29T07:47:14.196Z",
+            "outcome": "response",
+            "status": 200,
+            "requestId": null,
+            "responseLatencyMs": 124
+          },
+          {
+            "sequence": 2,
+            "provider": "nebius",
+            "endpoint": "models",
+            "method": "GET",
+            "startedAt": "2026-10-29T07:47:14.327Z",
+            "outcome": "response",
+            "status": 200,
+            "requestId": "b2072fa2a14757b5f798813a3de3933b",
+            "responseLatencyMs": 317
+          },
+          {
+            "sequence": 3,
+            "provider": "nebius",
+            "endpoint": "completion",
+            "method": "POST",
+            "startedAt": "2026-10-29T07:47:14.648Z",
+            "outcome": "response",
+            "status": 200,
+            "requestId": "ef742984d853d161234c3f9144d3e006",
+            "responseLatencyMs": 1352
+          }
+        ],
+        "latencyDefinition": "Per HTTP attempt to response headers or rejection; excludes response-body consumption. Logical adapter proof includes validation and is reported separately.",
+        "usageNote": "HTTP response status does not establish valid model output or policy fidelity. Unknown fetch outcomes can still consume provider usage."
+      },
+      "requestedControls": {
+        "max_tokens": 1400,
+        "store": false,
+        "thinkingDisabledRequested": true
+      },
+      "modelDiagnostic": {
+        "body": "parsed-json",
+        "finishReason": "stop",
+        "refusalPresent": false,
+        "reasoningContentPresent": false,
+        "content": "present",
+        "contentCharacters": 1103,
+        "usage": {
+          "promptTokens": 463,
+          "completionTokens": 212,
+          "totalTokens": 675,
+          "reasoningTokens": 0
+        },
+        "validation": "accepted"
+      },
+      "tavilyProof": {
+        "requestId": "23b971f0-b9a0-45db-9628-ecb90de5d213",
+        "latencyMs": 137,
+        "usageCredits": 1
+      },
+      "supportingSourceUrls": [
+        "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts"
+      ],
+      "decision": {
+        "sourceIds": [
+          "S1"
+        ],
+        "disprove": "The original promotion record, store eligibility, applicable policy effective date, and a controlled test could disprove this hypothesis.",
+        "status": "contradicted",
+        "constraint": "The policy passage describes an exception to combination settings for this seller-provided discount origin. A settings toggle is not established as a remedy. Confirm store/plan eligibility, transaction scope and the effective policy.",
+        "nextCheck": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings."
+      },
+      "modelProof": {
+        "requestedAt": "2026-10-29T07:47:14.327Z",
+        "requestId": "ef742984d853d161234c3f9144d3e006",
+        "latencyMs": 1677,
+        "inputTokens": 463,
+        "outputTokens": 212
+      },
+      "modelPolicyStatementSha256": [
+        "e6e92cab307532f92c4689c2e012dcf6820142bf18ddfd0a74f2b23d0d473e8b"
+      ],
+      "nextStep": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings."
+    },
+    {
+      "candidate": "unreleased-format-candidate",
+      "rawLocalReport": "evidence/policy-integration-2026-10-29T08-03-05-301Z-b78ad043-92d8-45de-be6a-12779b20b652/015-complete.json",
+      "rawReportSha256": "61ed68626d54321ef3683da743b1bbc5587f1faa0722445a08a886af508a8e43",
+      "outcomeAsRecorded": "model-not-validated",
+      "validatedLiveModelSuccessAsRecorded": false,
+      "configuredModel": "nvidia/Nemotron-3_5-Lightning",
+      "http": {
+        "maximumApprovedHttpRequests": 3,
+        "attemptedHttpRequests": 3,
+        "blockedAttempts": 0,
+        "unknownOutcomes": 0,
+        "traces": [
+          {
+            "sequence": 1,
+            "provider": "tavily",
+            "endpoint": "search",
+            "method": "POST",
+            "startedAt": "2026-10-29T08:03:05.335Z",
+            "outcome": "response",
+            "status": 200,
+            "requestId": null,
+            "responseLatencyMs": 127
+          },
+          {
+            "sequence": 2,
+            "provider": "nebius",
+            "endpoint": "models",
+            "method": "GET",
+            "startedAt": "2026-10-29T08:03:05.471Z",
+            "outcome": "response",
+            "status": 200,
+            "requestId": "e7ff23604f11dcb22b3573d7e59a2c59",
+            "responseLatencyMs": 341
+          },
+          {
+            "sequence": 3,
+            "provider": "nebius",
+            "endpoint": "completion",
+            "method": "POST",
+            "startedAt": "2026-10-29T08:03:05.814Z",
+            "outcome": "response",
+            "status": 200,
+            "requestId": "8075c979ffe310709d25ae54cd7b77ba",
+            "responseLatencyMs": 1097
+          }
+        ],
+        "latencyDefinition": "Per HTTP attempt to response headers or rejection; excludes response-body consumption. Logical adapter proof includes validation and is reported separately.",
+        "usageNote": "HTTP response status does not establish valid model output or policy fidelity. Unknown fetch outcomes can still consume provider usage."
+      },
+      "requestedControls": {
+        "max_tokens": 1400,
+        "store": false,
+        "thinkingDisabledRequested": true
+      },
+      "modelDiagnostic": {
+        "body": "parsed-json",
+        "finishReason": "stop",
+        "refusalPresent": false,
+        "reasoningContentPresent": false,
+        "content": "present",
+        "contentCharacters": 783,
+        "usage": {
+          "promptTokens": 508,
+          "completionTokens": 150,
+          "totalTokens": 658,
+          "reasoningTokens": 0
+        },
+        "validation": "invalid-schema"
+      },
+      "tavilyProof": {
+        "requestId": "6a4f779f-b7e8-488a-b52f-c229c4157218",
+        "latencyMs": 141,
+        "usageCredits": 1
+      },
+      "supportingSourceUrls": [
+        "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts"
+      ],
+      "decision": {
+        "sourceIds": [
+          "S1"
+        ],
+        "disprove": "The original promotion record, store eligibility, applicable policy effective date, and a controlled test could disprove this hypothesis.",
+        "status": "contradicted",
+        "constraint": "The policy passage describes an exception to combination settings for this seller-provided discount origin. A settings toggle is not established as a remedy. Confirm store/plan eligibility, transaction scope and the effective policy.",
+        "nextCheck": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings."
+      },
+      "modelProof": null,
+      "modelPolicyStatementSha256": [
+        "010a91619c1c36eb50fa57f6eb1113b850b2dc5594eab52f5b2396f4acdfa34e"
+      ],
+      "nextStep": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings."
+    }
+  ]
+}
