@@ -12,11 +12,11 @@ async function post<T>(path: string, body: unknown, signal?: AbortSignal): Promi
   if (!response.ok) throw new Error(data.error || 'The policy check could not complete.');
   return data;
 }
-export default function PolicyResearch({ analysis, csv, tavilyConfigured, nvidiaConfigured }: { analysis: Analysis; csv: string; tavilyConfigured: boolean; nvidiaConfigured: boolean }) {
+export default function PolicyResearch({ analysis, csv, tavilyConfigured, nvidiaConfigured, initialPacket = null }: { analysis: Analysis; csv: string; tavilyConfigured: boolean; nvidiaConfigured: boolean; initialPacket?: ResearchPacket | null }) {
   const supported = analysis.issues.filter(i => i.kind === 'discount' || i.kind === 'shipping');
-  const [issueId, setIssueId] = useState(supported[0]?.id ?? '');
-  const [context, setContext] = useState<ResearchContext>({ platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'unknown' });
-  const [packet, setPacket] = useState<ResearchPacket | null>(null);
+  const [issueId, setIssueId] = useState((initialPacket ? supported.find(i => i.kind === initialPacket.kind)?.id : supported[0]?.id) ?? '');
+  const [context, setContext] = useState<ResearchContext>(initialPacket?.context ?? { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'unknown' });
+  const [packet, setPacket] = useState<ResearchPacket | null>(initialPacket);
   const [remedy, setRemedy] = useState<Remediation | null>(null);
   const [busy, setBusy] = useState<'search' | 'model' | null>(null);
   const [consent, setConsent] = useState(false);

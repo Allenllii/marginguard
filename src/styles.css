@@ -17,3 +17,6 @@
 .decision-card h3{font-size:17px;line-height:1.5;font-weight:500;color:#617a4c;margin:8px 0 0}.remediation>.draft-authority{padding-top:14px;margin-top:18px;border-top:1px solid #dce6cd;font-size:10px;color:#657e4f}
 
 .data-privacy{margin:-7px 0 18px;line-height:1.8}
+
+.judge-entry{display:flex;align-items:center;gap:28px;margin-bottom:24px;background:#f1f6e8}.judge-entry>div{flex:1}.judge-entry h2{font-size:22px;line-height:1.35;margin:10px 0}.judge-entry p{max-width:760px;line-height:1.8;font-size:12px}.judge-entry .button{white-space:normal;max-width:290px}.page-footer>a{color:inherit;text-decoration:underline}
+@media(max-width:800px){.judge-entry{flex-direction:column;align-items:stretch;gap:12px}.judge-entry h2{font-size:20px}.judge-entry .button{max-width:none}}

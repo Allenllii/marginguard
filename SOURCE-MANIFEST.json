@@ -1,25 +1,21 @@
 {
-  "baselineSource": "804e44eaf92186a781002db041d17c68adccd6bd",
-  "scope": "Canonical source plus public synthetic data, documentation and sanitized development evidence. No secrets, account/card notes, cache, dependencies, generated bundle or video.",
+  "baselineSource": "57b71a4effe33a3ee5808afe8c9a9568765185ad",
+  "sourceBranch": "codex/judge-case-entry",
+  "scope": "One-click synthetic policy counterexample and complete-source branch link. No new raw evidence upload, credentials, media or generated bundles.",
   "verification": {
     "lint": "PASS",
-    "strictTypecheck": "PASS",
-    "frontendAndStandardWorkerBuild": "PASS",
-    "unitApiPassed": 124,
-    "unitApiFailed": 0,
-    "unitApiSkipped": 0,
-    "nodeBrowserPassed": 13,
-    "workerBrowserPassed": 13,
-    "browserScope": "Same thirteen scenarios against two local boundaries; not twenty-six independent cases",
-    "syntheticDecisionCasesPassed": 12,
-    "goldenExposureAndRowSets": "3/3 each; clean control zero findings",
-    "offlineArtifactRoutes": 13,
-    "coldIsolateFixtureDraft": true,
-    "assetMimeChecks": 2,
-    "outboundProviderAttempts": 0
+    "strictTypes": "PASS",
+    "frontendAndWorkerBuilds": "PASS",
+    "unitApi": "124/124",
+    "syntheticRouting": "12/12",
+    "artifactRoutes": 13,
+    "browserNode": "14/14",
+    "browserOfflineWorker": "14/14 same scenarios",
+    "providerRequestsThisPhase": 0
   },
+  "deployment": "Candidate requires Sites synchronization; do not claim it live until verified.",
+  "mainIntegration": "PR11 pending explicit merge approval",
   "finalBenchmark": "NOT RUN",
-  "deployment": "Public forced-offline version 1 observed; runtime fixes require coordinated update. See docs/RELEASE.md.",
   "files": [
     {
       "path": ".env.example",
@@ -43,8 +39,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 8581,
-      "sha256": "954d1b1b749d3e99399c2c61f8733f87797e3c821a3dcaf15ef3f5b8f6dbeb34"
+      "bytes": 8960,
+      "sha256": "16d2c0fdee3754540b68bb07e4208111ff58cb8a2821e84ea87965c0fe03f439"
     },
     {
       "path": "data/decision-cases.json",
@@ -138,8 +134,8 @@
     },
     {
       "path": "docs/RELEASE.md",
-      "bytes": 2967,
-      "sha256": "f6b9d85f8613cc25a1419829b3b40e928853fe080634b12b8779943ff373d3c0"
+      "bytes": 3606,
+      "sha256": "9ee9ddb4ae93ca856f7ef242ec1ecc23445394fb6428a62a2314a80f10f5fd11"
     },
     {
       "path": "docs/SPEC.md",
@@ -583,8 +579,8 @@
     },
     {
       "path": "src/App.tsx",
-      "bytes": 36233,
-      "sha256": "0796102af06df86ddeaf0f1304dc90b23fb834e187cad4842a95384cd00ccd03"
+      "bytes": 38149,
+      "sha256": "8285d344227cdb72cb8d8e8e0d129e87be32290df2add6a2984075e5a986c011"
     },
     {
       "path": "src/PolicyDecisionCard.tsx",
@@ -598,8 +594,8 @@
     },
     {
       "path": "src/PolicyResearch.tsx",
-      "bytes": 12001,
-      "sha256": "b9f395130b2de3aeed990951d9b2e823bbf6a485fc2014fffc34b5af23542c91"
+      "bytes": 12172,
+      "sha256": "8cc30cb212e0c602f57185b504eb784e52a8d9149029768d2304b74110101f8c"
     },
     {
       "path": "src/main.tsx",
@@ -608,8 +604,8 @@
     },
     {
       "path": "src/styles.css",
-      "bytes": 31099,
-      "sha256": "3e6da7791d5dffbbc18536a82e52115f60061b7b48bd6fa16aa8a223f9cf31e0"
+      "bytes": 31609,
+      "sha256": "8dc45484f2528a833ffbde62feca639da064b1d359525b8cbcb5a1d986898d1f"
     },
     {
       "path": "tests/analysis.test.ts",
@@ -623,8 +619,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 24536,
-      "sha256": "5fbf470f51385cd5947e15289bf45e37249b4c1aad19d516886fc027c203137f"
+      "bytes": 25964,
+      "sha256": "f3736ca81bfdb3fec882a4066fc245abf27a0a327b0d1d7c62d63b69ddab4f83"
     },
     {
       "path": "tests/budget.test.ts",
