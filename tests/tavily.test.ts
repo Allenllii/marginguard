@@ -99,7 +99,7 @@ const issue = analyze(createDemoCsv()).issues.find(i => i.kind === 'discount')!;
 async function packet(live = false): Promise<ResearchPacket> {
   return { ...await research('discount', context, live, config, (async () => reply({ results: [result] })) as typeof fetch), researchId: 'fixture' };
 }
-const draft = { documentedPolicy: [{ sourceId: 'S1', statement: 'Combination settings control which eligible discounts may apply together.' }], inference: 'The settings are a plausible investigation point, but the evidence does not identify the active store configuration.', nextStep: 'Compare a flagged order with its promotion settings before a small controlled campaign test.', uncertainty: 'The policy excerpt does not establish the cause. Verify the full source, effective date, store eligibility and active settings.' };
+const draft = { documentedPolicy: [{ sourceId: 'S1', statement: 'The returned passage describes conditions for combining discounts or restricting coupon use.' }], inference: 'The settings are a plausible investigation point, but the evidence does not identify the active store configuration.', nextStep: 'Compare a flagged order with its promotion settings before a small controlled campaign test.', uncertainty: 'The policy excerpt does not establish the cause. Verify the full source, effective date, store eligibility and active settings.' };
 test('source-grounded model validation rejects unknown citations, numeric claims and causal guarantees', async () => {
   const p = await packet(true);
   assert.doesNotThrow(() => validateRemediation(draft, p));
@@ -155,7 +155,7 @@ test('model remediation receives only supporting passages and cannot cite an unr
     const result = await remediate(issue, p, true, { enabled: true, key: 'fixture', model: 'nvidia/test' }, (async (_url: unknown, init?: RequestInit) => {
       if (++calls === 1) return reply({ data: [{ id: 'nvidia/test' }] });
       const body = JSON.parse(String(init?.body)); provided = JSON.parse(body.messages[1].content).untrusted_sources;
-      return reply({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ ...draft, documentedPolicy: [{ sourceId, statement: 'Manual discounts follow their documented override exception.' }] }) } }] });
+      return reply({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ ...draft, documentedPolicy: [{ sourceId, statement: 'The returned passage describes a manual-discount exception to combination settings.' }] }) } }] });
     }) as typeof fetch);
     assert.deepEqual(provided, [{ sourceId: 'S2', excerpt: p.sources[1].snippet }]);
     assert.equal(result.mode, sourceId === 'S2' ? 'live' : 'fixture');

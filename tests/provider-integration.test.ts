@@ -10,7 +10,7 @@ const tavilyKey = 'mock-tavily-private-credential';
 const nebiusKey = 'mock-nebius-private-credential';
 const source = { title: 'Combining discounts', url: 'https://help.shopify.com/en/manual/discounts/discount-combinations', content: 'Manual POS and draft order discounts always apply regardless of combination settings. Confirm the originating override and promotion intent.', score: 0.9 };
 const draft = {
-  documentedPolicy: [{ sourceId: 'S1', statement: 'Manual discounts follow the documented override exception to combination settings.' }],
+  documentedPolicy: [{ sourceId: 'S1', statement: 'The returned passage describes a manual-discount exception to combination settings.' }],
   inference: 'A settings change has not been established as a remedy for the observed anomaly.',
   nextStep: 'Audit staff manual overrides and promotion intent on a flagged order before a controlled test.',
   uncertainty: 'Verify the full policy, effective date, store eligibility and account terms; this passage does not establish the anomaly cause.',
@@ -282,7 +282,7 @@ test('schema diagnostics identify original statement bounds without retaining st
 });
 
 test('cosmetic punctuation does not reject an otherwise valid cited policy draft', async () => {
-  const statement = 'Manual POS discounts bypass combination settings';
+  const statement = draft.documentedPolicy[0].statement.slice(0, -1);
   const report = await setup(stages(completion({ ...draft, documentedPolicy: [{ sourceId: 'S1', statement }] }))).run();
   assert.equal(report.validatedLiveModelSuccess, true);
   assert.equal(report.modelDiagnostic?.schemaIssues, null);
