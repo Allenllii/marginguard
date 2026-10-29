@@ -1,7 +1,7 @@
 {
-  "baselineSource": "57b71a4effe33a3ee5808afe8c9a9568765185ad",
-  "sourceBranch": "codex/judge-case-entry",
-  "scope": "One-click synthetic policy counterexample and complete-source branch link. No new raw evidence upload, credentials, media or generated bundles.",
+  "baselineSource": "f5a264e1e05c86e81b1814c2b04bf533d234a975",
+  "sourceBranch": "codex/evidence-desk",
+  "scope": "Evidence desk visual revision. Public source/docs/synthetic data and previously published evidence only; no new raw evidence uploads or secrets.",
   "verification": {
     "lint": "PASS",
     "strictTypes": "PASS",
@@ -9,12 +9,15 @@
     "unitApi": "124/124",
     "syntheticRouting": "12/12",
     "artifactRoutes": 13,
-    "browserNode": "14/14",
-    "browserOfflineWorker": "14/14 same scenarios",
+    "browserNode": "15/15",
+    "browserOfflineWorker": "15/15 same scenarios",
+    "heroTextContrast": "at least 4.5:1 verified in browser",
+    "reducedMotion": "animations/transitions none",
+    "keyboardAnd320pxLayout": "PASS",
     "providerRequestsThisPhase": 0
   },
-  "deployment": "Candidate requires Sites synchronization; do not claim it live until verified.",
-  "mainIntegration": "PR11 pending explicit merge approval",
+  "deployment": "Requires exact-source Sites synchronization and anonymous smoke.",
+  "mainBaseline": "d9867a0279f35d8990d9402d5b57b99db037583e",
   "finalBenchmark": "NOT RUN",
   "files": [
     {
@@ -39,8 +42,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 8960,
-      "sha256": "16d2c0fdee3754540b68bb07e4208111ff58cb8a2821e84ea87965c0fe03f439"
+      "bytes": 9299,
+      "sha256": "c9f29bfe00e63019563a04ef685ee6814b39425431839ca3677d40ada69522df"
     },
     {
       "path": "data/decision-cases.json",
@@ -134,13 +137,18 @@
     },
     {
       "path": "docs/RELEASE.md",
-      "bytes": 3606,
-      "sha256": "9ee9ddb4ae93ca856f7ef242ec1ecc23445394fb6428a62a2314a80f10f5fd11"
+      "bytes": 4577,
+      "sha256": "aa90423ebff81d5886a4f53306b30dee945055b9779274d26b7e3049a95d9700"
     },
     {
       "path": "docs/SPEC.md",
       "bytes": 27418,
       "sha256": "1b8752d656f805120aa297d746b47c4b838adf1a984e30699377c17d573e08ec"
+    },
+    {
+      "path": "docs/VISUAL-DESIGN.md",
+      "bytes": 1946,
+      "sha256": "065f574ff011497f7ec3e51f414078cf57991b44ddc0460d221ae4dfb1c18a9a"
     },
     {
       "path": "docs/demo-script.md",
@@ -579,13 +587,18 @@
     },
     {
       "path": "src/App.tsx",
-      "bytes": 38149,
-      "sha256": "8285d344227cdb72cb8d8e8e0d129e87be32290df2add6a2984075e5a986c011"
+      "bytes": 37615,
+      "sha256": "7f491e5f3f1cdb1d1b66ee47ca6f6a3a0163e67dc48b89f5721127165d9fa5c4"
+    },
+    {
+      "path": "src/JudgeEntry.tsx",
+      "bytes": 2019,
+      "sha256": "a3d69cc009312144a7de4f0fe116f57cc4c1ee54a8a0c8674ac0f0db7aa6ffeb"
     },
     {
       "path": "src/PolicyDecisionCard.tsx",
-      "bytes": 2058,
-      "sha256": "c2b6c13a017ff6e957fc4b565b389a9e3082b0b3afb83bea8d3d1ee9285f29b4"
+      "bytes": 2694,
+      "sha256": "d605b3c359c3acd925df18eade87dbad1f5700751be7606d05395c4a1c69952a"
     },
     {
       "path": "src/PolicyDraftCard.tsx",
@@ -604,8 +617,8 @@
     },
     {
       "path": "src/styles.css",
-      "bytes": 31609,
-      "sha256": "8dc45484f2528a833ffbde62feca639da064b1d359525b8cbcb5a1d986898d1f"
+      "bytes": 36559,
+      "sha256": "ca16b87f640518e3b32713fa3c8e4d5062868188c2ee1bb37c2f14ec3f16081a"
     },
     {
       "path": "tests/analysis.test.ts",
@@ -619,8 +632,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 25964,
-      "sha256": "f3736ca81bfdb3fec882a4066fc245abf27a0a327b0d1d7c62d63b69ddab4f83"
+      "bytes": 27725,
+      "sha256": "2752b4813917069c2de7d825eac3f1ffd2e551784418e41cb14d8a9e4a142379"
     },
     {
       "path": "tests/budget.test.ts",
