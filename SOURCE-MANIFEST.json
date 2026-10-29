@@ -1,13 +1,13 @@
 {
-  "baseline": "local-merge-35a0c57e8581 plus isolated HTTP-budget correction",
+  "baseline": "Verified source baseline plus HTTP-budget correction and development workflow",
   "scope": "Source, synthetic data and source-matched verification; no credentials, dependencies or media. Final benchmark NOT RUN.",
-  "sourceFiles": 73,
+  "sourceFiles": 74,
   "historicalEvidenceFiles": 14,
   "files": [
     {
       "path": ".env.example",
-      "bytes": 370,
-      "sha256": "bacf6343a743f21ee343aee2dd25fa27ce0f0e9aa7e0c33eb95e549757e1b8d1"
+      "bytes": 424,
+      "sha256": "5c9e1daac129cb3ae52c0c528ca15440363d69feefcc2a4e72d0edd9b1c7004a"
     },
     {
       "path": ".gitignore",
@@ -83,6 +83,11 @@
       "path": "docs/DEPLOYMENT.md",
       "bytes": 5973,
       "sha256": "809c91c131046d3ccc8fd8ff01fe86cb1b23ebc0b1bf3c446a7237bd7fe48867"
+    },
+    {
+      "path": "docs/DEVELOPMENT.md",
+      "bytes": 12845,
+      "sha256": "8e697e4a646d75f2a90ece606868ef5b04116bf7ab502915f578f3589e27098a"
     },
     {
       "path": "docs/RELEASE.md",
