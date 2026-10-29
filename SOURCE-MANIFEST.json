@@ -1,8 +1,16 @@
 {
-  "baseline": "Verified source baseline plus HTTP-budget correction and development workflow",
-  "scope": "Source, synthetic data and source-matched verification; no credentials, dependencies or media. Final benchmark NOT RUN.",
-  "sourceFiles": 74,
-  "historicalEvidenceFiles": 14,
+  "baseline": "Verified development-workflow baseline plus bounded live NVIDIA policy integration",
+  "scope": "Reviewed source, synthetic data and sanitized verification evidence. No credentials, account notes, dependencies or media. Final benchmark NOT RUN.",
+  "sourceFiles": 78,
+  "historicalEvidenceFiles": 16,
+  "currentPhaseEvidenceFiles": 4,
+  "verification": {
+    "unitApiMockIntegration": "98/98",
+    "browserOffline": "10/10",
+    "syntheticPolicyRouting": "12/12",
+    "dependencyAuditKnownVulnerabilities": 0
+  },
+  "liveObservation": "Three repeated operator probes, nine actual HTTP requests, one validated released-adapter response; failed observations retained. Not a benchmark.",
   "files": [
     {
       "path": ".env.example",
@@ -26,8 +34,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 19936,
-      "sha256": "6c850c0dd39247268b788eba6da4241670bf07593d4d76e65c65ae1ec04074e2"
+      "bytes": 21160,
+      "sha256": "53bc62d9d124be02033c9a8b141947df4fe80db2196545c74fc35b4c432ab11c"
     },
     {
       "path": "data/decision-cases.json",
@@ -90,6 +98,11 @@
       "sha256": "8e697e4a646d75f2a90ece606868ef5b04116bf7ab502915f578f3589e27098a"
     },
     {
+      "path": "docs/INTEGRATION.md",
+      "bytes": 4950,
+      "sha256": "162e4955d19e0855c778cac64aa2b4ad3b43f9dc2b25aadde7d548565d992c4c"
+    },
+    {
       "path": "docs/RELEASE.md",
       "bytes": 2622,
       "sha256": "3fb45ea0e40396aa5c87f0ab73adfb682fc2771b2a8c83b4a962d240ad121ad9"
@@ -135,6 +148,11 @@
       "sha256": "71920aed932c20ca6b7c90f4f22b67b3f8b16d539c08a2c6712e917662f7d6d0"
     },
     {
+      "path": "evidence/browser-live-integration-20261029.log",
+      "bytes": 1504,
+      "sha256": "56dff254336197ef1741afea1f4a3381ebb3e7cfe8844bd0e0dbc6bc83593012"
+    },
+    {
       "path": "evidence/browser-results.json",
       "bytes": 13604,
       "sha256": "a2a032d5c8827028b617ac78176f4d60f12e7e2c3608c00f99fff0a3d7ac7a68"
@@ -145,6 +163,11 @@
       "sha256": "34dafad36d1cc0a46910cad02ad95b3268a1be99927500f459aae10333ce8f7d"
     },
     {
+      "path": "evidence/check-live-integration-final-20261029.log",
+      "bytes": 10646,
+      "sha256": "7c13a922eda9c4145b2c9ddc5aad53bfd8b092993f71f7c5d2270101d5ee3946"
+    },
+    {
       "path": "evidence/check-spec-request-budget-20261029.log",
       "bytes": 7795,
       "sha256": "70d0a668a9ef07281fa8e44335dd05c5426cf253dbd3552d5bf1d4092ad72228"
@@ -153,6 +176,11 @@
       "path": "evidence/evaluation.json",
       "bytes": 497,
       "sha256": "fa888e2fd8c7557ff36b085013d9b5149c41e049f1aa21321bdb2b0f2f70114c"
+    },
+    {
+      "path": "evidence/live-integration-proof.json",
+      "bytes": 12884,
+      "sha256": "7305b6c4370191da81e5ffa548389d52b36d044168a0aadec295b3344d37473f"
     },
     {
       "path": "evidence/local-merge-manifest.json",
@@ -168,6 +196,11 @@
       "path": "evidence/migration-generation-proof.json",
       "bytes": 960,
       "sha256": "24e8569e6271571dcf0effcf453ae9d89892d4e77ae76066ae5089fd514d4601"
+    },
+    {
+      "path": "evidence/npm-audit-integration-20261029.json",
+      "bytes": 387,
+      "sha256": "56c3a199dde621c2ff69d4af425b14711b4224c92919b0f6ddaba3f5cc63fc87"
     },
     {
       "path": "evidence/npm-audit-merge.json",
@@ -226,13 +259,13 @@
     },
     {
       "path": "package.json",
-      "bytes": 2584,
-      "sha256": "adbdbd650821978a7bc114f35a075d6c61a8b5868521d534dc031e26338db832"
+      "bytes": 2713,
+      "sha256": "8b8d5a29f90cbf32211bb15f9187f007886843d7beaec18dac8c5967b142c452"
     },
     {
       "path": "playwright.config.ts",
-      "bytes": 447,
-      "sha256": "130097d771b8e0a07a6001ceb72fb89d15796519b50b278549ef1a6eefb3163d"
+      "bytes": 483,
+      "sha256": "415de8289298ba6e0014b2e3b68b8f0bae325771125821d9d12c72b36f62f49a"
     },
     {
       "path": "scripts/build-sites.mjs",
@@ -275,6 +308,11 @@
       "sha256": "93ba7fecd919eaa4ccf28972710e8e6316f6bcf034e1e3be56aa80f80a073b4d"
     },
     {
+      "path": "scripts/lib/verify-policy-integration.ts",
+      "bytes": 15780,
+      "sha256": "8f6113ddcc393919ffd40b143d443a9c3d28b3b793b0da5c70099129352458c2"
+    },
+    {
       "path": "scripts/record-demo.ts",
       "bytes": 7409,
       "sha256": "868ccbac9bdd0624c6717440005834bfd8744050598848bdd0ec42a2ccc99618"
@@ -298,6 +336,11 @@
       "path": "scripts/verify-live.ts",
       "bytes": 1396,
       "sha256": "1ced73538d406e82088646116b1d0a1f5d8c147fb748d22ee4737abc573eed7f"
+    },
+    {
+      "path": "scripts/verify-policy-integration.ts",
+      "bytes": 2487,
+      "sha256": "b32bf19a2cfffa9090f4ccd0bf4f448809fbc7b50a63c8c6d40823a8d8279352"
     },
     {
       "path": "scripts/verify-policy-live.ts",
@@ -341,8 +384,8 @@
     },
     {
       "path": "server/nebius.ts",
-      "bytes": 14085,
-      "sha256": "b765f6100a379d7683d202cd727a7705212ea587fdb52161df7ba27aac952212"
+      "bytes": 14685,
+      "sha256": "e31a9752e8963b42b3f195d9d01c101247d9df6c83628c4522efde2e7bb4ae17"
     },
     {
       "path": "server/service.ts",
@@ -426,8 +469,13 @@
     },
     {
       "path": "tests/nebius.test.ts",
-      "bytes": 4565,
-      "sha256": "b84d9831acc2f8fd143eeea159adb9fe384ebb135775ae1425c155c8f679176e"
+      "bytes": 6947,
+      "sha256": "e91fc8a191b78f25a8bc7d66626c0d14b94f6437c83f5dd314719ef7703ae195"
+    },
+    {
+      "path": "tests/provider-integration.test.ts",
+      "bytes": 23877,
+      "sha256": "0451aa1ec270737159dc8736f55c8c153cf6bbf8ae18f75f0068fcefab2ac167"
     },
     {
       "path": "tests/request-meter.test.ts",
@@ -454,7 +502,5 @@
       "bytes": 4255,
       "sha256": "687a20805f3eec3678152273d5f9f0cefb5a85435a874381069c054c8488c1f2"
     }
-  ],
-  "normalizationNote": "Specification editor and staging use UTF-8 LF with one terminal newline; normalized content matches canonical local document.",
-  "currentPhaseEvidenceFiles": 2
+  ]
 }

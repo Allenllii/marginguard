@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests', testMatch: 'browser.spec.ts', workers: 1, retries: 0,
-  use: { baseURL: 'http://127.0.0.1:3000', viewport: { width: 1440, height: 1080 }, browserName: 'chromium', channel: 'chrome', headless: true, screenshot: 'only-on-failure', trace: 'retain-on-failure' },
+  use: { baseURL: process.env.MARGINGUARD_TEST_URL || 'http://127.0.0.1:3000', viewport: { width: 1440, height: 1080 }, browserName: 'chromium', channel: 'chrome', headless: true, screenshot: 'only-on-failure', trace: 'retain-on-failure' },
   reporter: [['list'], ['json', { outputFile: 'evidence/browser-results.json' }]],
 });
