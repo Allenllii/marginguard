@@ -43,8 +43,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 8518,
-      "sha256": "027b0b5f8a72e19bd9251f15497a31dbc0cc3e733168ed38a88678dc58f9f694"
+      "bytes": 8581,
+      "sha256": "954d1b1b749d3e99399c2c61f8733f87797e3c821a3dcaf15ef3f5b8f6dbeb34"
     },
     {
       "path": "data/decision-cases.json",
@@ -138,8 +138,8 @@
     },
     {
       "path": "docs/RELEASE.md",
-      "bytes": 2807,
-      "sha256": "d7f0f36f0ef1af5522aee02e87387e835e4e503613352747806d2e6df99ace82"
+      "bytes": 2967,
+      "sha256": "f6b9d85f8613cc25a1419829b3b40e928853fe080634b12b8779943ff373d3c0"
     },
     {
       "path": "docs/SPEC.md",
@@ -247,11 +247,6 @@
       "sha256": "70d0a668a9ef07281fa8e44335dd05c5426cf253dbd3552d5bf1d4092ad72228"
     },
     {
-      "path": "evidence/cold-fixture-red-20261029.log",
-      "bytes": 1040,
-      "sha256": "7ef00165d2ab0a95ee826235db744538c5cd8a3e5730991f602c374c2f6531c0"
-    },
-    {
       "path": "evidence/decision-clarity-grammar-red-20261029.log",
       "bytes": 3101,
       "sha256": "21e6485ad1928e19a1f5a64cc7503a28f6ad4c001d71a89c6c54f0f00dc37a9b"
@@ -318,18 +313,13 @@
     },
     {
       "path": "evidence/offline-artifact-proof.json",
-      "bytes": 551,
-      "sha256": "bd8e8638d8bd25c804aa7bdfe2f00e47b6fc7a15c45399a42cc91737e7a22345"
+      "bytes": 516,
+      "sha256": "b7ae811d17abf4ff187fd497077661d3a202b6201f0051589d7bdf130e4a7737"
     },
     {
       "path": "evidence/offline-demo-red-20261029.log",
       "bytes": 1791,
       "sha256": "17d89241738a809875b06de093b95ec5c75bb5fa43fae4468a5bb9eabafa623d"
-    },
-    {
-      "path": "evidence/origin-scope-red-20261029.log",
-      "bytes": 4452,
-      "sha256": "640eb345f0f4630870cd49b73220a1114f7142bde935fff672539bb241154c22"
     },
     {
       "path": "evidence/policy-fixture-evaluation.json",
@@ -375,31 +365,6 @@
       "path": "evidence/readiness-20261029.md",
       "bytes": 3407,
       "sha256": "8d1ce7e5d939c3a1520fe80b99170997979504fd38de43fe54cdf896c27f352d"
-    },
-    {
-      "path": "evidence/review-browser-node-20261029.log",
-      "bytes": 1945,
-      "sha256": "102736bb65fbebb2d6a600cebe8a36da782a616dc1178652d784cab6852f4f1f"
-    },
-    {
-      "path": "evidence/review-browser-worker-20261029.log",
-      "bytes": 1959,
-      "sha256": "9196f0ac6a7f9690970dbcd74a50908940b9653d04bebee2f6e02539ce4929d2"
-    },
-    {
-      "path": "evidence/review-fixes-check-20261029.log",
-      "bytes": 13307,
-      "sha256": "360e67299a36bbe92acfdc47bc7e29f3a6ae4c1872433b2e41e24e7b4ae99e90"
-    },
-    {
-      "path": "evidence/review-fixes-offline-build-20261029.log",
-      "bytes": 1524,
-      "sha256": "dbddcc82c3dfcb88cf6630d2d1d5bf9dbfc0e3a0729ae9f467e2c6d3d7cfc13c"
-    },
-    {
-      "path": "evidence/review-readiness-20261029.json",
-      "bytes": 1826,
-      "sha256": "6a4df91a2432f4a5844c0fa39981ac1aeed2a71f4ec2796881a92be187864ad0"
     },
     {
       "path": "evidence/spec-request-budget-20261029.json",

@@ -50,7 +50,7 @@ npm run build:offline-demo
 
 `check` runs lint, strict TypeScript, frontend/Worker builds, unit/API tests and small synthetic rule/routing evaluations. The offline build also checks embedded HTML/JS/CSS, disabled providers and a cross-instance fixture draft. For browser tests, run `npm run start:qa` in one terminal and `npm run test:ui` in another. Chrome must be installed; `MARGINGUARD_TEST_URL` can select another tested app origin. Browser tests use synthetic data.
 
-The review-fix suite passed **124 unit/API tests, 12 synthetic routing cases and 13 offline artifact route checks**. Browser outcomes are recorded in [review readiness](evidence/review-readiness-20261029.json). These are development regressions; the predeclared final benchmark has **not run**.
+The review-fix suite passed **124 unit/API tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **13 browser scenarios** passed on local Node and offline Worker boundaries. New raw regression logs remain local pending separate upload approval. These are development regressions; the predeclared final benchmark has **not run**.
 
 ## Synthetic data and calculation contract
 
