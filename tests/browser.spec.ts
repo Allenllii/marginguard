@@ -2,6 +2,54 @@ import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 
+test('readability: mobile assumptions, finding labels, KPI notes and footer use legible text without overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 393, height: 800 }); await page.goto('/');
+  await expect(page.getByText('504 validated orders')).toBeVisible();
+  for (const selector of ['.assumption-bar small', '.finding-value>span', '.kpi-foot', '.page-footer']) {
+    const sizes = await page.locator(selector).evaluateAll(nodes => nodes.map(node => parseFloat(getComputedStyle(node).fontSize)));
+    expect(sizes.length).toBeGreaterThan(0); expect(Math.min(...sizes)).toBeGreaterThanOrEqual(11);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('case cancellation: navigating away before the source preview resolves does not steal view or focus', async ({ page }) => {
+  await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
+  const held = await holdResponse(page, '/api/research');
+  await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click(); await held.entered;
+  await page.getByRole('button', { name: 'Data & method', exact: true }).click();
+  await held.finish(); await expect(page.getByRole('heading', { name: 'Good analysis starts with good data.', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Data & method', exact: true })).toBeFocused();
+});
+
+test('mobile menu: closed navigation is absent from keyboard focus and Escape restores the trigger', async ({ page }) => {
+  await page.setViewportSize({ width: 393, height: 800 });
+  await page.goto('/');
+  const nav = page.locator('.sidebar');
+  await expect(nav).toBeHidden();
+  const toggle = page.getByRole('button', { name: 'Toggle navigation', exact: true });
+  await toggle.focus(); await page.keyboard.press('Enter');
+  await expect(nav).toBeVisible();
+  await expect(nav.getByRole('button', { name: 'Overview', exact: true })).toBeFocused();
+  await page.keyboard.press('Escape'); await expect(nav).toBeHidden(); await expect(toggle).toBeFocused();
+  await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => document.querySelector('.sidebar')!.contains(document.activeElement))).toBe(false);
+  await page.setViewportSize({ width: 1280, height: 800 }); await expect(nav).toBeVisible();
+});
+
+for (const width of [1280, 390]) test(`case focus: ${width}px explicit entry reveals and focuses the asynchronous decision`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 800 });
+  await page.emulateMedia({ reducedMotion: width === 390 ? 'reduce' : 'no-preference' });
+  await page.goto('/');
+  const start = page.getByRole('button', { name: 'See the discount policy counterexample', exact: true });
+  if (width === 390) { await start.focus(); await page.keyboard.press('Enter'); } else await start.click();
+  const heading = page.getByRole('region', { name: 'Evidence and next check', exact: true }).getByRole('heading', { name: 'Rule-based next check', exact: true });
+  await expect(heading).toBeFocused();
+  const box = await heading.boundingBox(); expect(box).not.toBeNull();
+  expect(box!.y).toBeGreaterThanOrEqual(60); expect(box!.y + box!.height).toBeLessThan(780);
+  await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
+  await page.screenshot({ path: `evidence/case-focus-${width}.png`, animations: 'disabled' });
+});
+
 test('visual: case comparison is readable at mobile width and keyboard works with reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 320, height: 800 });
@@ -37,7 +85,7 @@ test('judge entry: one click shows the manual-discount action change, honest mod
   await expect(decision.locator('.decision-change')).toContainText('Offline authored summary');
   await expect(decision).toContainText('Audit staff/manual POS');
   await expect(page.locator('.policy-card')).toContainText('Offline fixture');
-  await expect(page.getByRole('link', { name: 'Source & version', exact: true })).toHaveAttribute('href', 'https://github.com/Allenllii/marginguard/tree/codex/evidence-desk');
+  await expect(page.getByRole('link', { name: 'Source & version', exact: true })).toHaveAttribute('href', 'https://github.com/Allenllii/marginguard/tree/codex/interaction-accessibility');
   await page.locator('.policy-card').screenshot({ path: 'evidence/judge-case-entry.png', animations: 'disabled' });
   await page.getByRole('button', { name: 'Overview', exact: true }).click();
   await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
