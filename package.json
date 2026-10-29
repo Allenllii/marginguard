@@ -24,7 +24,8 @@
     "verify:integration": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/verify-policy-integration.ts",
     "check": "npm run lint && npm run build && npm test && npm run evaluate && npm run evaluate:policy",
     "build:frontend": "tsc --noEmit && vite build",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "verify:policy-ui": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/verify-policy-ui.ts"
   },
   "dependencies": {
     "@noble/hashes": "2.4.0",

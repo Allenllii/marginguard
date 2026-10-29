@@ -1,16 +1,17 @@
 {
-  "baseline": "Verified development-workflow baseline plus bounded live NVIDIA policy integration",
-  "scope": "Reviewed source, synthetic data and sanitized verification evidence. No credentials, account notes, dependencies or media. Final benchmark NOT RUN.",
-  "sourceFiles": 78,
-  "historicalEvidenceFiles": 16,
-  "currentPhaseEvidenceFiles": 4,
+  "baseline": "Verified PR #5 source plus complete policy-scope contract and bounded browser integration journey",
+  "scope": "Reviewed source, synthetic data and sanitized verification evidence; no credentials, account notes, dependencies or media. Final benchmark NOT RUN.",
+  "sourceFiles": 82,
+  "historicalEvidenceFiles": 20,
+  "currentPhaseEvidenceFiles": 5,
   "verification": {
-    "unitApiMockIntegration": "98/98",
+    "unitApiMockIntegration": "107/107",
     "browserOffline": "10/10",
     "syntheticPolicyRouting": "12/12",
-    "dependencyAuditKnownVulnerabilities": 0
+    "redBeforeImplementation": "7 cases; 5 failed, 2 passed",
+    "dependencyLockfile": "unchanged from zero-vulnerability PR #5 audit"
   },
-  "liveObservation": "Three repeated operator probes, nine actual HTTP requests, one validated released-adapter response; failed observations retained. Not a benchmark.",
+  "liveObservation": "Read evidence/policy-ui-live-20261029.json if present; do not infer current live success from the historical PR #5 observations.",
   "files": [
     {
       "path": ".env.example",
@@ -34,8 +35,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 21160,
-      "sha256": "53bc62d9d124be02033c9a8b141947df4fe80db2196545c74fc35b4c432ab11c"
+      "bytes": 21768,
+      "sha256": "c4448a39c61113fb5435469f476bf0a053597e9b2b5ac4c1f678c590bffa340a"
     },
     {
       "path": "data/decision-cases.json",
@@ -103,6 +104,11 @@
       "sha256": "162e4955d19e0855c778cac64aa2b4ad3b43f9dc2b25aadde7d548565d992c4c"
     },
     {
+      "path": "docs/POLICY-SYNTHESIS.md",
+      "bytes": 4175,
+      "sha256": "504a3d7dc23d9b4b0d5d47930394a78bc47ffcdc3d957583252296e2b62482ed"
+    },
+    {
       "path": "docs/RELEASE.md",
       "bytes": 2622,
       "sha256": "3fb45ea0e40396aa5c87f0ab73adfb682fc2771b2a8c83b4a962d240ad121ad9"
@@ -153,6 +159,11 @@
       "sha256": "56dff254336197ef1741afea1f4a3381ebb3e7cfe8844bd0e0dbc6bc83593012"
     },
     {
+      "path": "evidence/browser-policy-prose-20261029.log",
+      "bytes": 1504,
+      "sha256": "f01980a3818951c3f755a3bd36410dbf857ce817ac3614c8388a609e76ded476"
+    },
+    {
       "path": "evidence/browser-results.json",
       "bytes": 13604,
       "sha256": "a2a032d5c8827028b617ac78176f4d60f12e7e2c3608c00f99fff0a3d7ac7a68"
@@ -166,6 +177,11 @@
       "path": "evidence/check-live-integration-final-20261029.log",
       "bytes": 10646,
       "sha256": "7c13a922eda9c4145b2c9ddc5aad53bfd8b092993f71f7c5d2270101d5ee3946"
+    },
+    {
+      "path": "evidence/check-policy-prose-20261029.log",
+      "bytes": 11599,
+      "sha256": "01931f8c9b365dfa39cafc0b32708513a244a5cef4620eb2587c9a25d180bfc0"
     },
     {
       "path": "evidence/check-spec-request-budget-20261029.log",
@@ -211,6 +227,21 @@
       "path": "evidence/policy-fixture-evaluation.json",
       "bytes": 3888,
       "sha256": "5220eac03a0b3bec5a12370b4cff868d05cd0378353718184a947cf8b4b20e42"
+    },
+    {
+      "path": "evidence/policy-prose-focused-20261029.log",
+      "bytes": 6335,
+      "sha256": "95454d4d203ebc2db518abd8633ed3c4af0bfa41d557183b0dc876ab486fbb0d"
+    },
+    {
+      "path": "evidence/policy-prose-red-20261029.log",
+      "bytes": 5026,
+      "sha256": "73f254ef8cefdc73c0c838089a241e9fc65a2143849a57404d762d31be105e73"
+    },
+    {
+      "path": "evidence/policy-ui-preflight-20261029.log",
+      "bytes": 139,
+      "sha256": "63ff2c1e4f441f9067d8fa0d0306c18ae6a7e30c90af0ffe8f929b97f5d407cf"
     },
     {
       "path": "evidence/production-20261029-smoke.json",
@@ -259,8 +290,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 2713,
-      "sha256": "8b8d5a29f90cbf32211bb15f9187f007886843d7beaec18dac8c5967b142c452"
+      "bytes": 2768,
+      "sha256": "cb8fb79d6cb28cbbd03dc604e581a05bb0acc5a3f4301dc3c04e21bad843d1e3"
     },
     {
       "path": "playwright.config.ts",
@@ -348,6 +379,11 @@
       "sha256": "f5f330ef8f27cecb9ecc5aed59c64c6d763bfff06c2a201cc295184f0ee51d4b"
     },
     {
+      "path": "scripts/verify-policy-ui.ts",
+      "bytes": 8387,
+      "sha256": "4e65939871e9df2de8ca43801bf6fd0af7dfcfbb211e064797d7d3446d635373"
+    },
+    {
       "path": "scripts/verify-tavily-ui.ts",
       "bytes": 2947,
       "sha256": "cea8d694234db1fb850254ffe002d35e4b8b9ff7695bc1d0c94ca55f7442d366"
@@ -359,8 +395,8 @@
     },
     {
       "path": "server/app.ts",
-      "bytes": 2480,
-      "sha256": "ad9b08d71ea26e05bcf45fe880c0a528b95a449085b23bfc13f4f08955d0c604"
+      "bytes": 2520,
+      "sha256": "b78db5c11516d61a9621c1fb2d7bc8683461a888c4b020b3078e2924e31dd67c"
     },
     {
       "path": "server/budget.ts",
@@ -384,8 +420,13 @@
     },
     {
       "path": "server/nebius.ts",
-      "bytes": 14685,
-      "sha256": "e31a9752e8963b42b3f195d9d01c101247d9df6c83628c4522efde2e7bb4ae17"
+      "bytes": 14127,
+      "sha256": "368b92bb65b754b988cd425cc0d98525270e23fe59c5545b87bea70f5ba5bc9e"
+    },
+    {
+      "path": "server/policy-draft.ts",
+      "bytes": 3771,
+      "sha256": "8fe0060b6fe41a59940efaa2789c7eec433f28b8aedf2f6f0b570ebb33f33ebd"
     },
     {
       "path": "server/service.ts",
@@ -424,8 +465,8 @@
     },
     {
       "path": "src/PolicyResearch.tsx",
-      "bytes": 14134,
-      "sha256": "50f52492e2d44101297a8d04588d4b82488846cf26531ab8964b695f6c3bcfe9"
+      "bytes": 14090,
+      "sha256": "da0ced619b134c17720e9e61677c125535159574c36d23b54867476e0aeb8d26"
     },
     {
       "path": "src/main.tsx",
@@ -470,12 +511,17 @@
     {
       "path": "tests/nebius.test.ts",
       "bytes": 6947,
-      "sha256": "e91fc8a191b78f25a8bc7d66626c0d14b94f6437c83f5dd314719ef7703ae195"
+      "sha256": "abdfe80481db3b233d8795b6a05cbc0535735c922fc35332bdd5f011d9c56003"
+    },
+    {
+      "path": "tests/policy-draft.test.ts",
+      "bytes": 6926,
+      "sha256": "770572020b3982e0fbc26d23f4714a2086949f8d98d546ef24f7e9b1117b6a3d"
     },
     {
       "path": "tests/provider-integration.test.ts",
-      "bytes": 23877,
-      "sha256": "0451aa1ec270737159dc8736f55c8c153cf6bbf8ae18f75f0068fcefab2ac167"
+      "bytes": 23876,
+      "sha256": "c3ca5fbe1a6120b2f056b75b9e07dcfac2d3123fd1c49349371fb1d6c380f07e"
     },
     {
       "path": "tests/request-meter.test.ts",
@@ -484,8 +530,8 @@
     },
     {
       "path": "tests/tavily.test.ts",
-      "bytes": 12972,
-      "sha256": "815e09267264c134c635524b734e22a6ae3d439e0546e89c3ca713b9c93184c2"
+      "bytes": 13014,
+      "sha256": "debcf74bebc0e2de7f62696886857c2d7dae3d455009c58041cc015d51d54f0c"
     },
     {
       "path": "tsconfig.json",
