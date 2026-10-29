@@ -1,7 +1,7 @@
 {
-  "baselineSource": "f5a264e1e05c86e81b1814c2b04bf533d234a975",
-  "sourceBranch": "codex/evidence-desk",
-  "scope": "Evidence desk visual revision. Public source/docs/synthetic data and previously published evidence only; no new raw evidence uploads or secrets.",
+  "baselineSource": "18f4fdadf0f1f55fec510860441e8b7e3fa27830",
+  "sourceBranch": "codex/interaction-accessibility",
+  "scope": "Observed result-focus, stale-case navigation, hidden mobile navigation and caption readability fixes. New raw QA evidence and separate CI proposal excluded.",
   "verification": {
     "lint": "PASS",
     "strictTypes": "PASS",
@@ -9,15 +9,16 @@
     "unitApi": "124/124",
     "syntheticRouting": "12/12",
     "artifactRoutes": 13,
-    "browserNode": "15/15",
-    "browserOfflineWorker": "15/15 same scenarios",
-    "heroTextContrast": "at least 4.5:1 verified in browser",
-    "reducedMotion": "animations/transitions none",
-    "keyboardAnd320pxLayout": "PASS",
-    "providerRequestsThisPhase": 0
+    "browserNode": "20/20",
+    "browserOfflineWorker": "20/20 same scenarios",
+    "focusedDecisionViewport": "1280px mouse; 390px keyboard/reduced motion",
+    "mobileMenu": "393px closed hidden, opening focus, Escape restoration, desktop resize",
+    "captionMinimumFontPx": 11,
+    "providerCallsThisPhase": 0
   },
-  "deployment": "Requires exact-source Sites synchronization and anonymous smoke.",
-  "mainBaseline": "d9867a0279f35d8990d9402d5b57b99db037583e",
+  "deployment": "Candidate requires exact-source Sites synchronization.",
+  "mainBase": "f5a264e1e05c86e81b1814c2b04bf533d234a975",
+  "pr13Merge": "Denied before execution; waiting explicit confirmation",
   "finalBenchmark": "NOT RUN",
   "files": [
     {
@@ -42,8 +43,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 9299,
-      "sha256": "c9f29bfe00e63019563a04ef685ee6814b39425431839ca3677d40ada69522df"
+      "bytes": 9311,
+      "sha256": "33bae23ae07c6e14d83beb7973f251b9980fa4d0bff97f47344138e61bbc9519"
     },
     {
       "path": "data/decision-cases.json",
@@ -137,8 +138,8 @@
     },
     {
       "path": "docs/RELEASE.md",
-      "bytes": 4577,
-      "sha256": "aa90423ebff81d5886a4f53306b30dee945055b9779274d26b7e3049a95d9700"
+      "bytes": 5360,
+      "sha256": "188558c48c7c11e8e39190f02685f1d91ed031ba4545f480cd489aa55add4a5e"
     },
     {
       "path": "docs/SPEC.md",
@@ -587,8 +588,8 @@
     },
     {
       "path": "src/App.tsx",
-      "bytes": 37615,
-      "sha256": "7f491e5f3f1cdb1d1b66ee47ca6f6a3a0163e67dc48b89f5721127165d9fa5c4"
+      "bytes": 38644,
+      "sha256": "5467692133202d3c00a228a578f3768c5801f5e35e1fd7cfe18002638e364762"
     },
     {
       "path": "src/JudgeEntry.tsx",
@@ -597,8 +598,8 @@
     },
     {
       "path": "src/PolicyDecisionCard.tsx",
-      "bytes": 2694,
-      "sha256": "d605b3c359c3acd925df18eade87dbad1f5700751be7606d05395c4a1c69952a"
+      "bytes": 2809,
+      "sha256": "c3c6c8531aaf4c3a1b575e3a8d634962d59a079bff4aa95196eb973c379892b0"
     },
     {
       "path": "src/PolicyDraftCard.tsx",
@@ -607,8 +608,8 @@
     },
     {
       "path": "src/PolicyResearch.tsx",
-      "bytes": 12172,
-      "sha256": "8cc30cb212e0c602f57185b504eb784e52a8d9149029768d2304b74110101f8c"
+      "bytes": 12493,
+      "sha256": "a1882e63b25d575551607302f80a0ad4dbefcc40e44aed61ad3467d5408809f3"
     },
     {
       "path": "src/main.tsx",
@@ -617,8 +618,8 @@
     },
     {
       "path": "src/styles.css",
-      "bytes": 36559,
-      "sha256": "ca16b87f640518e3b32713fa3c8e4d5062868188c2ee1bb37c2f14ec3f16081a"
+      "bytes": 37016,
+      "sha256": "b8b962cca32de7767c82b2089ad9fe4a144655f99d97cb935855c11e6854c720"
     },
     {
       "path": "tests/analysis.test.ts",
@@ -632,8 +633,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 27749,
-      "sha256": "9a78aa033c1944f7eac8309050852305a973986d975a57ab799a8a796a7073e7"
+      "bytes": 31236,
+      "sha256": "52c678a85a36cd0622b947132971986416363b1ddb09028cfc4c8022482727ca"
     },
     {
       "path": "tests/budget.test.ts",
