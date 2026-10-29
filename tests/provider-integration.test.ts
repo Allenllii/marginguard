@@ -333,6 +333,7 @@ test('safe diagnostics distinguish unsupported scope and unfinished prose from a
   for (const [body, validation] of [
     [{ ...draft, documentedPolicy: [{ sourceId: 'S1', statement: 'An unsupported policy assertion with a valid citation.' }] }, 'unsupported-policy-scope'],
     [{ ...draft, nextStep: 'Inspect the originating promotion because' }, 'incomplete-or-copied-prose'],
+    [{ ...draft, inference: 'The source does not confirm eligibility for this specific accounts.' }, 'observed-agreement-error'],
     [{ ...draft, documentedPolicy: [{ sourceId: 'S1' }] }, 'accepted'],
   ] as const) {
     const report = await setup(stages(completion(body))).run();
