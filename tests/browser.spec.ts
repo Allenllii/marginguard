@@ -2,6 +2,24 @@ import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 
+test('judge entry: one click shows the manual-discount action change, honest mode and working source branch', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
+  const decision = page.getByRole('region', { name: 'Evidence and next check', exact: true });
+  await expect(decision).toContainText('28 flagged rows; $658.08 modeled exposure.');
+  await expect(decision).toContainText('20% discount ceiling');
+  await expect(decision).toContainText('Initial settings fix contradicted');
+  await expect(decision).toContainText('Audit staff/manual POS');
+  await expect(page.locator('.policy-card')).toContainText('Offline fixture');
+  await expect(page.getByRole('link', { name: 'Source & version', exact: true })).toHaveAttribute('href', 'https://github.com/Allenllii/marginguard/tree/codex/judge-case-entry');
+  await page.locator('.policy-card').screenshot({ path: 'evidence/judge-case-entry.png' });
+  await page.getByRole('button', { name: 'Overview', exact: true }).click();
+  await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
+  await expect(decision).toContainText('Audit staff/manual POS');
+  await page.getByRole('button', { name: 'Reset demo', exact: true }).click();
+  await expect(page.getByLabel('Discount origin')).toHaveValue('unknown');
+});
+
 test('review: ordinary apps hold, confirmed Scripts API uses its own exception, and privacy names the server', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /^Findings/ }).click();
