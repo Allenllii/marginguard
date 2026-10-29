@@ -632,8 +632,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 27725,
-      "sha256": "2752b4813917069c2de7d825eac3f1ffd2e551784418e41cb14d8a9e4a142379"
+      "bytes": 27749,
+      "sha256": "9a78aa033c1944f7eac8309050852305a973986d975a57ab799a8a796a7073e7"
     },
     {
       "path": "tests/budget.test.ts",
