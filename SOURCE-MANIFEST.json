@@ -1,7 +1,7 @@
 {
-  "baseline": "local-merge-35a0c57e8581",
-  "scope": "Audited source baseline plus specification and historical baseline verification; no credentials, dependencies or media. Later budget changes are separate PRs.",
-  "sourceFiles": 71,
+  "baseline": "local-merge-35a0c57e8581 plus isolated HTTP-budget correction",
+  "scope": "Source, synthetic data and source-matched verification; no credentials, dependencies or media. Final benchmark NOT RUN.",
+  "sourceFiles": 73,
   "historicalEvidenceFiles": 14,
   "files": [
     {
@@ -26,8 +26,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 19457,
-      "sha256": "95f6c647ace8917df9e3532fc36971b25a1fd9c6bbd7be6f12add60c495cd8da"
+      "bytes": 19936,
+      "sha256": "6c850c0dd39247268b788eba6da4241670bf07593d4d76e65c65ae1ec04074e2"
     },
     {
       "path": "data/decision-cases.json",
@@ -140,6 +140,11 @@
       "sha256": "34dafad36d1cc0a46910cad02ad95b3268a1be99927500f459aae10333ce8f7d"
     },
     {
+      "path": "evidence/check-spec-request-budget-20261029.log",
+      "bytes": 7795,
+      "sha256": "70d0a668a9ef07281fa8e44335dd05c5426cf253dbd3552d5bf1d4092ad72228"
+    },
+    {
       "path": "evidence/evaluation.json",
       "bytes": 497,
       "sha256": "fa888e2fd8c7557ff36b085013d9b5149c41e049f1aa21321bdb2b0f2f70114c"
@@ -178,6 +183,11 @@
       "path": "evidence/readiness-20261029.md",
       "bytes": 3407,
       "sha256": "8d1ce7e5d939c3a1520fe80b99170997979504fd38de43fe54cdf896c27f352d"
+    },
+    {
+      "path": "evidence/spec-request-budget-20261029.json",
+      "bytes": 1936,
+      "sha256": "07f1fb87033e8214d08675f3381d3531737a69cf1c3e9a7058d31c36017cc82c"
     },
     {
       "path": "evidence/tavily-live-proof.json",
@@ -236,8 +246,8 @@
     },
     {
       "path": "scripts/evaluate-live.ts",
-      "bytes": 4223,
-      "sha256": "1f72fd46c3619e9539c586084fbc2cc65134af556f0e3e87973c66876d0b2981"
+      "bytes": 4994,
+      "sha256": "228514b63c848442734b3dacd5b8f99a8c3ca39af3bd570815aafd0dcd25e432"
     },
     {
       "path": "scripts/evaluate-policy.ts",
@@ -253,6 +263,11 @@
       "path": "scripts/generate-data.ts",
       "bytes": 679,
       "sha256": "8de8c3f3f5270e380d01c69744c92a88303896f31814788e3f55a2ff76269427"
+    },
+    {
+      "path": "scripts/lib/request-meter.ts",
+      "bytes": 3741,
+      "sha256": "93ba7fecd919eaa4ccf28972710e8e6316f6bcf034e1e3be56aa80f80a073b4d"
     },
     {
       "path": "scripts/record-demo.ts",
@@ -410,6 +425,11 @@
       "sha256": "b84d9831acc2f8fd143eeea159adb9fe384ebb135775ae1425c155c8f679176e"
     },
     {
+      "path": "tests/request-meter.test.ts",
+      "bytes": 7326,
+      "sha256": "255f9ba709e504911104e5ea9d1d9f2cfd39fb040f354d5c49c7a4b45bb72003"
+    },
+    {
       "path": "tests/tavily.test.ts",
       "bytes": 12972,
       "sha256": "815e09267264c134c635524b734e22a6ae3d439e0546e89c3ca713b9c93184c2"
@@ -430,5 +450,6 @@
       "sha256": "687a20805f3eec3678152273d5f9f0cefb5a85435a874381069c054c8488c1f2"
     }
   ],
-  "normalizationNote": "Specification editor and staging use UTF-8 LF with one terminal newline; normalized content matches canonical local document."
+  "normalizationNote": "Specification editor and staging use UTF-8 LF with one terminal newline; normalized content matches canonical local document.",
+  "currentPhaseEvidenceFiles": 2
 }
