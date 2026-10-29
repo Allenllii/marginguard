@@ -1,8 +1,23 @@
 {
-  "baselineSource": "868ff2e813ff21f33edf713bd46eebae506ca865",
-  "sourceBranch": "codex/supporting-text-contrast",
-  "scope": "Runtime change is supporting-text color only; includes computed contrast/browser regressions and exact source manifest. New raw measurements, screenshots, logs and private files excluded.",
+  "baselineMain": "21f02656171b75f95b58b7ae5b846acb91ed3bf7",
+  "benchmarkHead": "8e01ce77cc1155f22f5e83eff1a0af4fb24420ce",
+  "sourceBranch": "codex/fair-benchmark-framework",
+  "scope": "Evaluation-only framework, docs and offline tests integrated with the latest main, including PR14 interaction and PR16 supporting-text contrast changes. No live benchmark, provider call, deployment, private gold, secrets or new raw evidence.",
   "verification": {
+    "lint": "PASS",
+    "strictTypes": "PASS",
+    "frontendAndStandardWorkerBuild": "PASS",
+    "applicationUnitApi": "124/124",
+    "offlineHarnessTests": "65/65",
+    "syntheticRuleGolden": "PASS",
+    "syntheticRouting": "12/12",
+    "artifactRoutes": 13,
+    "browserNode": "22/22",
+    "newRuntimeDependencies": 0,
+    "providerRequests": 0
+  },
+  "inheritedMainVerification": {
+    "sourceCommit": "21f02656171b75f95b58b7ae5b846acb91ed3bf7",
     "lint": "PASS",
     "strictTypes": "PASS",
     "frontendAndWorkerBuilds": "PASS",
@@ -33,10 +48,18 @@
     ],
     "contrastScope": "Nine synthetic UI states at1280px and393px; computed alpha compositing and conservative gradient endpoints. Bounded regression, not full accessibility certification."
   },
-  "deployment": "Candidate requires exact-source Sites synchronization.",
+  "benchmarkProvenance": {
+    "baselineMain": "ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0",
+    "internalPatchCommit": "cf166b403d78304ebe99c9e95c020b57818552ff",
+    "internalPatchSha256": "7fe0cb6cfae2d704470c221ccf1719323cc7db09d44af6493499d8fb71a77b0b"
+  },
+  "baselineSource": "868ff2e813ff21f33edf713bd46eebae506ca865",
   "mainBase": "868ff2e813ff21f33edf713bd46eebae506ca865",
   "pr13Merge": "Completed after explicit confirmation at ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0",
-  "finalBenchmark": "NOT RUN",
+  "pr14Merge": "868ff2e813ff21f33edf713bd46eebae506ca865",
+  "pr16Merge": "21f02656171b75f95b58b7ae5b846acb91ed3bf7",
+  "deployment": "Candidate requires exact-source Sites synchronization.",
+  "finalBenchmark": "NOT RUN; no held-out experiment, cost authorization, model results or score claimed",
   "files": [
     {
       "path": ".env.example",
@@ -45,8 +68,8 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 313,
-      "sha256": "2d0f807b12bf04098aa708708c8dc632710e472c43660fc506ceba8b3e21a1b3"
+      "bytes": 434,
+      "sha256": "735f235d7acd3a484a2c3b5ce1c0578c3fcf7a5dd0222b0645939ead2d623512"
     },
     {
       "path": ".openai/hosting.json",
@@ -60,8 +83,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 9311,
-      "sha256": "33bae23ae07c6e14d83beb7973f251b9980fa4d0bff97f47344138e61bbc9519"
+      "bytes": 10029,
+      "sha256": "9c39c5fe4a590331e60fa8f86724397f1471d7b265c0fef0adee8a798befd13d"
     },
     {
       "path": "data/decision-cases.json",
@@ -127,6 +150,11 @@
       "path": "docs/DEVELOPMENT.md",
       "bytes": 12845,
       "sha256": "8e697e4a646d75f2a90ece606868ef5b04116bf7ab502915f578f3589e27098a"
+    },
+    {
+      "path": "docs/FINAL-BENCHMARK.md",
+      "bytes": 21083,
+      "sha256": "1644b15feb96e944b0f91ea06401fb8c8c6ad8513925943daee10be3bb0ac988"
     },
     {
       "path": "docs/INTEGRATION.md",
@@ -425,13 +453,73 @@
     },
     {
       "path": "package.json",
-      "bytes": 2915,
-      "sha256": "bb192e26ab4034a2a69daa8e588354a06e18967a3742ab93ce5a1999664a1d68"
+      "bytes": 3134,
+      "sha256": "779c27691122307d564044d71779dcdc2344187435f96759636f649d0c9eb9c4"
     },
     {
       "path": "playwright.config.ts",
       "bytes": 483,
       "sha256": "415de8289298ba6e0014b2e3b68b8f0bae325771125821d9d12c72b36f62f49a"
+    },
+    {
+      "path": "scripts/benchmark/blind.mjs",
+      "bytes": 8098,
+      "sha256": "603f1e4e021b51fb13d7bd7093a28d5824381b9917e3d444309157559bbf5262"
+    },
+    {
+      "path": "scripts/benchmark/blind.test.mjs",
+      "bytes": 4935,
+      "sha256": "7d391faeed02d4eafccc76281a00afd569f21d57a5b86a9b7907825a34d9c83c"
+    },
+    {
+      "path": "scripts/benchmark/core.mjs",
+      "bytes": 15581,
+      "sha256": "7ec2e9dfe7e3d5cda29380b3702274c7bd647208f5d0ada127e42275158594a8"
+    },
+    {
+      "path": "scripts/benchmark/core.test.mjs",
+      "bytes": 16984,
+      "sha256": "3eb0d7c1813e6478d5e195aa34c36ecc1ed2716724ad5d8049307d7d53b78f71"
+    },
+    {
+      "path": "scripts/benchmark/example.config.json",
+      "bytes": 732,
+      "sha256": "a791d2feecd2d183758593f00e1d4eb9934cee3e667a9cc4a40a0175d3bc3ce0"
+    },
+    {
+      "path": "scripts/benchmark/fixture.dataset.json",
+      "bytes": 431,
+      "sha256": "a5a41bd6cddb3738f0bc45983018a4132a7de3f04cab083baf9efd5168aead75"
+    },
+    {
+      "path": "scripts/benchmark/ledger.mjs",
+      "bytes": 13371,
+      "sha256": "aa1d3ad77399b4849e58ba33450650c9f1c483f30248e1517534de0513bcc956"
+    },
+    {
+      "path": "scripts/benchmark/ledger.test.mjs",
+      "bytes": 10608,
+      "sha256": "94c890c2191de32640d578dfcf34ab14afcc51b42ce3016923bfa0a0ac4a7405"
+    },
+    {
+      "path": "scripts/benchmark/run.mjs",
+      "bytes": 20353,
+      "sha256": "4254770f66e9ccd9d5658dabf5bcb460e63ed8b51d0a8fd05c21c03d84397db0"
+    },
+    {
+      "path": "scripts/benchmark/run.test.mjs",
+      "bytes": 20158,
+      "sha256": "1b4e5ab7c3d80d87a419d77ab1947bbf3d04df497718dda4bdc34eb9e110b86a"
+    },
+    {
+      "path": "scripts/benchmark/transport.mjs",
+      "bytes": 7210,
+      "sha256": "b36d2a6ca3b19c8e8407653834f27ce149cdcb388ff6f4273d9e9a43807efe04"
+    },
+    {
+      "path": "scripts/benchmark/transport.test.mjs",
+      "bytes": 14058,
+      "sha256": "20da41bd64fd1a18ba1f5a1e990aa7e9cdfa0a6887a5976455be1721c1826413"
     },
     {
       "path": "scripts/build-sites.mjs",
@@ -728,6 +816,5 @@
       "bytes": 483,
       "sha256": "ea07ae8664a685c6e02e92f4aead18a839ae65159cf2400dc84ef0357361fb8a"
     }
-  ],
-  "pr14Merge": "868ff2e813ff21f33edf713bd46eebae506ca865"
+  ]
 }

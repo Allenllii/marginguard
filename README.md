@@ -94,3 +94,7 @@ Submitted artifacts freeze at **October 30, 2026, 17:00 UTC**. Preserve free jud
 MIT; see [LICENSE](LICENSE). Dependency and model/API terms apply separately.
 
 The current visual revision leads with a policy hypothesis/change comparison, a separate evidence boundary and a single case entry. It uses system fonts and CSS only, with keyboard activation, measured hero-text contrast, 320px layout checks and prefers-reduced-motion support. See [visual design rationale](docs/VISUAL-DESIGN.md).
+
+## Controlled final benchmark preparation
+
+The evaluation-only framework is described in [docs/FINAL-BENCHMARK.md](docs/FINAL-BENCHMARK.md). `npm run benchmark:test` runs offline harness regressions with injected transports. `npm run benchmark:plan -- --config scripts/benchmark/example.config.json --dataset scripts/benchmark/fixture.dataset.json` prints a disabled development plan without provider calls or credential loading. The exploratory `evaluate:live` script is not a fair final benchmark and must not be used to claim retrieval superiority. Final independent holdout/gold, pricing/budget review, exact frozen candidate, concrete plan approval and human blinding remain pending. No final benchmark has run.
