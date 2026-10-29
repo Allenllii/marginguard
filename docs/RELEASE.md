@@ -1,24 +1,23 @@
-# Submission release and freeze
+# Release identities and freeze
 
-The final release must be reviewed before submission. No automatic post-deadline pushes, deploys, or edits to submitted materials are authorized.
+This ledger separates observed development artifacts from the final submission. The project has not been submitted by this work.
 
-**Freeze: October 30, 2026, 17:00:00 UTC (13:00 Toronto).** The organizer's checklist explicitly disallows even minor repository, video, and submission-material changes after this deadline. Preserve the submitted state; any later judge clarification must follow organizer instructions.
-
-| Submitted artifact | Exact final identity |
+| Artifact | Observed state |
 | --- | --- |
-| Public GitHub URL | `https://github.com/Allenllii/marginguard`; created public MIT; final source upload/commit verification remains pending |
-| Submitted source commit SHA | Pending final tests, public push and read-only verification |
-| Source archive SHA-256 | Pending final packaging |
-| Native Sites project | `appgprj_6ae108e911088191834d591d732db251` |
-| Saved Site version / deployed commit | Pending final source push and successful publication |
-| Public demo URL | Expected `https://marginguard-evidence.liwenzhao0306.chatgpt.site`; not yet publication evidence |
-| Video URL and immutable version/hash | Pending user review; no public upload authorized |
-| Devpost submission version / time | Pending user review and submission approval |
-| Actual Tavily runtime evidence | Observed local Tavily request `75fc38ff-9fd0-4b4a-ae88-26ffc1aa57e5`; `evidence/tavily-live-proof.json`, 2026-10-27 20:40:24 UTC; hosted key use not approved |
-| Actual Tavily UI evidence | Browser request `1952d500-3070-4422-92ea-ea1a82bbafcd`; `evidence/tavily-ui-live-proof.json`, 2026-10-27 20:53:41 UTC; no NVIDIA call |
-| Actual NVIDIA-on-Nebius evidence | Pending approved account/key access and successful runtime call |
-| Last complete verification | Latest local commands/counts: `evidence/readiness-20261029.md`; final release still requires public/live verification |
+| Public repository | https://github.com/Allenllii/marginguard; MIT. PRs 1-9 contain the tracked source history. Default-branch integration is being verified in the review-fix phase. |
+| Previously deployed source | `804e44eaf92186a781002db041d17c68adccd6bd` plus the forced-offline build profile |
+| Public judge URL | https://marginguard-evidence.liwenzhao0306.chatgpt.site |
+| Site identity | `appgprj_6ae108e911088191834d591d732db251`; public saved version 1 was observed. Deployment owner must record each subsequent saved version and source commit. |
+| Pending runtime update | Review fixes add stateless offline references across cold isolates, distinguish ordinary apps from confirmed Scripts API, and correct hosted CSV-processing text. Redeploy the verified integrated source before claiming those fixes are live. |
+| Actual sponsor calls | `evidence/pr7-live-journey-20261029.json`: Tavily `8df2a245-7576-48d3-9d40-ffb7b7213991`; NVIDIA `196038cb42e7180cb4fb6c1b30977819`, model `nvidia/Nemotron-3_5-Lightning` |
+| Public runtime profile | Forced offline; no hosted provider secrets, live inference or current retrieval is claimed. Raw CSV is sent to the app server for transient calculation. |
+| Current local verification | 124/124 unit/API tests, 12/12 synthetic routing cases, 13/13 artifact routes and the same 13/13 browser scenarios on Node and offline Worker. New raw logs remain local pending separate upload approval; `SOURCE-MANIFEST.json` pins the actual public tree. |
+| Final source SHA / deployment version / archive hash | PENDING final independent review, corrections and verification; record immutable identities before submission |
+| Final benchmark | NOT RUN. Follow the frozen protocol and approval gates in SPEC.md. |
+| Final video / submission | PENDING final project/review/benchmark gates and user review; old local drafts remain unchanged and unpublished |
 
-Before submitting: inspect the exact public commit tree; verify no secret files or real orders; run final lint/typecheck/build/unit/API/worker/browser checks and synthetic evaluations; inspect the public demo unauthenticated; verify the actual provider request evidence; record the exact video and deployed version; review every English claim against observed evidence. Judge access must remain free through December 15.
+Before submission: verify default main exposes the complete tested source; compare its tree to the manifest; inspect an anonymous judge journey after the latest deployment; preserve real request/usage evidence and failures; record the final code SHA, deployment version, dataset and archive hashes, video URL/version and Devpost submission time. Structural citation checks are not a semantic review.
 
-Disable any publish-on-push workflow after the release is frozen. CI may inspect the frozen commit; it must not rewrite artifacts or deploy a different version. Keep completed release IDs and checks in the submission record without rewriting the submitted source after the freeze.
+**Freeze: October 30, 2026 at 17:00:00 UTC (13:00 Toronto).** Do not edit submitted repository, site, video or materials after this deadline, including minor corrections, unless the organizer expressly instructs it. No automatic push/deploy workflow may mutate frozen artifacts. Keep judge access free through December 15, 2026.
+
+Rules reference: https://nebiusglobalaihackathon.devpost.com/rules. The parent coordinates final eligibility and submission approval.

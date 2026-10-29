@@ -37,10 +37,14 @@ try {
   const refused = await (await check('/api/research', { kind: 'discount', context, live: true })).json(); assert.equal(refused.proof, undefined); assert.equal(refused.sources.length, 0);
   const packet = await (await check('/api/research', { kind: 'discount', context, live: false })).json(); assert.equal(packet.mode, 'fixture'); assert.equal(packet.checkedAt, null);
   const remedy = await (await check('/api/remediate', { csv: demo.csv, issueId: 'discount-stacking', researchId: packet.researchId, live: false })).json(); assert.equal(remedy.mode, 'fixture'); assert.match(remedy.nextStep, /Audit staff\/manual POS/u);
+  const coldWorker = (await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}#cold-isolate`)).default;
+  const coldResponse = await coldWorker.fetch(request('/api/remediate', { csv: demo.csv, issueId: 'discount-stacking', researchId: packet.researchId, live: false }), runtime);
+  assert.equal(coldResponse.status, 200); assertions++;
+  const coldRemedy = await coldResponse.json(); assert.equal(coldRemedy.mode, 'fixture'); assert.equal(coldRemedy.proof, undefined); assert.equal(coldRemedy.nextStep, remedy.nextStep);
   const crossOrigin = await worker.fetch(new Request(base + '/api/analyze', { method: 'POST', headers: { Origin: 'https://untrusted.example', 'Content-Type': 'application/json' }, body: '{}' }), runtime); assert.equal(crossOrigin.status, 403); assertions++;
   const invalid = await worker.fetch(new Request(base + '/api/analyze', { method: 'POST', headers: { Origin: base, 'Content-Type': 'application/json' }, body: '{broken' }), runtime); assert.equal(invalid.status, 413); assertions++;
   assert.equal(outboundAttempts, 0);
-  const proof = { executedAt: new Date().toISOString(), scope: 'Local forced-offline Worker candidate, not a deployed Site or final benchmark', routeChecks: assertions, embeddedAssetChecks: assets.length, outboundAttempts, runtimeConfigIgnored: true, databaseBindingRequired: false, candidateAndStagedDistMatch: true, workerSha256: hash(source), manifestSha256: hash(JSON.stringify(manifest)), hostingUrl: null };
+  const proof = { executedAt: new Date().toISOString(), scope: 'Local forced-offline Worker candidate, not a deployed Site or final benchmark', routeChecks: assertions, coldIsolateFixtureDraft: true, embeddedAssetChecks: assets.length, outboundAttempts, runtimeConfigIgnored: true, databaseBindingRequired: false, candidateAndStagedDistMatch: true, workerSha256: hash(source), manifestSha256: hash(JSON.stringify(manifest)), hostingUrl: null };
   await writeFile(resolve(root, 'evidence/offline-artifact-proof.json'), JSON.stringify(proof, null, 2) + '\n');
   console.log(`Forced-offline candidate passed ${assertions} route checks; ${assets.length} embedded assets; zero outbound attempts; no runtime credential or DB access. No deployment performed.`);
 } finally { globalThis.fetch = previousFetch; }

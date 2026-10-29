@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { z } from 'zod';
 import { ContextSchema, safeSources } from '../server/tavily.js';
 import { decidePolicy } from '../shared/policy-decision.js';
-const Fixture = z.object({ scope: z.string(), cases: z.array(z.object({ id: z.string(), group: z.string(), kind: z.enum(['discount', 'shipping']), platform: z.enum(['Shopify', 'WooCommerce']), carrier: z.enum(['USPS', 'UPS']), region: z.literal('US'), origin: z.enum(['native', 'manual', 'app-script', 'unknown']), passage: z.string(), expected: z.enum(['review', 'hold', 'contradicted', 'insufficient']), nextCheck: z.string(), abstain: z.boolean() })).length(12) });
+const Fixture = z.object({ scope: z.string(), cases: z.array(z.object({ id: z.string(), group: z.string(), kind: z.enum(['discount', 'shipping']), platform: z.enum(['Shopify', 'WooCommerce']), carrier: z.enum(['USPS', 'UPS']), region: z.literal('US'), origin: z.enum(['native', 'manual', 'scripts-api', 'app', 'app-script', 'unknown']), passage: z.string(), expected: z.enum(['review', 'hold', 'contradicted', 'insufficient']), nextCheck: z.string(), abstain: z.boolean() })).length(12) });
 export const fixtures = Fixture.parse(JSON.parse(await readFile('data/decision-cases.json', 'utf8')));
 export function fixturePacket(c: typeof fixtures.cases[number]) {
   const context = ContextSchema.parse({ platform: c.platform, carrier: c.carrier, region: c.region, discountOrigin: c.origin });
