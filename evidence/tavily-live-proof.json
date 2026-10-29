@@ -1,0 +1,60 @@
+{
+  "scope": "Actual Tavily call; no private CSV or product identifiers in query. Decision routing is conservative and needs human policy-fidelity review.",
+  "packet": {
+    "kind": "discount",
+    "context": {
+      "platform": "Shopify",
+      "carrier": "USPS",
+      "region": "US",
+      "discountOrigin": "manual"
+    },
+    "query": "Shopify official documentation manual POS draft order discounts bypass combination settings exceptions",
+    "mode": "live",
+    "checkedAt": "2026-10-27T20:40:24.096Z",
+    "sources": [
+      {
+        "id": "S1",
+        "title": "Shopify Help Center | Discount combinations on POS",
+        "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+        "snippet": "Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions. You can't apply custom line item discounts to a split line item. After you apply a custom line item discount in Shopify POS, additional product discount codes can't be applied to that same item. All automatic discounts and discount codes follow the same combination rules and calculation order as",
+        "publishedDate": null,
+        "sourceRegion": "global"
+      },
+      {
+        "id": "S2",
+        "title": "Shopify Help Center | Managing draft orders on Shopify POS",
+        "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/save-retrieve-order",
+        "snippet": "If the Automatic discounts setting is turned off in More actions, then any automatic discount is removed from the draft order. #### Steps: 1. From Shopify POS, tap the Order icon. 2. Tap Load Drafts. 3. Tap the draft order that you want to edit. 4. Tap Load to cart. 5. Take one of the following steps to apply an admin discount: [...] Tap the Apply discount tile on the",
+        "publishedDate": null,
+        "sourceRegion": "global"
+      },
+      {
+        "id": "S3",
+        "title": "Shopify Help Center | Managing draft orders on Shopify POS",
+        "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/draft-orders",
+        "snippet": "If the Automatic discounts setting is turned off in More actions, then any automatic discount is removed from the draft order. #### Steps: 1. From Shopify POS, tap the Order icon. 2. Tap Load Drafts. 3. Tap the draft order that you want to edit. 4. Tap Load to cart. 5. Take one of the following steps to apply an admin discount: [...] Tap the Apply discount tile on the",
+        "publishedDate": null,
+        "sourceRegion": "global"
+      }
+    ],
+    "status": "ok",
+    "note": "Retrieved by Tavily. Official-domain results are screened for relevance; snippets are untrusted evidence, not proof of the cause of a CSV anomaly. Verify the full policy and effective date.",
+    "proof": {
+      "requestId": "75fc38ff-9fd0-4b4a-ae88-26ffc1aa57e5",
+      "latencyMs": 1682,
+      "usageCredits": 1
+    },
+    "researchId": "operator-live-verification"
+  },
+  "decision": {
+    "sourceIds": [
+      "S1",
+      "S2",
+      "S3"
+    ],
+    "disprove": "The original promotion record, store eligibility, applicable policy effective date, and a controlled test could disprove this hypothesis.",
+    "status": "contradicted",
+    "constraint": "The policy passage describes an exception to combination settings for this seller-provided discount origin. A settings toggle is not established as a remedy.",
+    "nextCheck": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings."
+  }
+}

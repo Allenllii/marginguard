@@ -1,0 +1,96 @@
+{
+  "seed": 73021,
+  "fixture": "northstar-demo.csv",
+  "fingerprint": "0aca9bee505e7050",
+  "orders": 504,
+  "totals_cents": {
+    "gross": 4456000,
+    "revenue": 3984622,
+    "contribution": 2207783,
+    "opportunity": 191858
+  },
+  "issues": [
+    {
+      "id": "returns-9ab037b5d2741d64e11289af05853e074eb54935f6189f94dba364e9b421b8ab",
+      "exposure_cents": 104000,
+      "csv_rows": [
+        380,
+        381,
+        398,
+        399,
+        416,
+        417,
+        434,
+        435,
+        452,
+        453,
+        470,
+        471,
+        488,
+        489
+      ]
+    },
+    {
+      "id": "discount-stacking",
+      "exposure_cents": 65808,
+      "csv_rows": [
+        260,
+        261,
+        278,
+        279,
+        296,
+        297,
+        314,
+        315,
+        332,
+        333,
+        350,
+        351,
+        368,
+        369,
+        386,
+        387,
+        404,
+        405,
+        422,
+        423,
+        440,
+        441,
+        458,
+        459,
+        476,
+        477,
+        494,
+        495
+      ]
+    },
+    {
+      "id": "shipping-overrun",
+      "exposure_cents": 22050,
+      "csv_rows": [
+        145,
+        163,
+        181,
+        199,
+        217,
+        235,
+        253,
+        271,
+        289,
+        307,
+        325,
+        343,
+        361,
+        379,
+        397,
+        415,
+        433,
+        451,
+        469,
+        487,
+        505
+      ]
+    }
+  ],
+  "notes": "Hand-inspected planted populations; dollar exposures independently checked with Python Decimal. Synthetic fixture only. This is not a generalization benchmark or live-model evaluation."
+}

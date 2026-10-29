@@ -1,0 +1,2 @@
+order_id,order_date,sku,category,gross_sales,discount,promo_count,cogs,shipping_charged,shipping_cost,refund,return_cost
+MG-0001,2026-09-01,EXAMPLE,Accessories,100.00,10.00,1,30.00,4.90,6.50,0.00,0.00

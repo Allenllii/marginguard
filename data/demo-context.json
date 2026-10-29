@@ -1,0 +1,11 @@
+{
+  "scope": "Invented seller-provided scenario context for the synthetic Northstar demo. These values are not detected from CSV and do not represent a connected Shopify store.",
+  "platform": "Shopify",
+  "carrier": "USPS",
+  "region": "US",
+  "discountOrigin": "manual",
+  "discountCeilingPercent": 20,
+  "shippingSubsidyCents": 300,
+  "beforeHypothesis": "Could a discount-combination setting explain or fix the extra discount?",
+  "afterPolicyCheck": "The saved official-source review describes a manual/POS/draft-order exception. Audit manual overrides and promotion intent; do not assert that a combination-settings toggle fixes it."
+}
