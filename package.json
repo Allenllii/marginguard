@@ -21,6 +21,7 @@
     "verify:tavily": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/verify-policy-live.ts --search-only",
     "verify:tavily-ui": "tsx scripts/verify-tavily-ui.ts",
     "verify:policy-live": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/verify-policy-live.ts",
+    "verify:integration": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/verify-policy-integration.ts",
     "check": "npm run lint && npm run build && npm test && npm run evaluate && npm run evaluate:policy",
     "build:frontend": "tsc --noEmit && vite build",
     "db:generate": "drizzle-kit generate"
