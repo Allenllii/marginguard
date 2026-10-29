@@ -2,7 +2,7 @@
 
 **Find the leaks. Follow the evidence. Model your next move.**
 
-[Open the public judge demo](https://marginguard-evidence.liwenzhao0306.chatgpt.site) | [Source: current review branch](https://github.com/Allenllii/marginguard/tree/codex/evidence-desk) | [Development specification](docs/SPEC.md) | [Release identities](docs/RELEASE.md)
+[Open the public judge demo](https://marginguard-evidence.liwenzhao0306.chatgpt.site) | [Source: current review branch](https://github.com/Allenllii/marginguard/tree/codex/interaction-accessibility) | [Development specification](docs/SPEC.md) | [Release identities](docs/RELEASE.md)
 
 MarginGuard helps small ecommerce sellers turn a margin anomaly into a specific next check. It validates an order CSV, calculates exact contribution and rule-based exposure, shows the source rows, and uses policy evidence to qualify a proposed remedy. The primary demonstration redirects an overly generic discount-settings suggestion to a manual-override audit when the applicable Shopify exception supports that change.
 
@@ -50,7 +50,7 @@ npm run build:offline-demo
 
 `check` runs lint, strict TypeScript, frontend/Worker builds, unit/API tests and small synthetic rule/routing evaluations. The offline build also checks embedded HTML/JS/CSS, disabled providers and a cross-instance fixture draft. For browser tests, run `npm run start:qa` in one terminal and `npm run test:ui` in another. Chrome must be installed; `MARGINGUARD_TEST_URL` can select another tested app origin. Browser tests use synthetic data.
 
-The review-fix suite passed **124 unit/API tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **15 browser scenarios** passed on local Node and offline Worker boundaries. New raw regression logs remain local pending separate upload approval. These are development regressions; the predeclared final benchmark has **not run**.
+The review-fix suite passed **124 unit/API tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **20 browser scenarios** passed on local Node and offline Worker boundaries. New raw regression logs remain local pending separate upload approval. These are development regressions; the predeclared final benchmark has **not run**.
 
 ## Synthetic data and calculation contract
 

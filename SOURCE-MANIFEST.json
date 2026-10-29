@@ -1,9 +1,8 @@
 {
-  "baselineMain": "ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0",
-  "internalPatchCommit": "cf166b403d78304ebe99c9e95c020b57818552ff",
-  "internalPatchSha256": "7fe0cb6cfae2d704470c221ccf1719323cc7db09d44af6493499d8fb71a77b0b",
+  "baselineMain": "21f02656171b75f95b58b7ae5b846acb91ed3bf7",
+  "benchmarkHead": "8e01ce77cc1155f22f5e83eff1a0af4fb24420ce",
   "sourceBranch": "codex/fair-benchmark-framework",
-  "scope": "Evaluation-only framework, docs and offline tests on exact main. Unpublished interaction source, CI proposal and new raw evidence excluded.",
+  "scope": "Evaluation-only framework, docs and offline tests integrated with the latest main, including PR14 interaction and PR16 supporting-text contrast changes. No live benchmark, provider call, deployment, private gold, secrets or new raw evidence.",
   "verification": {
     "lint": "PASS",
     "strictTypes": "PASS",
@@ -12,9 +11,54 @@
     "offlineHarnessTests": "65/65",
     "syntheticRuleGolden": "PASS",
     "syntheticRouting": "12/12",
+    "artifactRoutes": 13,
+    "browserNode": "22/22",
     "newRuntimeDependencies": 0,
     "providerRequests": 0
   },
+  "inheritedMainVerification": {
+    "sourceCommit": "21f02656171b75f95b58b7ae5b846acb91ed3bf7",
+    "lint": "PASS",
+    "strictTypes": "PASS",
+    "frontendAndWorkerBuilds": "PASS",
+    "unitApi": "124/124",
+    "syntheticRouting": "12/12",
+    "artifactRoutes": 13,
+    "browserNode": "22/22",
+    "browserOfflineWorker": "22/22 same scenarios",
+    "focusedDecisionViewport": "1280px mouse; 390px keyboard/reduced motion",
+    "mobileMenu": "393px closed hidden, opening focus, Escape restoration, desktop resize",
+    "captionMinimumFontPx": 11,
+    "providerCallsThisPhase": 0,
+    "renderedTextContrast": [
+      {
+        "width": 1280,
+        "states": 9,
+        "measuredNormalTextInstances": 966,
+        "minimumNormalTextRatio": 4.535675964065117,
+        "failures": 0
+      },
+      {
+        "width": 393,
+        "states": 9,
+        "measuredNormalTextInstances": 798,
+        "minimumNormalTextRatio": 4.535675964065117,
+        "failures": 0
+      }
+    ],
+    "contrastScope": "Nine synthetic UI states at1280px and393px; computed alpha compositing and conservative gradient endpoints. Bounded regression, not full accessibility certification."
+  },
+  "benchmarkProvenance": {
+    "baselineMain": "ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0",
+    "internalPatchCommit": "cf166b403d78304ebe99c9e95c020b57818552ff",
+    "internalPatchSha256": "7fe0cb6cfae2d704470c221ccf1719323cc7db09d44af6493499d8fb71a77b0b"
+  },
+  "baselineSource": "868ff2e813ff21f33edf713bd46eebae506ca865",
+  "mainBase": "868ff2e813ff21f33edf713bd46eebae506ca865",
+  "pr13Merge": "Completed after explicit confirmation at ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0",
+  "pr14Merge": "868ff2e813ff21f33edf713bd46eebae506ca865",
+  "pr16Merge": "21f02656171b75f95b58b7ae5b846acb91ed3bf7",
+  "deployment": "Candidate requires exact-source Sites synchronization.",
   "finalBenchmark": "NOT RUN; no held-out experiment, cost authorization, model results or score claimed",
   "files": [
     {
@@ -39,8 +83,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 10017,
-      "sha256": "440a394e07d76d26b95202926e2642a2835f90247cfbc5c5c067a34e4f0ad7c8"
+      "bytes": 10029,
+      "sha256": "9c39c5fe4a590331e60fa8f86724397f1471d7b265c0fef0adee8a798befd13d"
     },
     {
       "path": "data/decision-cases.json",
@@ -139,8 +183,8 @@
     },
     {
       "path": "docs/RELEASE.md",
-      "bytes": 4577,
-      "sha256": "aa90423ebff81d5886a4f53306b30dee945055b9779274d26b7e3049a95d9700"
+      "bytes": 5403,
+      "sha256": "408c90978bf1575b8da5ab91f792c3e7dfd1dad1cc4036f2655ca24f1f439cdc"
     },
     {
       "path": "docs/SPEC.md",
@@ -649,8 +693,8 @@
     },
     {
       "path": "src/App.tsx",
-      "bytes": 37615,
-      "sha256": "7f491e5f3f1cdb1d1b66ee47ca6f6a3a0163e67dc48b89f5721127165d9fa5c4"
+      "bytes": 38644,
+      "sha256": "5467692133202d3c00a228a578f3768c5801f5e35e1fd7cfe18002638e364762"
     },
     {
       "path": "src/JudgeEntry.tsx",
@@ -659,8 +703,8 @@
     },
     {
       "path": "src/PolicyDecisionCard.tsx",
-      "bytes": 2694,
-      "sha256": "d605b3c359c3acd925df18eade87dbad1f5700751be7606d05395c4a1c69952a"
+      "bytes": 2809,
+      "sha256": "c3c6c8531aaf4c3a1b575e3a8d634962d59a079bff4aa95196eb973c379892b0"
     },
     {
       "path": "src/PolicyDraftCard.tsx",
@@ -669,8 +713,8 @@
     },
     {
       "path": "src/PolicyResearch.tsx",
-      "bytes": 12172,
-      "sha256": "8cc30cb212e0c602f57185b504eb784e52a8d9149029768d2304b74110101f8c"
+      "bytes": 12493,
+      "sha256": "a1882e63b25d575551607302f80a0ad4dbefcc40e44aed61ad3467d5408809f3"
     },
     {
       "path": "src/main.tsx",
@@ -679,8 +723,8 @@
     },
     {
       "path": "src/styles.css",
-      "bytes": 36559,
-      "sha256": "ca16b87f640518e3b32713fa3c8e4d5062868188c2ee1bb37c2f14ec3f16081a"
+      "bytes": 38819,
+      "sha256": "b4360d41a83de7f791fc7908fae28c36c7840369e07c2439e71f3edad13bdbf0"
     },
     {
       "path": "tests/analysis.test.ts",
@@ -694,8 +738,8 @@
     },
     {
       "path": "tests/browser.spec.ts",
-      "bytes": 27749,
-      "sha256": "9a78aa033c1944f7eac8309050852305a973986d975a57ab799a8a796a7073e7"
+      "bytes": 37421,
+      "sha256": "b1f285c3933ac4791643c509d5ec419a0908e95f158bcc05c5a40543e88efd8f"
     },
     {
       "path": "tests/budget.test.ts",
