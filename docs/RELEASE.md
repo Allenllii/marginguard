@@ -11,7 +11,7 @@ This ledger separates observed development artifacts from the final submission. 
 | Pending runtime update | Review fixes add stateless offline references across cold isolates, distinguish ordinary apps from confirmed Scripts API, and correct hosted CSV-processing text. Redeploy the verified integrated source before claiming those fixes are live. |
 | Actual sponsor calls | `evidence/pr7-live-journey-20261029.json`: Tavily `8df2a245-7576-48d3-9d40-ffb7b7213991`; NVIDIA `196038cb42e7180cb4fb6c1b30977819`, model `nvidia/Nemotron-3_5-Lightning` |
 | Public runtime profile | Forced offline; no hosted provider secrets, live inference or current retrieval is claimed. Raw CSV is sent to the app server for transient calculation. |
-| Current local verification | `evidence/review-readiness-20261029.json`; exact source tree hashes in `SOURCE-MANIFEST.json` |
+| Current local verification | 124/124 unit/API tests, 12/12 synthetic routing cases, 13/13 artifact routes and the same 13/13 browser scenarios on Node and offline Worker. New raw logs remain local pending separate upload approval; `SOURCE-MANIFEST.json` pins the actual public tree. |
 | Final source SHA / deployment version / archive hash | PENDING final independent review, corrections and verification; record immutable identities before submission |
 | Final benchmark | NOT RUN. Follow the frozen protocol and approval gates in SPEC.md. |
 | Final video / submission | PENDING final project/review/benchmark gates and user review; old local drafts remain unchanged and unpublished |
