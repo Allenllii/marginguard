@@ -50,7 +50,7 @@ npm run build:offline-demo
 
 `check` runs lint, strict TypeScript, frontend/Worker builds, unit/API tests and small synthetic rule/routing evaluations. The offline build also checks embedded HTML/JS/CSS, disabled providers and a cross-instance fixture draft. For browser tests, run `npm run start:qa` in one terminal and `npm run test:ui` in another. Chrome must be installed; `MARGINGUARD_TEST_URL` can select another tested app origin. Browser tests use synthetic data.
 
-This source increment passed **174 unit/API tests, 65 offline evaluation-harness self-tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **30 browser scenarios** passed on local Node and forced-offline Worker boundaries. Raw regression logs remain local. These are development regressions; the predeclared final benchmark has **not run**.
+This source increment passed **209 unit/API tests, 65 offline evaluation-harness self-tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **43 browser scenarios** passed on local Node and forced-offline Worker boundaries. Raw regression logs remain local. These are development regressions; the predeclared final benchmark has **not run**.
 
 ## Synthetic data and calculation contract
 
@@ -108,3 +108,7 @@ The default `npm run test:ui` includes the mapping regressions. A focused run us
 ## Evidence-conditioned policy tests
 
 Policy-to-Test challenges a proposed investigation against native, manual and unknown synthetic origins using one existing policy packet. Exact passages and a narrow rule/title catalog determine supported, contradicted or HOLD; unknown context, retractions, expired guidance and incompatible regions hold. This new view makes no provider call and has not received a new live-model evaluation. See [contract and limitations](docs/POLICY-TO-TEST.md).
+
+## Promo Preflight
+
+The isolated sandbox exhaustively evaluates bounded seller-authored promotion rules in integer cents, exposes the worst modeled contribution and exports replayable inputs. It is not a Shopify checkout emulator, store execution or a savings forecast. Hypothetical source attestations stay explicit; missing evidence holds. Workspace navigation preserves imported analysis and releases hidden dialog effects. See [model and limits](docs/PROMO-PREFLIGHT.md) and [audit corrections](docs/AUDIT-FOLLOWUP.md). The existing public Site is a separately versioned offline demonstration; source publication does not claim its deployment was updated.
