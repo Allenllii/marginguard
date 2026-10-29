@@ -208,3 +208,7 @@ Any unexplained money/evidence mismatch, secret disclosure, fabricated live succ
 ## 12. Definition of ready
 
 Ready for final independent review means the complete primary journey works, actual sponsor integrations are proven, the public test build and source are coherent, and there are no unresolved high-severity acceptance defects. Ready for final benchmark means that review/fix cycle is complete and a final candidate plus protocol is frozen. Ready for video/submission means those final gates are complete and every claim can be traced to observed evidence. These stages must not be collapsed into 'project complete' based only on a local test count.
+
+## Review correction - October 29
+
+F04 is clarified: ordinary app origin is distinct from confirmed Scripts API. Ordinary apps and the legacy ambiguous app-script value hold until their application mechanism is known; only an explicit Scripts API origin and a matching passage can use that exception. M4 remains a development fixture and now names the Scripts API explicitly. This does not run or relabel the final held-out benchmark. Explicit offline fixture references are stateless and rebuild canonical authored sources; live packets remain server-issued UUIDs with expiring server storage. CSV uploads reach the app server for transient calculation, including on the hosted demo.

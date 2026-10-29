@@ -37,3 +37,7 @@ The public demo fails closed for live calls without a migrated durable budget an
 Known review limits: source-ID membership is structural, not semantic entailment. Passage selection and applicability rules are conservative heuristics. Provider compatibility and actual policy fidelity need real calls and independent human review. D1 SQL has local regression evidence; actual hosted provisioning/migration and public smoke checks remain release gates.
 
 Independent scoring should use evidence, not win probability: technical 25, coherent product design 25, real-world impact 25, originality 25. Record strong points, defects, severity, supporting files/requests, and a prioritized bounded fix list. Review after real integration/deployment gates, then rerun affected tests and re-review. Preserve the release freeze in `RELEASE.md`.
+
+## Stateless authored fixtures
+
+`server/fixture-reference.ts` encodes only enumerated public scenario context for explicit offline previews. Any cold service instance rebuilds the same canonical server-authored fixture. The reference contains no source text, URL, retrieval time or live proof and cannot authorize a model request. Live research remains a server-issued UUID resolved through expiring server storage. The forced-offline Worker ignores runtime bindings; it does not require database affinity. Ordinary app origins hold rather than inheriting a Scripts API exception.
