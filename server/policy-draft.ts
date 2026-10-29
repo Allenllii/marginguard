@@ -18,7 +18,7 @@ export function permittedPolicyStatements(packet: ResearchPacket): { sourceId: s
     : decision.status === 'contradicted'
       ? packet.context.discountOrigin === 'manual'
         ? 'The returned passage describes a manual-discount exception to combination settings.'
-        : 'The returned passage describes an app or script exception to combination settings.'
+        : 'The returned passage describes a Scripts API exception to combination settings.'
       : 'The returned passage describes conditions for combining discounts or restricting coupon use.';
   return decision.sourceIds.map(sourceId => ({ sourceId, statement }));
 }

@@ -6,6 +6,7 @@ import { ContextSchema, KindSchema, research, tavilyStatus } from './tavily.js';
 import { decidePolicy } from '../shared/policy-decision.js';
 import { budgetLimits, MemoryBudget, type LiveBudget, type LiveService } from './budget.js';
 import type { ResearchPacket } from '../shared/types.js';
+import { fixtureReference, parseFixtureReference, ResearchIdSchema } from './fixture-reference.js';
 
 export const AssumptionsSchema = z.object({ discountCeilingPercent: z.number().int().min(0).max(60), shippingSubsidyCents: z.number().int().min(0).max(2000) }).strict();
 const Payload = z.object({ csv: z.string().min(1).max(MAX_BYTES), live: z.boolean().optional(), assumptions: AssumptionsSchema.optional() }).strict();
@@ -43,12 +44,21 @@ export function createService(options: { env?: Record<string, string | undefined
         const upstream = live && tavily.enabled && !!tavily.key && context.region === 'US';
         if (upstream && (searchInFlight || now() < nextSearch)) return { status: 429, body: { error: 'Wait before another live search. Provider Retry-After is respected.' }, headers: { 'Retry-After': String(Math.max(1, Math.ceil((nextSearch - now()) / 1000))) } };
         if (upstream) searchInFlight = true;
-        try { if (upstream) { const denial = await reserve('tavily'); if (denial) return denial; nextSearch = now() + 10000; } const result = await research(kind, context, live, tavily, request); if (result.retryAfterSeconds) nextSearch = Math.max(nextSearch, now() + result.retryAfterSeconds * 1000); const packet = { ...result, researchId: crypto.randomUUID() }; await store.put(packet); return { status: 200, body: packet }; }
+        try {
+          if (upstream) { const denial = await reserve('tavily'); if (denial) return denial; nextSearch = now() + 10000; }
+          const result = await research(kind, context, live, tavily, request);
+          if (result.retryAfterSeconds) nextSearch = Math.max(nextSearch, now() + result.retryAfterSeconds * 1000);
+          const packet = { ...result, researchId: live ? crypto.randomUUID() : fixtureReference(kind, context) };
+          if (live) await store.put(packet);
+          return { status: 200, body: packet };
+        }
         finally { if (upstream) searchInFlight = false; }
       }
       if (method === 'POST' && path === '/api/remediate') {
-        const { csv, issueId, researchId, live, assumptions } = z.object({ csv: z.string().min(1).max(MAX_BYTES), issueId: z.string().max(100), researchId: z.string().uuid(), live: z.boolean().default(false), assumptions: AssumptionsSchema.optional() }).strict().parse(body);
-        const packet = await store.get(researchId), issue = analyze(csv, undefined, false, assumptions).issues.find(i => i.id === issueId);
+        const { csv, issueId, researchId, live, assumptions } = z.object({ csv: z.string().min(1).max(MAX_BYTES), issueId: z.string().max(100), researchId: ResearchIdSchema, live: z.boolean().default(false), assumptions: AssumptionsSchema.optional() }).strict().parse(body);
+        const fixture = parseFixtureReference(researchId);
+        const packet = fixture ? { ...await research(fixture.kind, fixture.context, false, {}, request), researchId } : await store.get(researchId);
+        const issue = analyze(csv, undefined, false, assumptions).issues.find(i => i.id === issueId);
         if (!packet || !issue || packet.kind !== issue.kind) return { status: 422, body: { error: 'Policy evidence expired or does not match this finding. Run the source check again.' } };
         if (packet.status !== 'ok' || !packet.sources.length) return { status: 422, body: { error: 'No relevant policy sources are available for a grounded brief.' } };
         const decision = decidePolicy(issue.kind, packet);
