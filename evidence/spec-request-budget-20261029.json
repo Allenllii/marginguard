@@ -1,0 +1,61 @@
+{
+  "executedAt": "2026-10-29T05:13:29.287946+00:00",
+  "scope": "Spec and evaluation HTTP-budget preparation; final benchmark NOT RUN",
+  "specPr": {
+    "url": "https://github.com/Allenllii/marginguard/pull/1",
+    "commit": "29cf07a83c19d1fb229c011fb9b504d4e896c2a0",
+    "draft": true,
+    "remoteNormalizedMatchesLocal": true
+  },
+  "sourceBaselinePr": {
+    "url": "https://github.com/Allenllii/marginguard/pull/2",
+    "draft": true,
+    "status": "COMPLETE; public tree verified 86/86 Git blob hashes",
+    "commit": "17963ea70e877e73d30aa07ba8866380b41c3362"
+  },
+  "checks": {
+    "lint": "PASS",
+    "strictTypecheck": "PASS",
+    "nodeAndWorkerBuild": "PASS",
+    "unitApiBuildMigration": {
+      "passed": 71,
+      "failed": 0,
+      "skipped": 0
+    },
+    "requestMeterFocused": {
+      "passed": 10,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 10,
+      "failed": 0,
+      "seconds": 9.5
+    },
+    "policyFixtures": {
+      "passed": 12,
+      "failed": 0
+    },
+    "goldenExposureAndRows": "3/3 each; clean control zero findings"
+  },
+  "providerCallsThisTurn": 0,
+  "finalBenchmark": "NOT RUN; design only, gated after final implementation/integration/deployment/independent review",
+  "changedSource": [
+    "docs/SPEC.md",
+    "README.md",
+    "scripts/evaluate-live.ts",
+    "scripts/lib/request-meter.ts",
+    "tests/request-meter.test.ts"
+  ],
+  "runtimeFlags": "No enable flags changed; no secret file accessed or modified",
+  "remainingGates": [
+    "Approved actual NVIDIA/Nebius inference proof",
+    "Public deployment with durable migration/budgets and judge access",
+    "Fresh independent weighted review, fixes, then final benchmark",
+    "Video and submission only after those gates"
+  ],
+  "budgetPr": {
+    "url": "https://github.com/Allenllii/marginguard/pull/3",
+    "draft": true,
+    "status": "HTTP-budget source and evidence; final tree verification performed separately"
+  }
+}

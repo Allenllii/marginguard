@@ -1,0 +1,143 @@
+
+> margin-guard@0.1.0 check
+> npm run lint && npm run build && npm test && npm run evaluate && npm run evaluate:policy
+
+
+> margin-guard@0.1.0 lint
+> eslint . --max-warnings 0
+
+
+> margin-guard@0.1.0 build
+> npm run build:frontend && npm run build:worker && node scripts/build-sites.mjs && node scripts/validate-artifact.mjs
+
+
+> margin-guard@0.1.0 build:frontend
+> tsc --noEmit && vite build
+
+vite v8.3.5 building client environment for production...
+transforming...
+鉁?1942 modules transformed.
+rendering chunks...
+computing gzip size...
+frontend-dist/index.html                   0.54 kB 鈹?gzip:  0.36 kB
+frontend-dist/assets/index-SQuWKpb3.css   30.67 kB 鈹?gzip:  7.43 kB
+frontend-dist/assets/index-lqNuPtG7.js   281.86 kB 鈹?gzip: 87.14 kB
+
+鉁?built in 339ms
+
+> margin-guard@0.1.0 build:worker
+> node --import tsx scripts/build-worker.ts
+
+Portable Worker ESM built: ./worker/index.js (865822 bytes), 3 embedded assets, no Node builtins; offline health/page smoke passed.
+Built C:\Users\liwen\Documents\Codex\2026-10-27\task\margin-guard\dist
+Artifact is valid ESM and exports default.fetch
+
+> margin-guard@0.1.0 test
+> node --import tsx --test tests/*.test.ts
+
+鉁?hand-calculated order contribution and distinct leakage components (5.0301ms)
+鉁?refunds retain COGS, deduct handling, and exclude discount/shipping recovery (1.6376ms)
+鉁?seed fixture has three known planted issue populations (15.4396ms)
+鉁?exact guardrail values do not trigger a finding (0.5946ms)
+鉁?scenario zero, full recovery, rounding, and invalid rate bounds (6.7535ms)
+鉁?findings are independent of CSV row ordering (10.4115ms)
+鉁?reordered columns, UTF-8 BOM, CRLF and quoted CSV are supported (1.6432ms)
+鉁?rejects duplicate order IDs (0.629ms)
+鉁?rejects impossible date (0.5541ms)
+鉁?rejects negative amount (0.3673ms)
+鉁?rejects excess precision (0.3175ms)
+鉁?rejects excess refund (0.2128ms)
+鉁?rejects excess discount (0.2425ms)
+鉁?rejects non-integer promo count (0.2366ms)
+鉁?rejects formula injection (0.2116ms)
+鉁?rejects markup injection (0.2815ms)
+鉁?rejects handling with no refund (0.2451ms)
+鉁?rejects empty data (0.2464ms)
+鉁?rejects duplicate columns (0.2026ms)
+鉁?rejects extra column (0.5417ms)
+鉁?rejects malformed quoting (0.7283ms)
+鉁?rejects oversize input (1.7706ms)
+鉁?fingerprint changes when bytes change (0.7636ms)
+鉁?case and punctuation-distinct SKUs keep unique stable return IDs and independent scenarios (8.1202ms)
+鉁?editable seller assumptions recompute exact cents, formulas and report metadata (6.836ms)
+鉁?local API validates imports, blocks cross-origin POSTs, exposes no keys, and labels fixtures (248.0931ms)
+鉁?memory caps reserve attempts atomically and respect minute/day/total boundaries (2.142ms)
+鉁?durable SQL budgets survive a new runtime instance and concurrent attempts (5.8006ms)
+鉁?public live requests fail closed without durable budgets and provider hard caps (1.9942ms)
+鉁?streamed provider data is bounded before full buffering and invalid UTF-8 rejected (17.9758ms)
+鉁?Worker packaging preserves the independent Node frontend and copies only deployment inputs (92.0157ms)
+鉁?an occupied production port exits with an error instead of claiming startup success (361.86ms)
+鉁?Drizzle really generates the canonical SQL and repeat generation preserves migration history (761.7231ms)
+鉁?canonical migration enforces budget keys, nonnegative counts and policy-cache constraints (1.4435ms)
+鉁?offline mode never calls a provider (0.8671ms)
+鉁?configured adapter verifies catalogue, validates output and records measured proof (23.0085ms)
+鉁?raw identifiers and imported prose are excluded from model evidence (0.1481ms)
+鉁?unknown references, duplicate references, and numeric claims are rejected (5.0112ms)
+鉁?truncated or refused responses visibly fall back (1.9285ms)
+鉁?missing config, non-NVIDIA model, unavailable catalogue model and upstream failure do not claim success (0.6078ms)
+鉁?output schema rejects extra fields and markup (0.8425ms)
+鉁?meter counts catalogue and completion as separate HTTP attempts (18.3213ms)
+鉁?concurrent requests cannot overshoot the reserved cap (0.5244ms)
+鉁?in-flight reservations stay bounded and detached snapshots do not change after settlement (0.2204ms)
+鉁?network errors remain counted and unknown, without leaking headers/body/error text (0.1827ms)
+鉁?redirect behavior is forced to error for options and inherited Request settings (0.6473ms)
+鉁?exported adapter proof IDs and meter IDs share a bounded identifier format (0.3806ms)
+鉁?upstream failures consume an attempt and are not retried (0.2906ms)
+鉁?endpoint and method allowlist rejects redirects/query strings/other destinations before transport (0.189ms)
+鉁?snapshot is detached from the internal ledger and invalid caps fail closed (0.3389ms)
+鉁?adapter with one remaining HTTP request cannot silently make a second completion call (21.9245ms)
+鉁?two scoped generic search plans never require private CSV data (2.7805ms)
+鉁?offline fixtures make no request and never claim a retrieval timestamp (0.4096ms)
+鉁?live missing-key state has no invented sources (0.165ms)
+鉁?live search restricts official domains, requests no generated answer, and records returned provenance (18.0802ms)
+鉁?source screening rejects unrelated, untrusted, malicious, low-score, duplicated and unsafe URLs (4.3268ms)
+鉁?irrelevant live search returns no-results and does not inject fixture citations (0.6537ms)
+鉁?Tavily HTTP 401 is visible and never claims live success (0.2686ms)
+鉁?Tavily HTTP 429 is visible and never claims live success (0.2445ms)
+鉁?Tavily HTTP 432 is visible and never claims live success (0.1971ms)
+鉁?Tavily HTTP 433 is visible and never claims live success (0.2208ms)
+鉁?invalid provider response and timeout/error do not fabricate citations (0.6201ms)
+鉁?operative manual-discount exception is selected after a long irrelevant preamble (0.2666ms)
+鉁?manual-exception decision cites only the operative supporting passage (0.8111ms)
+鉁?exception routing abstains for negated, unrelated and conflicting origin claims (0.2962ms)
+鉁?source-grounded model validation rejects unknown citations, numeric claims and causal guarantees (1.7949ms)
+鉁?source-grounded brief refuses live inference from offline fixtures (0.3569ms)
+鉁?live source-grounded adapter sends only aggregate issue data and cited excerpts (3.1583ms)
+鉁?direct remediation adapter holds unknown, wrong-region and insufficient context before any request (0.7793ms)
+鉁?offline remediation summarizes the supporting passage instead of the first search result (0.4935ms)
+鉁?model remediation receives only supporting passages and cannot cite an unrelated returned result (2.4069ms)
+鈩?tests 71
+鈩?suites 0
+鈩?pass 71
+鈩?fail 0
+鈩?cancelled 0
+鈩?skipped 0
+鈩?todo 0
+鈩?duration_ms 909.9363
+
+> margin-guard@0.1.0 evaluate
+> node --import tsx scripts/evaluate.ts
+
+{
+  "executedAt": "2026-10-29T05:20:44.577Z",
+  "scope": "Two synthetic fixtures; deterministic rules only. No live inference and no claims about real-world accuracy.",
+  "plantedFixture": {
+    "orders": 504,
+    "expectedIssues": 3,
+    "detectedIssues": 3,
+    "exactExposureChecks": "3/3",
+    "exactEvidenceRowChecks": "3/3",
+    "evidenceRows": 63
+  },
+  "cleanControl": {
+    "orders": 504,
+    "detectedIssues": 0
+  },
+  "reproducibleFingerprint": "0aca9bee505e7050",
+  "status": "PASS"
+}
+
+> margin-guard@0.1.0 evaluate:policy
+> node --import tsx scripts/evaluate-policy.ts
+
+Synthetic decision routing: 12/12 passed. Semantic fidelity on actual retrieved passages remains a human-reviewed live gate.
