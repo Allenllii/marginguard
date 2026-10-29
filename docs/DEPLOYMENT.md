@@ -2,7 +2,7 @@
 
 ## Preferred: native Sites Worker ESM
 
-Registered project: `appgprj_6ae108e911088191834d591d732db251`. Expected origin: `https://marginguard-evidence.liwenzhao0306.chatgpt.site`. An expected origin is not a deployed URL; registration remains private/unpublished until successful source push, saved version, access selection and deployment.
+Registered project: `appgprj_6ae108e911088191834d591d732db251`. A current read-only native check returned active status, custom access, saved version zero and no live or expected URL. No judge URL is verified. See [JUDGE-DEMO-PLAN.md](JUDGE-DEMO-PLAN.md) for the locally prepared forced-offline profile; no source push, access change or deployment was performed by that preparation.
 
 ```text
 npm ci --ignore-scripts --registry=https://registry.npmjs.org
@@ -11,7 +11,7 @@ npm run check
 
 `build:worker` produces the generated `worker/index.js`; the cross-platform copy step produces `dist/server/index.js` and `dist/.openai/hosting.json`. The independent `frontend-dist/` supplies Node production assets and the embedded Worker assets. All HTML, CSS and JS assets are embedded, matching the native Worker ESM starter's single-file contract. It uses standard Web APIs and shares the canonical engine/provider/service source with Express. No Node builtins or native server are forced into Workers.
 
-The Sites source-workflow helper is not available in this Windows skill runtime. The parent Sites-capable environment must open the registered project's source repository using a fresh native credential and the supported workflow; preserve `.openai/hosting.json`'s exact project ID. Push the exact reviewed source/build state, save an archive-backed version, set the user-approved public audience, and deploy that saved version. Do not confuse the Sites source repository with the required public GitHub repository. Do not expose or persist source-repository tokens.
+This local preparation did not invoke a native source-write credential or source workflow. The selected Sites-capable release environment must open the registered project's source repository using a fresh native credential and the supported workflow; preserve `.openai/hosting.json`'s exact project ID. Push the exact reviewed source/build state, save an archive-backed version, set the user-approved public audience, and deploy that saved version. Do not confuse the Sites source repository with the required public GitHub repository. Do not expose or persist source-repository tokens.
 
 The source manifest now declares the logical `d1: "DB"` binding. `db/schema.ts`, `drizzle.config.ts`, and the canonical SQL/snapshot/journal under `drizzle/` define three schema-only operational tables. Fresh generation matches the canonical SQL; repeat generation changes no history; SQLite constraint and concurrent budget checks pass. The earlier SQL under `deploy/migrations/` is retained as historical reference. Actual hosted provisioning and migration application remain deployment checks; declaring a binding is not proof they occurred. With no usable durable binding, public live calls stay disabled even if provider credentials are supplied.
 
@@ -37,4 +37,4 @@ The existing Express adapter supports explicit `APP_ORIGIN=https://<actual-host>
 
 ## GitHub publication gate
 
-The user changed the destination to the current browser account. `https://github.com/Allenllii/marginguard` was created public with MIT licensing, verified at initial commit `64ea74e216b8c7de50662c10ec43b86e743da9f3` containing only LICENSE. An uncommitted older source upload was canceled before canonical-source synchronization. Final source publication and remote tree verification belong to the release workflow; this local merge performs no repository mutation. No CLI credential was changed. Publish only the allowlisted project source, synthetic data and documentation under MIT; exclude `.env`, dependency/browser caches, traces, private receipts and credentials. Verify the final public commit/tree through the connector.
+The authorized public repository is `https://github.com/Allenllii/marginguard`. Source, synthetic data and verification are published through stacked draft PRs; the exact full-source branch and commit are pinned by the release manifest/handoff, while the default branch has not been advanced by this task. Do not give judges the license-only initial tree as if it were the completed source. Review and merge/release selection remain separate gates. No CLI credential was changed. Exclude environment files, dependency/browser caches, traces, private receipts and credentials from every publication.
