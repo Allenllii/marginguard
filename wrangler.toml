@@ -12,8 +12,8 @@ TAVILY_ENABLE_LIVE = "true"
 NEBIUS_ENABLE_LIVE = "true"
 NEBIUS_MODEL = "nvidia/Nemotron-3_5-Lightning"
 NEBIUS_REASONING_MODEL = "nvidia/nemotron-3-super-120b-a12b"
-# Per provider: 8 calls/minute, 60/day, 300 in total, enforced in D1 before each call.
-LIVE_MINUTE_LIMIT = "8"
+# Per provider: 6 calls/minute (the code maximum), 60/day, 300 in total, enforced in D1 before each call.
+LIVE_MINUTE_LIMIT = "6"
 LIVE_DAILY_LIMIT = "60"
 LIVE_TOTAL_LIMIT = "300"
 # Covers the judging period (ends 2026-12-23).
