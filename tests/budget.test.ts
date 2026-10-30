@@ -29,6 +29,27 @@ test('durable SQL budgets survive a new runtime instance and concurrent attempts
   assert.equal((await b.reserve('nebius', now + 86460000)).allowed, false);
   db.close();
 });
+test('a multi-attempt set is reserved all-or-nothing in memory and in durable SQL', async () => {
+  const db = new DatabaseSync(':memory:'); db.exec(await readFile('drizzle/0000_open_lightspeed.sql', 'utf8'));
+  const adapter: D1Like = { prepare(sql) { let args: (string | number | null)[] = []; const statement: D1Statement = { bind(...values) { args = values as typeof args; return statement; }, async first<T>() { return (db.prepare(sql).get(...args) ?? null) as T | null; }, async run() { return db.prepare(sql).run(...args); } }; return statement; }, async batch(statements) { const values = []; for (const s of statements) values.push(await s.run()); return values; } };
+  const now = Date.parse('2026-10-27T20:00:00Z'), pipeline = ['tavily', 'tavily', 'nebius', 'nebius'] as const;
+  for (const budget of [new MemoryBudget({ minute: 3, daily: 20, total: 100 }), new D1Budget(adapter, { minute: 3, daily: 20, total: 100 })]) {
+    assert.equal((await budget.reserve(pipeline, now)).allowed, true);
+    const denied = await budget.reserve(pipeline, now);
+    assert.equal(denied.allowed, false); assert.equal(denied.retryAfterSeconds, 60);
+    // The denied set counted nothing: exactly one more attempt per service fits this minute.
+    assert.equal((await budget.reserve(['tavily', 'nebius'], now)).allowed, true);
+    assert.equal((await budget.reserve('tavily', now)).allowed, false);
+    assert.equal((await budget.reserve(pipeline, now + 60000)).allowed, true);
+  }
+  const used = db.prepare("SELECT service, SUM(used) AS used FROM live_request_days GROUP BY service ORDER BY service").all();
+  assert.deepEqual(used.map(row => ({ ...row })), [{ service: 'nebius', used: 5 }, { service: 'tavily', used: 5 }]);
+  const day = new MemoryBudget({ minute: 6, daily: 3, total: 100 });
+  assert.equal((await day.reserve(['tavily', 'tavily'], now)).allowed, true);
+  const overDay = await day.reserve(['tavily', 'tavily'], now + 60000);
+  assert.equal(overDay.allowed, false); assert.equal(overDay.retryAfterSeconds, 86400);
+  db.close();
+});
 test('public live requests fail closed without durable budgets and provider hard caps', async () => {
   let requests = 0;
   const service = createService({ env: { PUBLIC_DEMO: 'true', TAVILY_ENABLE_LIVE: 'true', TAVILY_API_KEY: 'fixture-not-real' }, request: (async () => { requests++; throw new Error('must not call'); }) as typeof fetch });

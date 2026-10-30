@@ -32,7 +32,7 @@ export function createService(options: { env?: Record<string, string | undefined
   let modelInFlight = false, searchInFlight = false, nextModel = 0, nextSearch = 0, apiMinute = -1, apiCount = 0;
   // Ephemeral proposals hold generated rules, never seller data. Restarts expire safely.
   const proposals = new Map<string, { rules: PreflightRule[]; expires: number }>();
-  async function reserve(service: LiveService): Promise<Reply | null> {
+  async function reserve(service: LiveService | readonly LiveService[]): Promise<Reply | null> {
     if (!liveSafe) return { status: 503, body: { error: 'Public live calls require a durable budget store and verified provider hard caps. Offline demo remains available.' } };
     if (now() >= expires) return { status: 503, body: { error: 'This live-demo authorization window has ended. Offline analysis remains available.' } };
     const result = await budget.reserve(service, now());
@@ -52,11 +52,11 @@ export function createService(options: { env?: Record<string, string | undefined
         const reservation: { denial: Reply | null } = { denial: null };
         try {
           const prepared = await preparePreflightBridge(activity, { reviewPreflightSource: options.reviewPreflightSource, live, tavily, nebius: nvidia, request, now,
-            reserve: async service => {
-              reservation.denial = await reserve(service);
+            reserve: async services => {
+              reservation.denial = await reserve(services);
               if (reservation.denial) return false;
-              if (service === 'tavily') nextSearch = Math.max(nextSearch, now() + 10000);
-              else nextModel = Math.max(nextModel, now() + 10000);
+              if (services.includes('tavily')) nextSearch = Math.max(nextSearch, now() + 10000);
+              if (services.includes('nebius')) nextModel = Math.max(nextModel, now() + 10000);
               return true;
             },
             onRateLimit: (service, seconds) => {
