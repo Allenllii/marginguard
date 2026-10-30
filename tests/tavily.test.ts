@@ -24,7 +24,7 @@ test('two scoped generic search plans never require private CSV data', () => {
 test('offline fixtures make no request and never claim a retrieval timestamp', async () => {
   const r = await research('discount', context, false, config, never);
   assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined);
-  assert.ok(r.note.includes('No Tavily call')); assert.equal(r.sources.length, 1);
+  assert.ok(r.note.includes('No search runs')); assert.ok(r.sources[0].savedAt); assert.equal(r.sources.length, 1);
 });
 test('live missing-key state has no invented sources', async () => {
   const r = await research('shipping', context, true, {}, never);
@@ -34,7 +34,7 @@ test('live search restricts official domains, requests no generated answer, and 
   const request = (async (url: string | URL | Request, init?: RequestInit) => {
     assert.equal(url, 'https://api.tavily.com/search');
     const payload = JSON.parse(String(init?.body));
-    assert.equal(payload.search_depth, 'basic'); assert.equal(payload.max_results, 3);
+    assert.equal(payload.search_depth, 'advanced'); assert.equal(payload.chunks_per_source, 3); assert.equal(payload.max_results, 3);
     assert.equal(payload.include_domains_mode, 'restrict'); assert.equal(payload.include_answer, false);
     assert.equal(payload.auto_parameters, false); assert.equal(payload.include_usage, true);
     assert.ok(!JSON.stringify(payload).includes('CLOUD-HOODIE'));
@@ -161,4 +161,25 @@ test('model remediation receives only supporting passages and cannot cite an unr
     assert.equal(result.mode, sourceId === 'S2' ? 'live' : 'fixture');
     if (sourceId === 'S1') assert.equal(result.proof, undefined);
   }
+});
+
+// Shapes recorded from real Tavily runs (evidence/tavily-live-proof.json): two
+// draft-order URLs returned the same passage.
+const draftPassage = 'If the Automatic discounts setting is turned off in More actions, then any automatic discount is removed from the draft order. #### Steps: 1. From Shopify POS, tap the Order icon. 2. Tap Load Drafts. 3. Tap the draft order that you want to edit. 4. Tap Load to cart. 5. Take one of the following steps to apply an admin discount: [...] Tap the Apply discount tile on the';
+const recordedResults = [
+  { title: 'Shopify Help Center | Discount combinations on POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts', content: 'Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.', score: 0.8 },
+  { title: 'Shopify Help Center | Managing draft orders on Shopify POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/save-retrieve-order', content: draftPassage, score: 0.7 },
+  { title: 'Shopify Help Center | Managing draft orders on Shopify POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/draft-orders', content: draftPassage.replace('From Shopify POS', 'From  Shopify POS'), score: 0.7 },
+];
+const manual = { ...context, discountOrigin: 'manual' } as const;
+test('identical passages from different URLs are accepted once, keeping the first', () => {
+  const sources = safeSources({ results: recordedResults }, 'discount', manual);
+  assert.deepEqual(sources.map(s => [s.id, s.url]), [['S1', recordedResults[0].url], ['S2', recordedResults[1].url]]);
+});
+test('passage selection uses the best Tavily chunk and falls back to the keyword window', () => {
+  const chunks = ['Navigation overview for the Help Center and its many sections of documentation.', 'Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.', 'Shipping labels and packing slips can be printed from the orders page.'];
+  assert.equal(selectPassage(chunks.join(' [...] '), 'discount', manual), chunks[1]);
+  // No chunk mentions a context term: fall back to the bounded keyword window.
+  const plain = 'General store setup information. '.repeat(60);
+  assert.ok(selectPassage(plain, 'discount', manual).split(' ').length <= 70);
 });

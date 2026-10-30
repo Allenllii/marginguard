@@ -18,14 +18,22 @@ export function searchPlan(kind: IssueKind, context: ResearchContext) {
 const cleanText = (s: string) => s.replace(/<[^>]*>/g, ' ').replace(/\p{Cc}/gu, ' ').replace(/\s+/g, ' ').trim();
 export function selectPassage(content: string, kind: IssueKind, context: ResearchContext): string {
   const terms = kind === 'shipping' ? ['dimension', 'weight', 'surcharge', 'measure', 'rate', 'service'] : context.discountOrigin === 'manual' ? ['manual', 'draft', 'pos', 'bypass', 'regardless', 'always apply'] : context.discountOrigin === 'scripts-api' ? ['scripts api', 'bypass', 'regardless', 'always apply'] : ['combination settings', 'combin', 'eligible', 'restriction', 'individual use'];
+  const score = (text: string) => terms.reduce((s, t) => s + (text.toLowerCase().includes(t) ? 1 : 0), 0);
+  // Tavily joins its relevant chunks (chunks_per_source) with "[...]". Prefer the
+  // whole chunk with the most context terms, in Tavily's order on ties.
+  const chunks = cleanText(content).split(/\s*\[\.\.\.\]\s*/).filter(c => c.length >= 40 && c.length <= 1200);
+  const chunk = chunks.map((text, i) => ({ text, i, score: score(text) })).sort((a, b) => b.score - a.score || a.i - b.i)[0];
+  if (chunk?.score) return chunk.text;
+  // Fallback: a 70-word keyword window over the full returned text.
   const words = cleanText(content).split(/\s+/), starts = new Set<number>([0]);
   words.forEach((word, i) => { if (terms.some(t => word.toLowerCase().includes(t.split(' ')[0]))) starts.add(Math.max(0, i - 12)); });
-  const best = [...starts].map(start => { const text = words.slice(start, start + 70).join(' '); return { text, start, score: terms.reduce((s, t) => s + (text.toLowerCase().includes(t) ? 1 : 0), 0) }; }).sort((a, b) => b.score - a.score || a.start - b.start)[0];
+  const best = [...starts].map(start => { const text = words.slice(start, start + 70).join(' '); return { text, start, score: score(text) }; }).sort((a, b) => b.score - a.score || a.start - b.start)[0];
   return (best?.text ?? '').slice(0, 1200);
 }
+const passageKey = (text: string) => text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 export function safeSources(raw: unknown, kind: IssueKind, context: ResearchContext): PolicySource[] {
   const parsed = z.object({ results: z.array(z.object({ title: z.string().max(2000), url: z.string().max(2048), content: z.string().max(30000).default(''), score: z.number().optional(), published_date: z.string().nullable().optional() })).max(20) }).parse(raw);
-  const plan = searchPlan(kind, context), seen = new Set<string>();
+  const plan = searchPlan(kind, context), seen = new Set<string>(), seenPassages = new Set<string>();
   const accepted: PolicySource[] = [];
   for (const item of parsed.results) {
     let url: URL; try { url = new URL(item.url); } catch { continue; }
@@ -38,7 +46,10 @@ export function safeSources(raw: unknown, kind: IssueKind, context: ResearchCont
     // Inspect the complete returned text before selecting a short passage, so
     // truncation cannot discard an expiry or known contrary rule.
     if (unresolvedPolicyStatement(item.title, content)) continue;
-    accepted.push({ id: `S${accepted.length + 1}`, title: cleanText(item.title).slice(0, 180), url: url.href, snippet: selectPassage(item.content, kind, context), publishedDate: item.published_date ? cleanText(item.published_date).slice(0, 40) : null, sourceRegion: inferredSourceRegion(item.title, content) });
+    const snippet = selectPassage(item.content, kind, context);
+    // Different URLs can return the same passage (mirrored help pages). Keep the first.
+    if (seenPassages.has(passageKey(snippet))) continue; seenPassages.add(passageKey(snippet));
+    accepted.push({ id: `S${accepted.length + 1}`, title: cleanText(item.title).slice(0, 180), url: url.href, snippet, publishedDate: item.published_date ? cleanText(item.published_date).slice(0, 40) : null, sourceRegion: inferredSourceRegion(item.title, content) });
     if (accepted.length === 3) break;
   }
   return accepted;
@@ -52,20 +63,20 @@ function fixtureSources(kind: IssueKind, c: ResearchContext): PolicySource[] {
 export async function research(kind: IssueKind, context: ResearchContext, live: boolean, config = tavilySettings(), request: typeof fetch = fetch): Promise<Omit<ResearchPacket, 'researchId'>> {
   const plan = searchPlan(kind, context);
   const base = { kind, context, query: plan.query };
-  if (context.region !== 'US') return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'no-results', note: 'Region applicability is unconfirmed or outside the US demo scope. Hold the recommendation; no search or model request was made.' };
-  if (!live) return { ...base, mode: 'fixture', checkedAt: null, sources: fixtureSources(kind, context), status: 'ok', note: 'Offline source fixtures with authored summaries and reference URLs. No Tavily call; these are not current search results.' };
-  if (!config.enabled || !config.key) return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note: 'Live Tavily search is not enabled or its server API key is missing. No current-policy result is claimed.' };
+  if (context.region !== 'US') return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'no-results', note: 'This demo covers US policy only, so the search was skipped and the recommendation is on hold.' };
+  if (!live) return { ...base, mode: 'fixture', checkedAt: null, sources: fixtureSources(kind, context), status: 'ok', note: 'Saved summaries of the official pages, shown offline. No search runs on this hosted demo.' };
+  if (!config.enabled || !config.key) return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note: 'Live search runs in local mode with your own Tavily key; this demo replays a recorded result.' };
   const start = performance.now();
   try {
-    const response = await request('https://api.tavily.com/search', { method: 'POST', headers: { Authorization: `Bearer ${config.key}`, 'Content-Type': 'application/json' }, redirect: 'error', signal: AbortSignal.timeout(20000), body: JSON.stringify({ query: plan.query, topic: 'general', search_depth: 'basic', max_results: 3, include_domains: plan.domains, include_domains_mode: 'restrict', include_answer: false, include_raw_content: false, include_images: false, include_usage: true, auto_parameters: false }) });
+    const response = await request('https://api.tavily.com/search', { method: 'POST', headers: { Authorization: `Bearer ${config.key}`, 'Content-Type': 'application/json' }, redirect: 'error', signal: AbortSignal.timeout(20000), body: JSON.stringify({ query: plan.query, topic: 'general', search_depth: 'advanced', chunks_per_source: 3, max_results: 3, include_domains: plan.domains, include_domains_mode: 'restrict', include_answer: false, include_raw_content: false, include_images: false, include_usage: true, auto_parameters: false }) });
     if (!response.ok) {
       const retry = response.headers.get('retry-after');
       const seconds = retry && /^\d+$/.test(retry) ? Math.min(3600, Number(retry)) : 60;
-      const note = response.status === 401 ? 'Tavily authentication failed. Check the approved server credential.' : response.status === 429 ? `Tavily rate limit reached. Wait at least ${seconds} seconds before retrying; no automatic retry was made.` : response.status === 432 ? 'Tavily search quota is exhausted. No result or current-policy evidence is claimed.' : response.status === 433 ? 'Tavily pay-as-you-go cap was reached. No payment or retry was attempted.' : 'Tavily request failed. No current-policy evidence is claimed.';
+      const note = response.status === 401 ? 'Tavily authentication failed; check the server API key.' : response.status === 429 ? `Tavily rate limit reached; try again in ${seconds} seconds.` : response.status === 432 ? 'The Tavily search quota for this key is used up.' : response.status === 433 ? 'The Tavily pay-as-you-go cap for this key was reached.' : `Tavily search failed with HTTP ${response.status}.`;
       return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note, ...(response.status === 429 ? { retryAfterSeconds: seconds } : {}) };
     }
     const raw = await boundedJson(response, 200000) as { results: unknown[]; request_id?: unknown; usage?: { credits?: unknown } };
     const sources = safeSources(raw, kind, context);
-    return { ...base, mode: 'live', checkedAt: new Date().toISOString(), sources, status: sources.length ? 'ok' : 'no-results', note: sources.length ? 'Retrieved by Tavily. Official-domain results are screened for relevance; snippets are untrusted evidence, not proof of the cause of a CSV anomaly. Verify the full policy and effective date.' : 'Tavily returned no relevant safe official sources. Broaden the supported context or inspect official documentation manually; no policy-backed remediation is generated.', proof: { requestId: response.headers.get('x-request-id') || (typeof raw.request_id === 'string' ? raw.request_id : null), latencyMs: Math.round(performance.now() - start), usageCredits: typeof raw.usage?.credits === 'number' ? raw.usage.credits : null } };
-  } catch { return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note: 'Tavily request failed, timed out, or returned invalid data. No live success or current-policy evidence is claimed.' }; }
+    return { ...base, mode: 'live', checkedAt: new Date().toISOString(), sources, status: sources.length ? 'ok' : 'no-results', note: sources.length ? `Live Tavily advanced search of ${plan.domains[0]}; passages are Tavily's most relevant chunks, screened for safety.` : `Tavily found no relevant passages on ${plan.domains[0]} for this context.`, proof: { requestId: response.headers.get('x-request-id') || (typeof raw.request_id === 'string' ? raw.request_id : null), latencyMs: Math.round(performance.now() - start), usageCredits: typeof raw.usage?.credits === 'number' ? raw.usage.credits : null } };
+  } catch { return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note: 'Tavily search failed, timed out or returned unreadable data.' }; }
 }
