@@ -114,7 +114,7 @@ test('regression: real live POS packet agrees with decidePolicy (manual challeng
   assert.equal(suite.cards[1].verdict, 'contradicted');
   assert.deepEqual(suite.cards[1].evidence.map(item => item.sourceId), main.sourceIds);
   assert.equal(suite.cards[1].evidence[0].quote, 'Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.');
-  assert.match(suite.cards[1].reason, /Shopify says manual POS and draft-order discounts ignore combination settings/);
+  assert.match(suite.cards[1].reason, /Shopify says custom discounts applied manually in POS or on draft orders ignore combination settings, so a settings change is not the established fix here/);
   assert.equal(suite.cards[2].verdict, 'hold');
   assert.equal(card(p, 'manual', 'audit-manual-overrides').verdict, 'supported');
   for (const item of suite.cards) for (const evidence of item.evidence) assert.ok(p.sources[0].snippet.includes(evidence.quote));

@@ -118,7 +118,7 @@ export default function PreflightSponsorBridge({ getInput, onConfirmed, active }
   const swapPreview = rules ? thresholdBasket(getInput, rules) : null;
   const unmodeled = proposal?.mode === 'live' ? proposal.packet.unmodeledConditions ?? [] : proposal?.mode === 'recorded' ? proposal.unmodeled : [];
   return <details className="pf-bridge" ref={panel} open onToggle={event => { if (!event.currentTarget.open) clear(); }}>
-    <summary>Describe a campaign: Tavily + Nemotron propose the rules</summary>
+    <summary>Describe a campaign: Nemotron proposes the rules, Tavily checks the policy page</summary>
     <p className="pf-help">A proposal never changes a store, and code does the money. Live preparation sends only the campaign words and generic policy queries to providers; no basket costs or customer data.</p>
     <label className="pf-field">Campaign description<textarea value={campaign} maxLength={240} onChange={event => { clear(); setCampaign(event.target.value); }} rows={3} /></label>
     <p className="pf-help">Write it the way you would brief a colleague. Nemotron 3 Super turns it into percentage, fixed-amount and free-shipping rules; code checks every number against your words before anything is simulated. Offline, the recorded VIP campaign above replays a real Nemotron reading.</p>

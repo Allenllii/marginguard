@@ -12,6 +12,10 @@ const scenarioLabels = {
   unknown: { title: 'Unknown' },
 };
 
+// One-line digest for the collapsed disclosure, e.g. "code → review".
+const shortScenario = { normal: 'code', manual: 'manual', unknown: 'unknown' };
+const shortVerdict = { supported: 'review', contradicted: 'fix challenged', hold: 'on hold' };
+
 const verdictLabels = {
   supported: 'Supported for investigation',
   contradicted: 'Exception challenges remedy',
@@ -19,7 +23,8 @@ const verdictLabels = {
 };
 
 /** An entirely local counterfactual view of an existing, server-issued packet. */
-export default function PolicyTestLab({ packet, dataset }: { packet: ResearchPacket; dataset?: PolicyTestAuditDataset }) {
+// `open`/`onOpenChange` let the parent keep the disclosure open across packet reloads.
+export default function PolicyTestLab({ packet, dataset, open = false, onOpenChange }: { packet: ResearchPacket; dataset?: PolicyTestAuditDataset; open?: boolean; onOpenChange?: (open: boolean) => void }) {
   const id = useId();
   const [action, setAction] = useState<ProposedAction>('review-combination-settings');
   const [exportNotice, setExportNotice] = useState<{ packet: ResearchPacket; action: ProposedAction; message: string } | null>(null);
@@ -47,10 +52,12 @@ export default function PolicyTestLab({ packet, dataset }: { packet: ResearchPac
       <div>
         <p className="ptl-eyebrow">CHALLENGE THE PROPOSED FIX</p>
         <h3 id={`${id}-heading`}>Policy-to-Test</h3>
-        <p className="ptl-deck">Same sources. Three possible discount origins. Different next checks.</p>
       </div>
       <span className="ptl-mode">{suite.mode === 'fixture' ? 'Saved result · no live call' : 'Live result · no new call'}</span>
     </header>
+
+    <details className="ptl-disclosure" open={open} onToggle={event => onOpenChange?.(event.currentTarget.open)}>
+    <summary className="ptl-oneline">Same evidence, three origins: {suite.cards.map(card => `${shortScenario[card.scenario]} → ${shortVerdict[card.verdict]}`).join(' · ')}</summary>
 
     <fieldset className="ptl-controls">
       <legend>Proposed action</legend>
@@ -109,6 +116,7 @@ export default function PolicyTestLab({ packet, dataset }: { packet: ResearchPac
         <button type="button" onClick={exportAudit} aria-describedby={`${id}-export-description`}>Download Policy-to-Test audit (JSON)</button>
         <p id={`${id}-export-description`}>Local snapshot of the assumptions, three judgments, hold reasons, sources and fingerprints. No new retrieval or provider call.</p>
       </div>
+    </details>
     </details>
   </section>;
 }

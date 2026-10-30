@@ -58,7 +58,7 @@ const receipt = (page: Page) => page.getByTestId('preflight-bridge-provenance');
 async function openBridge(page: Page) {
   await page.goto('/#preflight');
   const panel = page.locator('details.pf-bridge');
-  if (await panel.getAttribute('open') === null) await page.getByText('Describe a campaign: Tavily + Nemotron propose the rules', { exact: true }).click();
+  if (await panel.getAttribute('open') === null) await page.getByText('Describe a campaign: Nemotron proposes the rules, Tavily checks the policy page', { exact: true }).click();
   await expect(page.getByRole('button', { name: 'Show sample proposal (offline)', exact: true })).toBeVisible();
 }
 async function allowLive(page: Page) {
@@ -276,7 +276,7 @@ test('bridge no-key mode: checking availability cannot enable a live preparation
 test('bridge fixture at 320px: keyboard confirmation and reduced motion retain readable bounded layout', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 }); await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/#preflight');
-  const toggle = page.getByText('Describe a campaign: Tavily + Nemotron propose the rules', { exact: true });
+  const toggle = page.getByText('Describe a campaign: Nemotron proposes the rules, Tavily checks the policy page', { exact: true });
   // The panel starts open; the summary still toggles from the keyboard.
   await toggle.focus(); await page.keyboard.press('Enter'); await expect(page.locator('details.pf-bridge')).not.toHaveAttribute('open');
   await page.keyboard.press('Enter'); await expect(page.locator('details.pf-bridge')).toHaveAttribute('open');
