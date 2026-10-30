@@ -47,3 +47,22 @@ test('ordinary coupon prose is not mistaken for a retracted policy, while real r
   assert.equal(unresolvedPolicyStatement('Coupon management', 'Usage limit per coupon — how many times a coupon can be used by all customers before it becomes invalid.'), false);
   for (const text of ['It is not true.', 'That is incorrect.', 'It no longer applies.', 'This policy is outdated.', 'This guidance has expired.']) assert.equal(unresolvedPolicyStatement('', text), true, text);
 });
+
+test('shipping review needs a stated pricing mechanism, not a generic word like "rate"', () => {
+  const one = (snippet: string, carrier: 'USPS' | 'UPS' = 'USPS') => decidePolicy('shipping', { context: { ...context, carrier }, status: 'ok', sources: [{ id: 'S1', title: 'Carrier policy', url: 'https://www.usps.com/business/prices.htm', snippet, publishedDate: null }] }).status;
+  for (const generic of ['Actual shipping charges depend on service, package characteristics, and applicable rate terms.', 'USPS postage prices depend on service and package characteristics. Review the applicable shipping service rate table and actual package measurements.', 'Shape, weight, and size affect the price for large packages.', 'Flat Rate boxes ship at one rate.']) assert.equal(one(generic), 'insufficient', generic);
+  for (const mechanism of ['Dimensional (DIM) weight rates apply to large, lightweight packages.', 'UPS bills the greater of actual or billable weight.', 'Packages over the size and weight limits are not accepted.', 'A nonstandard fee applies to long parcels.', 'You will pay a dimension-noncompliance fee.', 'A fuel surcharge applies to every package.', 'Additional Handling charges apply to oversized boxes.']) assert.equal(one(mechanism, 'UPS'), 'review', mechanism);
+});
+
+test('recorded USPS replay reaches review on its DIM-weight and noncompliance-fee passages; the UPS summary does not', async () => {
+  const noFetch = (() => { throw Error('No provider'); }) as typeof fetch;
+  const usps = await research('shipping', context, false, {}, noFetch);
+  const decision = decidePolicy('shipping', usps);
+  assert.equal(decision.status, 'review');
+  assert.deepEqual(decision.sourceIds, ['S1', 'S2']);
+  assert.match(decision.disprove, /invoice line.*dimensions and weight.*service level.*contracted rate/);
+  assert.doesNotMatch(decision.disprove, /promotion/);
+  const ups = await research('shipping', { ...context, carrier: 'UPS' }, false, {}, noFetch);
+  assert.equal(decidePolicy('shipping', ups).status, 'insufficient');
+  assert.match(decidePolicy('discount', packet('manual')).disprove, /original promotion record/);
+});

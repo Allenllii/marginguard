@@ -154,3 +154,6 @@ td small,
 .retrieval-steps code{font-size:11px}
 .retrieval-steps .step-status{font-weight:600;color:#2f6b4f}
 .retrieval-steps li.failed .step-status{color:#88402c}
+/* WCAG 2.2 SC 2.5.8: small text controls keep a 24px tap target at phone widths. */
+.dataset-strip button,.policy-source a,.policy-export,.decision-origin{min-height:24px}
+.decision-origin{margin:-4px 0 12px}

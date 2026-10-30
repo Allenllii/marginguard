@@ -1,5 +1,5 @@
 {
-  "executedAt": "2026-10-30T03:17:57.350Z",
+  "executedAt": "2026-10-30T04:31:20.129Z",
   "scope": "Twelve predeclared synthetic decision-routing cases. Passages are fixture paraphrases or deliberately adversarial examples, not actual Tavily search results. Structural/routing success is not semantic fidelity or real-world accuracy.",
   "fixtureCases": 12,
   "passed": 12,
@@ -23,11 +23,11 @@
     },
     {
       "id": "A3",
-      "group": "applicable",
+      "group": "conflicting-or-insufficient",
       "status": "PASS",
-      "expected": "review",
-      "observed": "review",
-      "nextCheck": "Compare service, package measurements, destination and the applicable USPS rate table against one flagged invoice."
+      "expected": "insufficient",
+      "observed": "insufficient",
+      "nextCheck": "Retrieve the matching carrier/service rate and measurement policy before proposing a packaging change."
     },
     {
       "id": "A4",
