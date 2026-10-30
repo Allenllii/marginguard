@@ -43,23 +43,25 @@ flowchart LR
 | **Tavily Search** | `server/tavily.ts` | Fixed, neutral queries (never order data), `include_domains` restricted to help.shopify.com, woocommerce.com, usps.com or ups.com; results are screened and de-duplicated. The retrieved text decides the verdict. |
 | **Tavily Extract** | `server/tavily.ts`, `server/preflight-policy.ts` | Pulls the full official page after Search so the decision reads complete sentences, and flags a change on the reviewed Shopify discount-combination pages; in Promo Preflight, pulls the reviewed policy page before any rule is proposed. |
 | **Nebius Token Factory** | `server/nebius.ts`, `server/preflight-intent.ts` | OpenAI-compatible API; model IDs verified with `GET /v1/models` before each call. |
-| **NVIDIA Nemotron-3.5-Lightning** | cited policy draft, analyst brief | Fast structured drafts: the recorded policy draft took 1.0 s and 579 input / 100 output tokens. The last live brief failed the no-digits check and fell back; its prompt now sends no numbers, and that change has not been re-run live. |
+| **NVIDIA Nemotron-3.5-Lightning** | cited policy draft, analyst brief | Fast structured drafts: the recorded policy draft (request `0e8fed4b58636dcfe3c7410ed03a85e3`) took 1.3 s and 892 input / 188 output tokens, and writes the store-operator procedure that follows the code's decided check. The last live brief failed the no-digits check and fell back; its prompt now sends no numbers, and that change has not been re-run live. |
 | **NVIDIA Nemotron 3 Super** | Promo Preflight | Reasoning model that turns free-form campaign text into rules; code checks each value against the text and a local parser before the seller confirms. |
 
 The model never computes money or decides eligibility. Those stay in `server/analysis.ts`, `shared/policy-decision.ts` and `shared/preflight.ts`.
 
 ## A real live run
 
-The current pipeline, end to end through the local app on 2026-10-30: Shopify / US / manual discount origin, synthetic Northstar data ([ledger](evidence/live-e2e-20261030.json)). This is the run the hosted demo replays for the manual case.
+The current pipeline, end to end through the local app on 2026-10-30: Shopify / US / manual discount origin, synthetic Northstar data ([ledger](evidence/live-e2e-20261030.json)). The hosted demo replays this run for the manual case: the Tavily packet from attempt 5 and the Nemotron draft from attempt 6, whose sources were byte-identical.
 
 | Call | Result |
 | --- | --- |
-| Tavily advanced Search, help.shopify.com | request `515542b8-52d0-4ef4-859a-053ebafcf71e`, 2 credits; three official pages |
+| Tavily advanced Search, help.shopify.com | request `515542b8-52d0-4ef4-859a-053ebafcf71e`, 2 credits; three official pages (attempt 6 repeated it as `455a4add-b948-449d-bff7-e17a158de57e` with byte-identical sources) |
 | Tavily Extract, top two pages | request `9979922b-4628-4755-a47b-3053b1bfc222`; complete operative sentences from the Combining discounts and POS pages |
-| Decision (code) | contradicted on S1, S2: the combination-settings fix is rebutted → audit manual/POS/draft-order overrides |
-| Nemotron-3.5-Lightning draft (structured output) | request `dde827435f59ed6bbcba7c3e7aed671d`, 760 input / 110 output tokens, about 1 s; **passed validation**: next step "Audit staff/manual POS and draft-order overrides…", and it states that the exception does not establish the cause |
+| Decision (code) | contradicted on S1, S2: the combination-settings fix is rebutted → "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings." |
+| Nemotron-3.5-Lightning draft (structured output) | request `0e8fed4b58636dcfe3c7410ed03a85e3`, 892 input / 188 output tokens, 1.3 s; **passed validation** on the first call |
 
-It took five end-to-end attempts. Tavily returned byte-identical sources every time; the Nemotron draft failed validation in attempts 1, 2 and 4 (bare citation IDs, a next step that repeated the rebutted fix, an unrecorded reason), and attempt 3's draft was later rejected for saying the exception "explains the exposure". We fixed the causes in code (accept bare IDs, reject contradicting or causal drafts, name the failed check) and switched the draft call to Token Factory's JSON-schema structured output; attempt 5 passed on the first call. All five attempts are in the ledger.
+Nemotron's part is the hypothesis and the procedure that carries out the code's check. Its recorded procedure: "Open the sales channel order list and filter for flagged orders. For each order, examine the discount line to identify who applied the manual discount and compare the applied amount against the planned promotion. Verify the order timeline and location against staff permissions and the promotion eligibility window." It then states which result supports the hypothesis and which rules it out. The policy sentences beside each citation are written by code, and the validator rejects a next step that restates the code's check.
+
+It took six end-to-end attempts. Tavily returned byte-identical sources every time. The Nemotron draft failed validation in attempts 1, 2 and 4 (bare citation IDs, a next step that repeated the rebutted fix, an unrecorded reason); attempt 3's draft was later rejected for saying the exception "explains the exposure"; attempt 5's draft passed, but its next step was the code's check word for word. We fixed each cause in code (accept bare IDs, reject contradicting, causal or copied next steps, name the failed check), switched the draft call to Token Factory's JSON-schema structured output, and asked for a concrete admin procedure. Attempt 6 passed on the first call. All six attempts are in the ledger.
 
 ## Try it
 

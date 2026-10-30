@@ -1,5 +1,5 @@
 {
-  "description": "One live end-to-end run of the current pipeline (Tavily advanced Search -> Tavily Extract -> deterministic decidePolicy -> Nemotron-3.5-Lightning draft) through the real app server, for Shopify / US / discount / manual origin, with the synthetic Northstar demo CSV. Two full attempts (research + remediate), the maximum allowed. Server-side keys came from an ignored local env file; no key, header or full page body is stored here.",
+  "description": "Live end-to-end runs of the pipeline (Tavily advanced Search -> Tavily Extract -> deterministic decidePolicy -> Nemotron-3.5-Lightning draft) through the real app server, for Shopify / US / discount / manual origin, with the synthetic Northstar demo CSV, on 2026-10-30. Six attempts: attempts 1-2 are under attempts (the original two-attempt cap), attempts 3-6 under followups, each after a code change. Top-level recordedAtUtc, codeCommit, server and budget caps describe attempts 1-2; each followup records its own commit, and budget.followup* counts attempts 3-6. Server-side keys came from an ignored local env file; no key, header or full page body is stored here.",
   "recordedAtUtc": "2026-10-30T04:28:03.752Z to 2026-10-30T04:28:57.559Z",
   "codeCommit": "69c02e6 (branch v4/liverun), unmodified",
   "server": "node --import tsx server/index.ts --production on 127.0.0.1:3310, NEBIUS_ENABLE_LIVE=true, LIVE_MINUTE_LIMIT=4. Attempt 2 also loaded an observation-only fetch preload that recorded the Nebius chat/completions request and response bodies (never headers) to diagnose attempt 1.",
@@ -14,10 +14,10 @@
     "capNebiusCompletions": 2,
     "nebiusCompletions": 2,
     "nebiusModelListGets": 2,
-    "followupTavilyCredits": 7,
-    "followupNebiusCompletions": 3
+    "followupTavilyCredits": 9,
+    "followupNebiusCompletions": 4
   },
-  "outcome": "Tavily Search + Extract succeeded twice with identical sources; decidePolicy returned contradicted on S1, S2 (settings fix rebutted, audit manual/POS/draft overrides). Both Nemotron drafts were rejected by the app validator, so the app showed the rule-based offline checks both times. Attempt 2 reason (captured): documentedPolicy came back as bare source-ID strings [\"S1\",\"S2\"] instead of [{sourceId}] objects, a schema failure. Attempt 1 reason: not captured; the app reports only that the draft failed or did not pass validation.",
+  "outcome": "Tavily Search + Extract succeeded in all six attempts with byte-identical sources; decidePolicy returned contradicted on S1, S2 every time (settings fix rebutted; audit manual/POS/draft-order overrides). Nemotron drafts: attempts 1, 2 and 4 failed validation (attempt 1 reason not captured; attempt 2 bare source-ID strings; attempt 4 reason not recorded); attempt 3 passed but was later rejected for a causal claim; attempt 5 passed, but its nextStep copied the code check word for word, which the validator now rejects; attempt 6 passed on its first call with its own admin procedure. The hosted manual case replays the attempt 5 Tavily packet with the attempt 6 Nemotron draft.",
   "attempts": [
     {
       "attempt": 1,
@@ -330,10 +330,10 @@
     },
     "recordedRemediation": {
       "model": "nvidia/Nemotron-3_5-Lightning",
-      "requestId": "dde827435f59ed6bbcba7c3e7aed671d",
-      "latencyMs": 1063,
-      "inputTokens": 760,
-      "outputTokens": 110,
+      "requestId": "0e8fed4b58636dcfe3c7410ed03a85e3",
+      "latencyMs": 1287,
+      "inputTokens": 892,
+      "outputTokens": 188,
       "draft": {
         "documentedPolicy": [
           {
@@ -345,18 +345,18 @@
             "statement": "The returned passage describes a manual-discount exception to combination settings."
           }
         ],
-        "inference": "The manual discount exception to combination settings applies to the affected rows, but the specific store/plan eligibility and effective date require verification.",
-        "nextStep": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings.",
-        "uncertainty": "Policy effective dates and account-specific terms have not been confirmed; an exception does not establish the cause of the exposure."
+        "inference": "Manual discounts applied outside the standard promotion system bypass combination restrictions and may generate unexpected order totals.",
+        "nextStep": "Open the sales channel order list and filter for flagged orders. For each order, examine the discount line to identify who applied the manual discount and compare the applied amount against the planned promotion. Verify the order timeline and location against staff permissions and the promotion eligibility window. If the discount was applied by staff outside the promotion window or without proper configuration, the hypothesis is supported; if the discount aligns with a configured promotion and proper staff permissions, the hypothesis is ruled out.",
+        "uncertainty": "The policy effective dates and specific account terms for manual discount combination exceptions have not been verified for this store; confirmation of eligibility and promotion scope is required before any remediation."
       }
     },
-    "recordedRemediationReason": "Neither Nemotron draft passed validation, so the hosted demo replays no model text for this packet and shows the rule-based offline checks."
+    "recordedRemediationReason": "The hosted manual case replays the attempt 6 Nemotron draft (request 0e8fed4b58636dcfe3c7410ed03a85e3), the only recorded draft that passes the current validator. Its Tavily packet is byte-identical to the attempt 5 Search + Extract replayed here. The attempt 5 draft is no longer replayed: its nextStep was word-for-word the code check, which the validator now rejects."
   },
   "observations": [
     "Both attempts returned the same three sources; S1 and S2 are byte-identical to the previous manual replay (Search bd7ee08e / Extract 2a6642be), so the reviewed operative-sentence hashes still match and no policy change was flagged. S3 is now the Shopify Discounts overview page instead of the draft-orders page.",
     "Attempt 2 Search returned in 163 ms (attempt 1: 4182 ms) and was still billed 2 credits; the fast reply is consistent with a provider-side cache. Extract reported 0 credits on attempt 1 and 1 credit on attempt 2 (basic Extract bills 1 credit per 5 successful URLs).",
     "The attempt 2 draft text, if its source IDs were accepted, would pass every other validator check; its nextStep (audit combination settings) does not follow the contradicted decision, which says a settings change is not established as a fix.",
-    "Across five end-to-end attempts on 2026-10-30, Tavily returned byte-identical sources every time; Nemotron drafts passed validation in 2 of 5 attempts (one later rejected as a causal claim). With json_schema structured output, the first draft passed."
+    "Across six end-to-end attempts on 2026-10-30, Tavily returned byte-identical sources every time. Under the validator in force at each attempt, Nemotron drafts passed in attempts 3, 5 and 6; attempt 3 was later rejected as a causal claim and attempt 5 for restating the code check. With json_schema structured output (attempts 5 and 6), the first draft passed."
   ],
   "followups": [
     {
@@ -523,6 +523,99 @@
         }
       ],
       "outcome": "Draft passed validation on the first remediate call. This run is the hosted manual replay (Search + Extract + Nemotron draft)."
+    },
+    {
+      "attempt": 6,
+      "codeCommit": "5450ccd",
+      "change": "prompt asks for a concrete admin procedure beyond the code check; validator rejects a nextStep that restates conservative_decision.nextCheck (>= 90% word-set overlap); server on 127.0.0.1:3410, LIVE_MINUTE_LIMIT=4",
+      "research": {
+        "startedAt": "2026-10-30T04:55:19.160Z",
+        "observedMs": 364,
+        "mode": "live",
+        "status": "ok",
+        "note": "Live Tavily advanced search of help.shopify.com, screened for safety. Tavily Extract read 2 official pages in full; S1, S2 are complete operative sentences from the page, S3 is a search chunk.",
+        "retrieval": {
+          "steps": [
+            {
+              "op": "search",
+              "ok": true,
+              "latencyMs": 122,
+              "requestId": "455a4add-b948-449d-bff7-e17a158de57e",
+              "credits": 2
+            },
+            {
+              "op": "extract",
+              "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+              "ok": true,
+              "latencyMs": 226,
+              "credits": 0,
+              "requestId": "6122bb4a-e07d-4880-8246-8733dd7dc603"
+            },
+            {
+              "op": "extract",
+              "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+              "ok": true,
+              "requestId": "6122bb4a-e07d-4880-8246-8733dd7dc603"
+            }
+          ]
+        },
+        "sources": [
+          {
+            "id": "S1",
+            "title": "Shopify Help Center | Combining discounts",
+            "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+            "snippet": "For example, from a manual discount applied to a POS cart, or a unique discount on a draft order. The following discount types always apply to an order, regardless of any combination settings for other discounts on the same order: Custom discounts that are manually applied to an order. For example, a custom discount applied to a POS cart, or a custom discount on a draft order. You must manually configure each discount's combination settings.",
+            "publishedDate": null
+          },
+          {
+            "id": "S2",
+            "title": "Shopify Help Center | Discount combinations on POS",
+            "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+            "snippet": "When you process a sale in Shopify POS, you can apply both automatic discounts and discount codes that you've configured in your Shopify admin, as well as custom discounts that are specific to the transaction. Before you can use discount combinations in Shopify POS, you need to set up your discounts in the Shopify admin and configure them to be combinable. Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.",
+            "publishedDate": null
+          },
+          {
+            "id": "S3",
+            "title": "Shopify Help Center | Discounts",
+            "url": "https://help.shopify.com/en/manual/discounts",
+            "snippet": "# Discounts Offering discounts can be a marketing strategy that you use to drive sales in your Shopify store. To offer discounts, you can create discount codes or set up automatic discounts, or you can alternatively set sale prices for individual products. You can create codes for a monetary value discount, a percentage discount, a buy X get Y discount, or a free shipping discount. Customers can enter discount codes online at checkout, or in person if you're using Shopify POS. You can also create other types of discount by using a third-party app from the Shopify App Store. Some third-party apps let you manage discounts directly in your Shopify admin, or you might need to create your discounts in the app's settings.",
+            "publishedDate": null
+          }
+        ]
+      },
+      "sourcesIdenticalToReplay": true,
+      "remediate": [
+        {
+          "startedAt": "2026-10-30T04:55:19.526Z",
+          "observedMs": 1313,
+          "status": 200,
+          "mode": "live",
+          "fallbackReason": null,
+          "proof": {
+            "requestedAt": "2026-10-30T04:55:19.551Z",
+            "requestId": "0e8fed4b58636dcfe3c7410ed03a85e3",
+            "latencyMs": 1287,
+            "inputTokens": 892,
+            "outputTokens": 188
+          },
+          "draft": {
+            "documentedPolicy": [
+              {
+                "sourceId": "S1",
+                "statement": "The returned passage describes a manual-discount exception to combination settings."
+              },
+              {
+                "sourceId": "S2",
+                "statement": "The returned passage describes a manual-discount exception to combination settings."
+              }
+            ],
+            "inference": "Manual discounts applied outside the standard promotion system bypass combination restrictions and may generate unexpected order totals.",
+            "nextStep": "Open the sales channel order list and filter for flagged orders. For each order, examine the discount line to identify who applied the manual discount and compare the applied amount against the planned promotion. Verify the order timeline and location against staff permissions and the promotion eligibility window. If the discount was applied by staff outside the promotion window or without proper configuration, the hypothesis is supported; if the discount aligns with a configured promotion and proper staff permissions, the hypothesis is ruled out.",
+            "uncertainty": "The policy effective dates and specific account terms for manual discount combination exceptions have not been verified for this store; confirmation of eligibility and promotion scope is required before any remediation."
+          }
+        }
+      ],
+      "outcome": "Draft passed validation on the first and only remediate call (no retries needed). Its nextStep is a multi-step admin procedure distinct from the code check, so it replaces the attempt 5 draft as the hosted manual replay. Sources were byte-identical to the replay, so the replay packet (attempt 5 Search + Extract) is unchanged."
     }
   ]
 }

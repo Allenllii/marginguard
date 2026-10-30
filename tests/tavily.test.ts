@@ -196,15 +196,22 @@ const replayCases = [
   ['usps-shipping', 'shipping', context],
 ] as const;
 test('the manual replay is the packet the live app returned in the end-to-end run', () => {
-  const final = e2e.followups.find((f: { attempt: number }) => f.attempt === 5);
-  const live = final.research;
+  const attempt = (n: number) => e2e.followups.find((f: { attempt: number }) => f.attempt === n);
+  const live = attempt(5).research;
   assert.equal(live.mode, 'live'); assert.equal(live.status, 'ok');
   assert.deepEqual(e2e.replay.sources, live.sources); assert.deepEqual(e2e.replay.steps, live.retrieval.steps); assert.equal(e2e.replay.liveNote, live.note);
   // Every end-to-end attempt retrieved the same sources; the first two drafts failed validation.
   assert.deepEqual(e2e.attempts[0].research.packet.sources, live.sources);
   for (const a of e2e.attempts) { assert.equal(a.remediate.response.mode, 'fixture'); assert.equal(a.remediate.response.proof, undefined); }
+  // The replayed draft is attempt 6's, produced from a byte-identical packet.
+  const final = attempt(6);
+  assert.equal(final.research.mode, 'live'); assert.deepEqual(final.research.sources, live.sources); assert.equal(final.sourcesIdenticalToReplay, true);
   const passed = final.remediate.find((a: { mode: string }) => a.mode === 'live');
   assert.deepEqual(e2e.replay.recordedRemediation.draft, passed.draft); assert.equal(e2e.replay.recordedRemediation.requestId, passed.proof.requestId);
+  // The superseded attempt 5 draft copied the code check, which the validator now rejects.
+  const packet = { ...e2e.replay, mode: 'live', status: 'ok', researchId: 'r', checkedAt: null, note: '' } as ResearchPacket;
+  assert.throws(() => validateRemediation(attempt(5).remediate[0].draft, packet), /restates the code check/);
+  assert.doesNotThrow(() => validateRemediation(passed.draft, packet));
   assert.ok(e2e.budget.tavilyReportedCredits <= e2e.budget.capTavilyCredits && e2e.budget.nebiusCompletions <= e2e.budget.capNebiusCompletions);
 });
 test('hosted replays are byte-identical to the recorded live Search + Extract output', async () => {
