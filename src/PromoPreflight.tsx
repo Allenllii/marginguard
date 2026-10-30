@@ -1,6 +1,6 @@
 import { useId, useRef, useState, type FormEvent } from 'react';
 import { ArrowDownToLine, ArrowLeft, ArrowRight, FlaskConical, Plus, ShieldCheck, Trash2 } from 'lucide-react';
-import { PREFLIGHT_FIXTURE, runPreflight, type PreflightInput, type PreflightResult, type PreflightRule } from '../shared/preflight';
+import { PREFLIGHT_FIXTURE, runPreflight, type PreflightInput, type PreflightResult, type PreflightRule, type PreflightSku } from '../shared/preflight';
 import './promo-preflight.css';
 import PreflightSponsorBridge, { type BridgeAudit } from './PreflightSponsorBridge';
 import PreflightComparison, { statusLabel } from './PreflightComparison';
@@ -16,11 +16,12 @@ type Draft = {
 
 import { amount, applied, dollarsText, percentText, usd, type Unit } from './preflight-units';
 
+const skuDraft = (sku: PreflightSku): SkuDraft => ({ id: sku.id, priceCents: dollarsText(sku.priceCents), unitCostCents: dollarsText(sku.unitCostCents) });
 const ruleDraft = (rule: PreflightRule): RuleDraft => ({ id: rule.id, type: rule.type, scope: rule.type === 'percent' ? rule.scope : 'order', value: rule.type === 'percent' ? percentText(rule.basisPoints) : rule.type === 'fixed' ? dollarsText(rule.amountCents) : '0', minSubtotalCents: dollarsText(rule.minSubtotalCents), minItems: String(rule.minItems) });
 
 function fixtureDraft(): Draft {
   return {
-    skus: PREFLIGHT_FIXTURE.skus.map(sku => ({ id: sku.id, priceCents: dollarsText(sku.priceCents), unitCostCents: dollarsText(sku.unitCostCents) })),
+    skus: PREFLIGHT_FIXTURE.skus.map(skuDraft),
     rules: PREFLIGHT_FIXTURE.rules.map(ruleDraft),
     maxQuantity: String(PREFLIGHT_FIXTURE.maxQuantity), shippingChargedCents: dollarsText(PREFLIGHT_FIXTURE.shippingChargedCents),
     shippingCostCents: dollarsText(PREFLIGHT_FIXTURE.shippingCostCents), paymentFeeBps: percentText(PREFLIGHT_FIXTURE.paymentFeeBps),
@@ -146,11 +147,13 @@ export default function PromoPreflight({ workspaceActive = true }: { workspaceAc
     </header>
 
     <PreflightSponsorBridge key={`${draftVersion}:${workspaceActive}`} active={workspaceActive} getInput={() => toInput(draft)} onConfirmed={(confirmed, audit) => {
-      setDraft(previous => ({ ...previous, rules: confirmed.input.rules.map(ruleDraft) }));
+      // Mirror exactly what was simulated: the rules, any synthetic threshold basket, and the review as the semantics confirmation.
+      setDraft(previous => ({ ...previous, rules: confirmed.input.rules.map(ruleDraft), semanticsConfirmed: confirmed.input.evidence.semantics === 'explicit_simulation',
+        skus: confirmed.input.skus.map(skuDraft), maxQuantity: String(confirmed.input.maxQuantity) }));
       setDraftVersion(previous => previous + 1); setResult(confirmed); setBridgeAudit(audit); setError(''); setNotice(`Rules confirmed for simulation. ${confirmed.searchSpace.scenarios} scenarios checked; ${statusLabel(confirmed.status).toLowerCase()}.`);
       requestAnimationFrame(() => { resultRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); resultRef.current?.focus({ preventScroll: true }); });
     }} />
-    {bridgeAudit ? <div className="pf-notice" data-testid="preflight-bridge-provenance">{bridgeAudit.replay ? `Recorded Nemotron 3 Super interpretation (request ${bridgeAudit.replay.requestId}, ${bridgeAudit.replay.recordedOn}) confirmed, replayed offline` : bridgeAudit.mode === 'fixture' ? 'Sample proposal confirmed (offline)' : 'Live Tavily + Nemotron proposal confirmed'} · {bridgeAudit.providerAttempts} provider calls · Money calculated by integer code. Real checkout stays on hold.</div> : null}
+    {bridgeAudit ? <div className="pf-notice" data-testid="preflight-bridge-provenance">{bridgeAudit.replay ? `Recorded Nemotron 3 Super interpretation (request ${bridgeAudit.replay.requestId}, ${bridgeAudit.replay.recordedOn}) confirmed, replayed offline` : bridgeAudit.mode === 'fixture' ? 'Sample proposal confirmed (offline)' : 'Live Tavily + Nemotron proposal confirmed'} · {bridgeAudit.providerAttempts} provider calls · Money calculated by integer code. Real checkout stays on hold.{bridgeAudit.syntheticBasket ? ` ${bridgeAudit.syntheticBasket}` : ''}</div> : null}
     <main className="pf-layout" aria-label="Promotion collision sandbox">
       <form className="pf-form" onSubmit={run} noValidate aria-label="Promotion simulation inputs">
         <section className="pf-card" aria-labelledby="pf-basket-title">
