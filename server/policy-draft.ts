@@ -29,6 +29,14 @@ export function permittedPolicyStatements(packet: ResearchPacket): { sourceId: s
 const normalizeStatement = (text: string) => text.trim().replace(/\s+/gu, ' ').replace(/[.!?]$/u, '').toLowerCase();
 const words = (text: string) => text.toLowerCase().match(/[a-z]+/gu) ?? [];
 
+// Code already decided the next check and the UI shows it beside the draft, so a
+// nextStep that restates it (equal word sets, or >= 90% Jaccard overlap) is not model work.
+function restatesCheck(text: string, check: string) {
+  const a = new Set(words(text)), b = new Set(words(check));
+  const shared = [...a].filter(word => b.has(word)).length;
+  return shared / (a.size + b.size - shared) >= 0.9;
+}
+
 function copiedLongPassage(text: string, packet: ResearchPacket) {
   const tokens = words(text);
   if (tokens.length <= 24) return false;
@@ -44,13 +52,14 @@ function copiedLongPassage(text: string, packet: ResearchPacket) {
 
 export function validatePolicyDraft(raw: unknown, packet: ResearchPacket) {
   const value = Output.parse(raw);
+  const decision = decidePolicy(packet.kind, packet);
   const allowed = new Map(permittedPolicyStatements(packet).map(item => [item.sourceId, item.statement]));
   const ids = value.documentedPolicy.map(item => item.sourceId);
   if (ids.some(id => !packet.sources.some(source => source.id === id))) throw new Error('Unknown citation');
   if (new Set(ids).size !== ids.length || value.documentedPolicy.some(item => !allowed.has(item.sourceId) || (item.statement !== undefined && normalizeStatement(item.statement) !== normalizeStatement(allowed.get(item.sourceId)!)))) throw new Error('Unsupported policy statement');
   // A draft must not recommend the remedy the evidence just rebutted.
   // "Audit the combination settings" repeats it; "... before adjusting combination settings" does not.
-  if (decidePolicy(packet.kind, packet).status === 'contradicted' && /(?<!\bbefore\s)\b(?:audit|review|check|inspect|chang|adjust|tighten|updat|fix|modif|correct)\w*\s+(?:(?:the|your|its|store|discount)\s+)*combination settings?\b/iu.test(value.nextStep) && !/\b(?:manual|POS|draft|override|Scripts?)\b/iu.test(value.nextStep)) throw new Error('Next step contradicts the policy decision');
+  if (decision.status === 'contradicted' && /(?<!\bbefore\s)\b(?:audit|review|check|inspect|chang|adjust|tighten|updat|fix|modif|correct)\w*\s+(?:(?:the|your|its|store|discount)\s+)*combination settings?\b/iu.test(value.nextStep) && !/\b(?:manual|POS|draft|override|Scripts?)\b/iu.test(value.nextStep)) throw new Error('Next step contradicts the policy decision');
   const prose = [...value.documentedPolicy.flatMap(item => item.statement === undefined ? [] : [item.statement]), value.inference, value.nextStep, value.uncertainty];
   // "...which explains the exposure" was observed live: a policy exception does not establish the cause.
   if (prose.some(text => /[\d$%]|https?:|<[^>]+>|guaranteed savings|definitely caused|proves.{0,20}(cause|defect)|\b(?:explains?|caused?|causes|accounts? for)\s+(?:the|this|that|all)\s+(?:\w+\s+){0,2}(?:exposure|loss|leak|margin)/iu.test(text))) throw new Error('Unsupported claim');
@@ -63,5 +72,6 @@ export function validatePolicyDraft(raw: unknown, packet: ResearchPacket) {
     const tail = text.trim().replace(/[.!?\s"'\u2019\u201d]+$/gu, '');
     return /\b(?:because|although|unless|including|such as|as well as|as|and|or|but)$/iu.test(tail) || copiedLongPassage(text, packet);
   })) throw new Error('Incomplete or copied policy prose');
+  if (restatesCheck(value.nextStep, decision.nextCheck)) throw new Error('Next step restates the code check');
   return { ...value, documentedPolicy: value.documentedPolicy.map(item => ({ sourceId: item.sourceId, statement: allowed.get(item.sourceId)! })) };
 }

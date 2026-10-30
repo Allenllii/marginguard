@@ -124,3 +124,26 @@ test('a draft that says the exception explains the exposure is rejected as a cau
   // Observed live (request a13f50e7…, 2026-10-30).
   assert.throws(() => validatePolicyDraft({ documentedPolicy: ['S1'], inference: 'The manual discount applied to the order bypasses combination restrictions, which explains the exposure amount across the affected rows.', nextStep: 'Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings.', uncertainty: 'Policy effective dates and specific account terms for this store have not been verified.' }, packet), /Unsupported claim/);
 });
+
+test('a next step that restates the code-decided check is not presented as model work', async () => {
+  const { decidePolicy } = await import('../shared/policy-decision.js');
+  const check = decidePolicy('discount', packet).nextCheck;
+  // Identical, case/punctuation-only edits, and dropping one word all count as a copy.
+  for (const nextStep of [check, `  ${check.toUpperCase().replace(/\.$/u, '')}  `, check.split(' ').slice(1).join(' ')]) {
+    assert.throws(() => validateRemediation({ ...valid(), nextStep }, packet), /restates the code check/);
+  }
+  // A procedure that goes beyond the check passes, even when it reuses some of its words.
+  assert.doesNotThrow(() => validateRemediation({ ...valid(), nextStep: `${check.replace(/\.$/u, '')}: open a few flagged orders filtered by the Point of Sale channel and compare the staff member on each discount line with the promotion calendar.` }, packet));
+  assert.doesNotThrow(() => validateRemediation(valid(), packet));
+});
+
+test('a copied code check falls back with a reason that names it', async () => {
+  const { decidePolicy } = await import('../shared/policy-decision.js');
+  const issue = analyze(createDemoCsv()).issues.find(item => item.kind === 'discount')!;
+  const result = await remediate(issue, packet, true, { enabled: true, key: 'mock-key', model: 'nvidia/mock' }, (async (_url, init) => {
+    const body = init?.body ? { choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ ...valid(), nextStep: decidePolicy('discount', packet).nextCheck }) } }] } : { data: [{ id: 'nvidia/mock' }] };
+    return new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' } });
+  }) as typeof fetch);
+  assert.equal(result.mode, 'fixture'); assert.equal(result.proof, undefined);
+  assert.match(result.fallbackReason ?? '', /only restated the code’s next check/);
+});
