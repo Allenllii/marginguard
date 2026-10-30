@@ -19,7 +19,7 @@ export class MemoryResearchStore implements ResearchStore {
   async get(id: string) { const r = this.records.get(id); return r && r.expires > Date.now() ? r.packet : null; }
   async put(packet: ResearchPacket) { for (const [id, r] of this.records) if (r.expires < Date.now()) this.records.delete(id); if (this.records.size >= 50) this.records.delete(this.records.keys().next().value!); this.records.set(packet.researchId, { packet, expires: Date.now() + 600000 }); }
 }
-export function createService(options: { env?: Record<string, string | undefined>; budget?: LiveBudget; store?: ResearchStore; request?: typeof fetch; now?: () => number } = {}) {
+export function createService(options: { env?: Record<string, string | undefined>; budget?: LiveBudget; store?: ResearchStore; request?: typeof fetch; reviewPreflightSource?: (text: string) => boolean; now?: () => number } = {}) {
   const env = options.env ?? {}, now = options.now ?? Date.now, request = options.request ?? fetch;
   const limits = budgetLimits(env), budget = options.budget ?? new MemoryBudget(limits), store = options.store ?? new MemoryResearchStore();
   const nvidia = { key: env.NEBIUS_API_KEY, model: env.NEBIUS_MODEL || 'nvidia/Nemotron-3_5-Lightning', enabled: env.NEBIUS_ENABLE_LIVE === 'true' };
@@ -49,7 +49,7 @@ export function createService(options: { env?: Record<string, string | undefined
         if (upstream) { modelInFlight = true; searchInFlight = true; }
         const reservation: { denial: Reply | null } = { denial: null };
         try {
-          const prepared = await preparePreflightBridge(activity, { live, tavily, nebius: nvidia, request, now,
+          const prepared = await preparePreflightBridge(activity, { reviewPreflightSource: options.reviewPreflightSource, live, tavily, nebius: nvidia, request, now,
             reserve: async service => {
               reservation.denial = await reserve(service);
               if (reservation.denial) return false;

@@ -69,9 +69,9 @@ const IntentSchema = z.object({ actions: z.array(ActionSchema).min(1).max(3) }).
 const Catalog = z.object({ data: z.array(z.object({ id: z.string().max(256) })).max(2000) });
 const Completion = z.object({ choices: z.array(z.object({
   finish_reason: z.literal('stop'),
-  message: z.object({ content: z.string().min(1).max(4000), refusal: z.string().nullable().optional(), tool_calls: z.array(z.unknown()).optional(), function_call: z.unknown().optional() }),
+  message: z.object({ content: z.string().min(1).max(4000), refusal: z.string().nullable().optional(), tool_calls: z.array(z.unknown()).nullable().optional(), function_call: z.unknown().optional() }),
 })).length(1) });
-const hold = (reason: string): PreflightIntentResult => ({ mode: 'fixture', status: 'HOLD', rules: [], reason, model: null });
+const hold = (reason: string, code?: string): PreflightIntentResult => ({ mode: 'fixture', status: 'HOLD', rules: [], reason: code ? `[${code}] ${reason}` : reason, model: null });
 
 /**
  * Two explicit HTTP attempts at most: catalogue, then completion. The injected
@@ -86,12 +86,18 @@ export async function parsePreflightIntent(
   const snapshot = activities.get(activity);
   if (!snapshot) return hold('Campaign was not normalized locally. No model request was made.');
   if (!config.enabled || !config.key || !config.model || !/^nvidia\/[a-zA-Z0-9._/-]+$/.test(config.model)) return hold('An explicitly enabled NVIDIA model on Nebius is required. No model request was made.');
+  let failureCode = 'MODEL_CATALOG_REQUEST_FAILED';
   try {
     const headers = { Authorization: `Bearer ${config.key}`, 'Content-Type': 'application/json' };
     const catalogResponse = await request(`${BASE_URL}models`, { headers, redirect: 'error', signal: AbortSignal.timeout(15000) });
+    failureCode = 'MODEL_CATALOG_HTTP_FAILED';
     if (!catalogResponse.ok) throw new Error('catalog');
-    const catalog = Catalog.parse(await boundedJson(catalogResponse, 512000));
-    if (!catalog.data.some(model => model.id === config.model)) return hold('The configured NVIDIA model is absent from the Nebius catalogue. No completion request was made.');
+    failureCode = 'MODEL_CATALOG_BODY_INVALID';
+    const catalogJson = await boundedJson(catalogResponse, 512000);
+    failureCode = 'MODEL_CATALOG_SCHEMA_INVALID';
+    const catalog = Catalog.parse(catalogJson);
+    if (!catalog.data.some(model => model.id === config.model)) return hold('The configured NVIDIA model is absent from the Nebius catalogue. No completion request was made.', 'MODEL_NOT_IN_CATALOG');
+    failureCode = 'MODEL_COMPLETION_REQUEST_FAILED';
     const response = await request(`${BASE_URL}chat/completions`, {
       method: 'POST', headers, redirect: 'error', signal: AbortSignal.timeout(30000),
       body: JSON.stringify({ ...completionControls(config.model), model: config.model, temperature: 0, max_tokens: 600, response_format: { type: 'json_object' }, messages: [
@@ -99,13 +105,22 @@ export async function parsePreflightIntent(
         { role: 'user', content: JSON.stringify({ campaign: activity.text, rateReferences: activity.rateReferences }) },
       ] }),
     });
+    failureCode = 'MODEL_COMPLETION_HTTP_FAILED';
     if (!response.ok) throw new Error('completion');
-    const raw = Completion.parse(await boundedJson(response, 20000));
+    failureCode = 'MODEL_COMPLETION_BODY_INVALID';
+    const completionJson = await boundedJson(response, 20000);
+    failureCode = 'MODEL_COMPLETION_SCHEMA_INVALID';
+    const raw = Completion.parse(completionJson);
     const message = raw.choices[0].message;
-    if (message.refusal || message.tool_calls?.length || message.function_call !== undefined) throw new Error('refusal-or-tools');
-    const parsed = IntentSchema.parse(JSON.parse(message.content));
+    failureCode = 'MODEL_REFUSAL_OR_TOOLS';
+    if (message.refusal || message.tool_calls?.length || (message.function_call !== undefined && message.function_call !== null)) throw new Error('refusal-or-tools');
+    failureCode = 'MODEL_ACTION_JSON_INVALID';
+    const parsedJson = JSON.parse(message.content);
+    failureCode = 'MODEL_ACTION_SCHEMA_INVALID';
+    const parsed = IntentSchema.parse(parsedJson);
     // This exact comparison prevents semantic drift, omissions, reordering and
     // reuse of a valid literal for a different action, even under prompt attack.
+    failureCode = 'MODEL_ACTION_MISMATCH';
     if (parsed.actions.length !== snapshot.actions.length || parsed.actions.some((action, index) => {
       const expected = snapshot.actions[index];
       return action.type !== expected.type || (action.type === 'percent' && (expected.type !== 'percent' || action.scope !== expected.scope || action.rateRef !== expected.rateRef));
@@ -116,6 +131,6 @@ export async function parsePreflightIntent(
     }));
     return { mode: 'live', status: 'NEEDS_CONFIRMATION', rules, model: config.model, reason: 'Review and explicitly confirm these proposed simulation rules. No store or checkout was changed; money is calculated only by the integer engine.' };
   } catch {
-    return hold('The model request failed or its output could not be validated. No rule was applied and no automatic retry was made.');
+    return hold('The model request failed or its output could not be validated. No rule was applied and no automatic retry was made.', failureCode);
   }
 }
