@@ -1,6 +1,6 @@
 {
   "title": "Check any fix: frozen live eval",
-  "frozenAt": "2026-10-30T08:40:00-07:00",
+  "frozenAt": "2026-10-30T05:43:00Z",
   "protocol": "Frozen before any live run of these items. Each item is sent once per run to POST /api/check-fix with live=true on a local server (port 3510, Nemotron-3_5-Lightning plan, nemotron-3-super-120b-a12b judge). No retries. If the prompts change after a run, the whole list is rerun and every run is reported. Expected categories were written before running; 'expected' lists every status counted as a pass.",
   "frozenList": [
     { "id": "shopify-pos-stacking", "fix": "Tighten discount combination settings to stop staff POS discounts stacking", "context": { "platform": "Shopify", "carrier": "USPS", "region": "US" }, "expected": ["contradicted"], "rationale": "Shopify documents that custom discounts applied manually in POS or draft orders always apply regardless of combination settings, so the fix does not stop them." },
