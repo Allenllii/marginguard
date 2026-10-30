@@ -206,7 +206,9 @@ test('hosted replays are byte-identical to the recorded live Search + Extract ou
     assert.match(r.note, /^Recorded live Tavily Search \+ Extract \(requests [0-9a-f]{8}… and [0-9a-f]{8}…, 2026-10-30\), replayed offline\./);
     assert.deepEqual(r.retrieval?.steps.map(s => s.op), ['search', ...recorded.steps.slice(1).map(() => 'extract')]);
     const decision = decidePolicy(kind, r);
-    assert.equal(decision.status, recorded.decision.status); assert.deepEqual(decision.sourceIds, recorded.decision.sourceIds);
+    // The ledger records the decision at recording time. Since then the shipping rule cites only
+    // passages that state a pricing mechanism, so USPS S3 ("shape, weight, and size affect the price") is no longer cited.
+    assert.equal(decision.status, recorded.decision.status); assert.deepEqual(decision.sourceIds, name === 'usps-shipping' ? ['S1', 'S2'] : recorded.decision.sourceIds);
   }
   assert.equal(decidePolicy('discount', await research('discount', manual, false, config, never)).status, 'contradicted');
   // Every recorded call is in the ledger, and the cap held.
