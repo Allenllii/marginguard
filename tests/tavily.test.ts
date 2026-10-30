@@ -196,13 +196,15 @@ const replayCases = [
   ['usps-shipping', 'shipping', context],
 ] as const;
 test('the manual replay is the packet the live app returned in the end-to-end run', () => {
-  const live = e2e.attempts[1].research.packet;
+  const final = e2e.followups.find((f: { attempt: number }) => f.attempt === 5);
+  const live = final.research;
   assert.equal(live.mode, 'live'); assert.equal(live.status, 'ok');
   assert.deepEqual(e2e.replay.sources, live.sources); assert.deepEqual(e2e.replay.steps, live.retrieval.steps); assert.equal(e2e.replay.liveNote, live.note);
-  // Both attempts retrieved identical sources; neither Nemotron draft passed validation.
+  // Every end-to-end attempt retrieved the same sources; the first two drafts failed validation.
   assert.deepEqual(e2e.attempts[0].research.packet.sources, live.sources);
   for (const a of e2e.attempts) { assert.equal(a.remediate.response.mode, 'fixture'); assert.equal(a.remediate.response.proof, undefined); }
-  assert.equal(e2e.replay.recordedRemediation, null);
+  const passed = final.remediate.find((a: { mode: string }) => a.mode === 'live');
+  assert.deepEqual(e2e.replay.recordedRemediation.draft, passed.draft); assert.equal(e2e.replay.recordedRemediation.requestId, passed.proof.requestId);
   assert.ok(e2e.budget.tavilyReportedCredits <= e2e.budget.capTavilyCredits && e2e.budget.nebiusCompletions <= e2e.budget.capNebiusCompletions);
 });
 test('hosted replays are byte-identical to the recorded live Search + Extract output', async () => {
@@ -237,17 +239,19 @@ test('reviewed operative-sentence hashes match the recorded live passages', () =
     assert.equal(operativeHash(source.snippet), r.sha256); assert.equal(operativeHash(`  ${source.snippet.toUpperCase()} `), r.sha256);
   }
 });
-test('recorded Nemotron replay stays tied to the passage it was produced for', async () => {
-  // The new manual replay is different text, so the old model output is not reused for it.
+test('recorded Nemotron replay stays tied to the exact Tavily packet it was produced for', async () => {
   const replay = { ...await research('discount', manual, false, config, never), researchId: 'fixture' };
-  const fallback = await remediate(issue, replay, false, config, never);
-  assert.equal(fallback.model, null); assert.match(fallback.nextStep, /^Audit staff\/manual POS/);
-  const old: ResearchPacket = { ...replay, sources: [{ ...RECORDED_MANUAL_SOURCE }], retrieval: undefined };
-  const r = await remediate(issue, old, false, config, never);
-  const { output } = RECORDED_MANUAL_REMEDIATION;
+  const r = await remediate(issue, replay, false, config, never);
+  const { draft, requestId } = e2e.replay.recordedRemediation;
   assert.equal(r.mode, 'fixture'); assert.equal(r.proof, undefined); assert.equal(r.model, 'nvidia/Nemotron-3_5-Lightning');
-  assert.deepEqual(r.documentedPolicy, output.documentedPolicy); assert.equal(r.nextStep, output.nextStep);
-  assert.match(r.fallbackReason ?? '', /^Recorded Nemotron-3\.5-Lightning response \(request 31354285/);
+  assert.equal(r.inference, draft.inference); assert.equal(r.nextStep, draft.nextStep); assert.equal(r.uncertainty, draft.uncertainty);
+  assert.deepEqual(r.documentedPolicy.map(d => d.sourceId), draft.documentedPolicy.map((d: { sourceId: string }) => d.sourceId));
+  assert.ok((r.fallbackReason ?? '').startsWith(`Recorded Nemotron-3.5-Lightning draft (request ${requestId.slice(0, 8)}`));
+  assert.equal(RECORDED_MANUAL_REMEDIATION.output.nextStep, draft.nextStep);
+  // Any other packet, even with one source changed, gets the rule-based checks.
+  const changed: ResearchPacket = { ...replay, sources: [{ ...RECORDED_MANUAL_SOURCE }], retrieval: undefined };
+  const fallback = await remediate(issue, changed, false, config, never);
+  assert.equal(fallback.model, null);
 });
 
 // --- Neutral queries, Search -> Extract, budget, provenance, change detection

@@ -13,7 +13,9 @@
     },
     "capNebiusCompletions": 2,
     "nebiusCompletions": 2,
-    "nebiusModelListGets": 2
+    "nebiusModelListGets": 2,
+    "followupTavilyCredits": 7,
+    "followupNebiusCompletions": 3
   },
   "outcome": "Tavily Search + Extract succeeded twice with identical sources; decidePolicy returned contradicted on S1, S2 (settings fix rebutted, audit manual/POS/draft overrides). Both Nemotron drafts were rejected by the app validator, so the app showed the rule-based offline checks both times. Attempt 2 reason (captured): documentedPolicy came back as bare source-ID strings [\"S1\",\"S2\"] instead of [{sourceId}] objects, a schema failure. Attempt 1 reason: not captured; the app reports only that the draft failed or did not pass validation.",
   "attempts": [
@@ -272,7 +274,7 @@
     },
     "query": "Shopify how do manually applied POS and draft order discounts interact with discount combination settings",
     "liveNote": "Live Tavily advanced search of help.shopify.com, screened for safety. Tavily Extract read 2 official pages in full; S1, S2 are complete operative sentences from the page, S3 is a search chunk.",
-    "replayNote": "Recorded live Tavily Search + Extract (requests 463868a5… and 8b80d04b…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+    "replayNote": "Recorded live Tavily Search + Extract (requests 515542b8… and 9979922b…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
     "sources": [
       {
         "id": "S1",
@@ -300,23 +302,23 @@
       {
         "op": "search",
         "ok": true,
-        "latencyMs": 163,
-        "requestId": "463868a5-33a1-4a47-b8b1-189a68f035b3",
+        "latencyMs": 169,
+        "requestId": "515542b8-52d0-4ef4-859a-053ebafcf71e",
         "credits": 2
       },
       {
         "op": "extract",
         "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
         "ok": true,
-        "latencyMs": 139,
-        "credits": 1,
-        "requestId": "8b80d04b-e8b2-4eef-994a-b8966b94d332"
+        "latencyMs": 149,
+        "credits": 0,
+        "requestId": "9979922b-4628-4755-a47b-3053b1bfc222"
       },
       {
         "op": "extract",
         "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
         "ok": true,
-        "requestId": "8b80d04b-e8b2-4eef-994a-b8966b94d332"
+        "requestId": "9979922b-4628-4755-a47b-3053b1bfc222"
       }
     ],
     "decision": {
@@ -326,12 +328,201 @@
         "S2"
       ]
     },
-    "recordedRemediation": null,
+    "recordedRemediation": {
+      "model": "nvidia/Nemotron-3_5-Lightning",
+      "requestId": "dde827435f59ed6bbcba7c3e7aed671d",
+      "latencyMs": 1063,
+      "inputTokens": 760,
+      "outputTokens": 110,
+      "draft": {
+        "documentedPolicy": [
+          {
+            "sourceId": "S1",
+            "statement": "The returned passage describes a manual-discount exception to combination settings."
+          },
+          {
+            "sourceId": "S2",
+            "statement": "The returned passage describes a manual-discount exception to combination settings."
+          }
+        ],
+        "inference": "The manual discount exception to combination settings applies to the affected rows, but the specific store/plan eligibility and effective date require verification.",
+        "nextStep": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings.",
+        "uncertainty": "Policy effective dates and account-specific terms have not been confirmed; an exception does not establish the cause of the exposure."
+      }
+    },
     "recordedRemediationReason": "Neither Nemotron draft passed validation, so the hosted demo replays no model text for this packet and shows the rule-based offline checks."
   },
   "observations": [
     "Both attempts returned the same three sources; S1 and S2 are byte-identical to the previous manual replay (Search bd7ee08e / Extract 2a6642be), so the reviewed operative-sentence hashes still match and no policy change was flagged. S3 is now the Shopify Discounts overview page instead of the draft-orders page.",
     "Attempt 2 Search returned in 163 ms (attempt 1: 4182 ms) and was still billed 2 credits; the fast reply is consistent with a provider-side cache. Extract reported 0 credits on attempt 1 and 1 credit on attempt 2 (basic Extract bills 1 credit per 5 successful URLs).",
-    "The attempt 2 draft text, if its source IDs were accepted, would pass every other validator check; its nextStep (audit combination settings) does not follow the contradicted decision, which says a settings change is not established as a fix."
+    "The attempt 2 draft text, if its source IDs were accepted, would pass every other validator check; its nextStep (audit combination settings) does not follow the contradicted decision, which says a settings change is not established as a fix.",
+    "Across five end-to-end attempts on 2026-10-30, Tavily returned byte-identical sources every time; Nemotron drafts passed validation in 2 of 5 attempts (one later rejected as a causal claim). With json_schema structured output, the first draft passed."
+  ],
+  "followups": [
+    {
+      "attempt": 3,
+      "codeCommit": "635c1fc",
+      "change": "accept bare citation IDs; reject drafts that repeat the rebutted remedy",
+      "research": {
+        "steps": [
+          {
+            "op": "search",
+            "ok": true,
+            "latencyMs": 150,
+            "requestId": "f2529687-d14f-4503-a330-61ac95ca6711",
+            "credits": 2
+          },
+          {
+            "op": "extract",
+            "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+            "ok": true,
+            "latencyMs": 148,
+            "credits": 0,
+            "requestId": "65246839-adba-4730-acd1-a6191d64b6ed"
+          },
+          {
+            "op": "extract",
+            "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+            "ok": true,
+            "requestId": "65246839-adba-4730-acd1-a6191d64b6ed"
+          }
+        ],
+        "sourcesIdenticalToReplay": true
+      },
+      "remediate": {
+        "mode": "live",
+        "requestId": "a13f50e7ce70cfd950ba183abfd7843c",
+        "inputTokens": 760,
+        "outputTokens": 105,
+        "latencyMs": 989,
+        "inference": "The manual discount applied to the order bypasses combination restrictions, which explains the exposure amount across the affected rows."
+      },
+      "outcome": "Passed validation at the time, but its inference said the exception \"explains the exposure amount\" (a causal claim). The validator was tightened to reject that wording (commit 325498e); this draft is not used."
+    },
+    {
+      "attempt": 4,
+      "codeCommit": "325498e",
+      "change": "reject causal wording",
+      "research": {
+        "steps": [
+          {
+            "op": "search",
+            "ok": true,
+            "latencyMs": 139,
+            "requestId": "b87bfb2d-cfcb-4421-ac30-ea309479ac2d",
+            "credits": 2
+          },
+          {
+            "op": "extract",
+            "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+            "ok": true,
+            "latencyMs": 143,
+            "credits": 1,
+            "requestId": "69c893f2-59b2-4e2f-a6b2-660e269175ab"
+          },
+          {
+            "op": "extract",
+            "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+            "ok": true,
+            "requestId": "69c893f2-59b2-4e2f-a6b2-660e269175ab"
+          }
+        ],
+        "sourcesIdenticalToReplay": true
+      },
+      "remediate": {
+        "mode": "fixture",
+        "fallbackReason": "The live NVIDIA draft failed or did not pass validation, so the offline checks are shown."
+      },
+      "outcome": "Draft failed validation; reason not recorded (fallbacks did not name the check yet). Offline checks shown."
+    },
+    {
+      "attempt": 5,
+      "codeCommit": "8867b61",
+      "change": "Token Factory json_schema structured output; fallbacks name the failed check",
+      "research": {
+        "mode": "live",
+        "status": "ok",
+        "note": "Live Tavily advanced search of help.shopify.com, screened for safety. Tavily Extract read 2 official pages in full; S1, S2 are complete operative sentences from the page, S3 is a search chunk.",
+        "sources": [
+          {
+            "id": "S1",
+            "title": "Shopify Help Center | Combining discounts",
+            "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+            "snippet": "For example, from a manual discount applied to a POS cart, or a unique discount on a draft order. The following discount types always apply to an order, regardless of any combination settings for other discounts on the same order: Custom discounts that are manually applied to an order. For example, a custom discount applied to a POS cart, or a custom discount on a draft order. You must manually configure each discount's combination settings.",
+            "publishedDate": null
+          },
+          {
+            "id": "S2",
+            "title": "Shopify Help Center | Discount combinations on POS",
+            "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+            "snippet": "When you process a sale in Shopify POS, you can apply both automatic discounts and discount codes that you've configured in your Shopify admin, as well as custom discounts that are specific to the transaction. Before you can use discount combinations in Shopify POS, you need to set up your discounts in the Shopify admin and configure them to be combinable. Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.",
+            "publishedDate": null
+          },
+          {
+            "id": "S3",
+            "title": "Shopify Help Center | Discounts",
+            "url": "https://help.shopify.com/en/manual/discounts",
+            "snippet": "# Discounts Offering discounts can be a marketing strategy that you use to drive sales in your Shopify store. To offer discounts, you can create discount codes or set up automatic discounts, or you can alternatively set sale prices for individual products. You can create codes for a monetary value discount, a percentage discount, a buy X get Y discount, or a free shipping discount. Customers can enter discount codes online at checkout, or in person if you're using Shopify POS. You can also create other types of discount by using a third-party app from the Shopify App Store. Some third-party apps let you manage discounts directly in your Shopify admin, or you might need to create your discounts in the app's settings.",
+            "publishedDate": null
+          }
+        ],
+        "retrieval": {
+          "steps": [
+            {
+              "op": "search",
+              "ok": true,
+              "latencyMs": 169,
+              "requestId": "515542b8-52d0-4ef4-859a-053ebafcf71e",
+              "credits": 2
+            },
+            {
+              "op": "extract",
+              "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+              "ok": true,
+              "latencyMs": 149,
+              "credits": 0,
+              "requestId": "9979922b-4628-4755-a47b-3053b1bfc222"
+            },
+            {
+              "op": "extract",
+              "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+              "ok": true,
+              "requestId": "9979922b-4628-4755-a47b-3053b1bfc222"
+            }
+          ]
+        }
+      },
+      "sourcesIdenticalToReplay": true,
+      "remediate": [
+        {
+          "status": 200,
+          "mode": "live",
+          "fallbackReason": null,
+          "proof": {
+            "requestedAt": "2026-10-30T04:37:50.666Z",
+            "requestId": "dde827435f59ed6bbcba7c3e7aed671d",
+            "latencyMs": 1063,
+            "inputTokens": 760,
+            "outputTokens": 110
+          },
+          "draft": {
+            "documentedPolicy": [
+              {
+                "sourceId": "S1",
+                "statement": "The returned passage describes a manual-discount exception to combination settings."
+              },
+              {
+                "sourceId": "S2",
+                "statement": "The returned passage describes a manual-discount exception to combination settings."
+              }
+            ],
+            "inference": "The manual discount exception to combination settings applies to the affected rows, but the specific store/plan eligibility and effective date require verification.",
+            "nextStep": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings.",
+            "uncertainty": "Policy effective dates and account-specific terms have not been confirmed; an exception does not establish the cause of the exposure."
+          }
+        }
+      ],
+      "outcome": "Draft passed validation on the first remediate call. This run is the hosted manual replay (Search + Extract + Nemotron draft)."
+    }
   ]
 }

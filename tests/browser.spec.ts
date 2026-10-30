@@ -239,10 +239,10 @@ test('clarity: the evidence decision leads the draft and keeps assumptions, cita
   await expect(decision.getByRole('link', { name: '[S2]' })).toHaveAttribute('href', 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts');
   expect(await decision.evaluate(node => Boolean(node.compareDocumentPosition(document.querySelector('.policy-source')!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
   await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
-  // Offline, the model never drafts from replayed sources, so the draft is labelled as rule-based checks.
-  await expect(page.locator('.remediation').getByText('Offline analyst checks', { exact: true })).toBeVisible();
-  await expect(page.locator('.remediation')).toContainText('Rule-based rationale');
-  await expect(page.locator('.remediation')).not.toContainText('Recorded Nemotron draft');
+  // The manual case replays the Nemotron draft recorded with this exact Tavily packet, labelled as model text.
+  await expect(page.locator('.remediation').getByText('Recorded Nemotron draft', { exact: true })).toBeVisible();
+  await expect(page.locator('.remediation')).toContainText('replayed offline');
+  await expect(page.locator('.remediation')).not.toContainText('Rule-based rationale');
   await expect(page.locator('.remediation')).toContainText('A draft cannot approve a remedy or estimate recovery.');
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export policy evidence', exact: true }).click();

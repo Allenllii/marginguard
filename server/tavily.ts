@@ -151,7 +151,7 @@ type Recorded = { query: string; note: string; sources: PolicySource[]; steps: R
 export const RECORDED_RETRIEVALS: Record<'shopify-discount-manual' | 'shopify-discount-native' | 'usps-shipping', Recorded> = {
   "shopify-discount-manual": {
     "query": "Shopify how do manually applied POS and draft order discounts interact with discount combination settings",
-    "note": "Recorded live Tavily Search + Extract (requests 463868a5… and 8b80d04b…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+    "note": "Recorded live Tavily Search + Extract (requests 515542b8… and 9979922b…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
     "sources": [
       {
         "id": "S1",
@@ -179,23 +179,23 @@ export const RECORDED_RETRIEVALS: Record<'shopify-discount-manual' | 'shopify-di
       {
         "op": "search",
         "ok": true,
-        "latencyMs": 163,
-        "requestId": "463868a5-33a1-4a47-b8b1-189a68f035b3",
+        "latencyMs": 169,
+        "requestId": "515542b8-52d0-4ef4-859a-053ebafcf71e",
         "credits": 2
       },
       {
         "op": "extract",
         "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
         "ok": true,
-        "latencyMs": 139,
-        "credits": 1,
-        "requestId": "8b80d04b-e8b2-4eef-994a-b8966b94d332"
+        "latencyMs": 149,
+        "credits": 0,
+        "requestId": "9979922b-4628-4755-a47b-3053b1bfc222"
       },
       {
         "op": "extract",
         "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
         "ok": true,
-        "requestId": "8b80d04b-e8b2-4eef-994a-b8966b94d332"
+        "requestId": "9979922b-4628-4755-a47b-3053b1bfc222"
       }
     ]
   },

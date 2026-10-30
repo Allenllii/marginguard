@@ -3,7 +3,7 @@ import type { Analysis, Explanation, Issue, ProviderStatus, Remediation, Researc
 import { boundedJson } from './http.js';
 import { decidePolicy } from '../shared/policy-decision.js';
 import { permittedPolicyStatements, validatePolicyDraft } from './policy-draft.js';
-import { RECORDED_MANUAL_SOURCE } from './tavily.js';
+import { RECORDED_RETRIEVALS } from './tavily.js';
 
 export const BASE_URL = 'https://api.tokenfactory.nebius.com/v1/';
 // Exact hosted Lightning profile, confirmed by Nebius' own client and NVIDIA's
@@ -93,25 +93,33 @@ export function remediationFixture(issue: Issue, packet: ResearchPacket, fallbac
   const decision = decidePolicy(issue.kind, packet);
   return { mode: 'fixture', model: null, documentedPolicy: permittedPolicyStatements(packet).slice(0, 1), inference: decision.constraint, nextStep: decision.nextCheck, uncertainty: 'Confirm the policy effective date and your store configuration before changing anything.', ...(fallbackReason ? { fallbackReason } : {}) };
 }
-// Real Nemotron-3.5-Lightning output for the recorded Tavily packet (evidence/live-run-20261030.json).
+// Real Nemotron-3.5-Lightning draft from the end-to-end live run whose Tavily
+// packet is the hosted manual replay (evidence/live-e2e-20261030.json, attempt 5).
 export const RECORDED_MANUAL_REMEDIATION = {
   model: 'nvidia/Nemotron-3_5-Lightning',
-  // Recorded proof: request 31354285bac744de81d06e20979fcac4, 1006 ms, 579 in / 100 out tokens.
+  // Recorded proof: request dde827435f59ed6bbcba7c3e7aed671d, 1063 ms, 760 in / 110 out tokens.
   // Not attached as `proof`, which is reserved for requests made by this server.
   output: {
-    documentedPolicy: [{ sourceId: 'S1', statement: 'The returned passage describes a manual-discount exception to combination settings.' }],
-    inference: 'The manual discount exception to combination settings may apply to the affected orders, but the policy effective date and store eligibility have not been verified.',
-    nextStep: 'Audit store/plan eligibility, transaction scope, and the effective policy before adjusting combination settings.',
-    uncertainty: 'Policy effective dates and account terms are unverified; an exception does not establish the cause of the exposure.',
+    "documentedPolicy": [
+      {
+        "sourceId": "S1"
+      },
+      {
+        "sourceId": "S2"
+      }
+    ],
+    "inference": "The manual discount exception to combination settings applies to the affected rows, but the specific store/plan eligibility and effective date require verification.",
+    "nextStep": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings.",
+    "uncertainty": "Policy effective dates and account-specific terms have not been confirmed; an exception does not establish the cause of the exposure."
   },
 };
-// Replays the recorded response only for the recorded Tavily packet, after the
+// Replays the recorded draft only for the exact recorded Tavily packet, after the
 // same validator a live response must pass.
 export function recordedRemediation(issue: Issue, packet: ResearchPacket): Remediation | null {
-  const source = packet.sources[0];
-  if (issue.kind !== 'discount' || packet.mode !== 'fixture' || packet.proof || packet.sources.length !== 1 || source.url !== RECORDED_MANUAL_SOURCE.url || source.snippet !== RECORDED_MANUAL_SOURCE.snippet) return null;
+  const recorded = RECORDED_RETRIEVALS['shopify-discount-manual'].sources;
+  if (issue.kind !== 'discount' || packet.mode !== 'fixture' || packet.proof || JSON.stringify(packet.sources) !== JSON.stringify(recorded)) return null;
   try {
-    return { ...validateRemediation(RECORDED_MANUAL_REMEDIATION.output, packet), mode: 'fixture', model: RECORDED_MANUAL_REMEDIATION.model, fallbackReason: 'Recorded Nemotron-3.5-Lightning response (request 31354285…, 2026-10-30), replayed offline. No model runs on this hosted demo.' };
+    return { ...validateRemediation(RECORDED_MANUAL_REMEDIATION.output, packet), mode: 'fixture', model: RECORDED_MANUAL_REMEDIATION.model, fallbackReason: 'Recorded Nemotron-3.5-Lightning draft (request dde82743…, 2026-10-30), replayed offline. No model runs on this hosted demo.' };
   } catch { return null; }
 }
 // Token Factory enforces this shape (json_schema), so citations can only be permitted IDs.
