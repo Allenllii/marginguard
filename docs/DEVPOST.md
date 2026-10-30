@@ -61,20 +61,24 @@ All demo orders are synthetic. Modeled exposure is a review candidate, not reali
 
 ## Feedback on Nebius Token Factory and NVIDIA models
 
-- The OpenAI-compatible endpoint made integration a drop-in; `GET /v1/models` let us verify the exact NVIDIA model ID at runtime instead of hard-coding a guess.
-- Nemotron-3.5-Lightning returned short structured drafts in about one second, fast enough to sit inside an interactive click.
-- Model IDs mix conventions (`Nemotron-3_5-Lightning`, `nemotron-3-super-120b-a12b`, `NVIDIA-Nemotron-3-Nano-30B-A3B`); a stable alias per family would reduce configuration errors.
-- Early on, long JSON outputs truncated at the token limit without a clear finish-reason signal in our parsing path; documenting recommended max-token settings for structured output per model would help.
-- Per-request cost is not returned in the response; returning usage cost (or a link to it) would make budget enforcement in apps easier.
-- The last live analyst brief from Lightning (2026-10-30) put dollar amounts in its prose despite a "no digits" instruction, so our validator rejected it. We now send the brief prompt no numbers at all; that fix has not been re-run live.
+Each point is something we hit while building, the effect it had, and what would help.
+
+- **Structured output was the single biggest reliability fix.** With `response_format: json_object`, Nemotron-3.5-Lightning drafts failed our validator in 3 of 5 live end-to-end runs (citations returned as bare strings, a next step that repeated the rebutted fix). Switching to `json_schema` with `strict: true` and an `enum` of allowed source IDs made the next runs pass on the first call. *Suggestion:* state per model, on the model card, whether `json_schema` strict mode is supported and which JSON Schema keywords are honoured (`enum`, `minItems`, `maxLength`).
+- **`GET /v1/models` made runtime verification easy.** We check the exact NVIDIA model ID before every call and never silently substitute another model. *Suggestion:* model IDs mix conventions (`Nemotron-3_5-Lightning`, `nemotron-3-super-120b-a12b`, `NVIDIA-Nemotron-3-Nano-30B-A3B`); stable per-family aliases (for example `nvidia/nemotron-fast`, `nvidia/nemotron-reasoning`) would prevent configuration errors.
+- **Routing fast and reasoning models worked as the track suggests.** Lightning answers short structured drafts in about a second; Nemotron 3 Super turns free-form campaign text into rules in about ten seconds and spent most of its output on reasoning (one call: 1,018 output tokens, 899 of them reasoning). *Suggestion:* a documented way to cap reasoning tokens separately from answer tokens would make latency and cost predictable for interactive apps.
+- **Cost is not in the response.** Usage tokens are returned, but not price, so our budget ledger can only record tokens and mark the dollar amount unknown. *Suggestion:* return the per-request charge (or a pricing version) next to `usage`.
+- **Prompt rules about digits were not reliable without validation.** A Lightning brief put dollar amounts in prose despite a "no digits" instruction; our validator caught it. We now send that prompt no numbers at all (not yet re-run live). *Suggestion:* an example in the docs of combining structured output with server-side validation would help others avoid trusting prompt-only constraints.
+- **The OpenAI-compatible API ran unchanged on Cloudflare Workers** once we replaced `fetch(..., { redirect: 'error' })`, which Workers reject, with `redirect: 'manual'` plus a 3xx check. A note in the Token Factory quickstart for edge runtimes would save others that debugging.
 
 ## Feedback on Tavily
 
-- **Fragment URLs return duplicate results.** For one Shopify query, advanced search returned `…/discount-combinations`, `…#eligibility-requirements` and `…#manage-combinations` with identical content (request `ef540bad…`). With `max_results: 3`, that left one distinct page. Collapsing `#fragment` variants, or a "distinct pages" option, would help.
-- **Different URLs can share one passage.** In two searches (`19444728…` basic, `8f7b9603…` advanced), two different Shopify URLs returned the same snippet; we de-duplicate by text.
-- **`chunks_per_source` needs advanced depth.** Getting the operative sentence took `search_depth: advanced` with `chunks_per_source: 3`: 2 credits and 2.2–5.5 s per query, against 1 credit and 1.5 s for basic. A cheaper way to ask for the best chunk of each domain-restricted result would suit policy lookups.
-- **Extract credits were hard to account for.** A one-URL Extract (`9cdee07d…`) reported 0 credits. Since Extract is billed per batch of successful URLs, per-call usage that shows the fractional charge would let apps enforce budgets exactly.
-- **What worked well:** `include_domains` in restrict mode kept every result on the official domain, and the request ID and credit usage in each response made our provenance ledger straightforward.
+- **Fragment URLs return duplicate results.** One Shopify query returned `…/discount-combinations`, `…#eligibility-requirements` and `…#manage-combinations` with identical content (request `ef540bad…`); with `max_results: 3` that left one distinct page. *Suggestion:* collapse `#fragment` variants by default or offer a "distinct pages" option.
+- **Different URLs can share one passage.** Two Shopify URLs returned the same snippet in two searches (`19444728…`, `8f7b9603…`); we now de-duplicate by text.
+- **Domain restriction cannot pin a locale.** In our benchmark, US UPS queries restricted to `ups.com` returned the Puerto Rico and Brazil versions of the same page. *Suggestion:* a country or path filter alongside `include_domains` (for example `/us/en/`).
+- **`chunks_per_source` needs advanced depth.** Getting the operative sentence took advanced search (2 credits, 2.2–5.5 s) versus basic (1 credit, about 1.5 s). A repeated query answered in 163 ms looked cached but was still billed 2 credits. *Suggestion:* a cheaper "best chunk per result" mode, or reduced pricing for cache hits.
+- **Extract credits were hard to reconcile per call.** One-URL Extract calls reported 0 credits and two-URL calls 0 or 1. *Suggestion:* report the fractional charge per call so apps can enforce budgets exactly.
+- **Freshness signals would make policy monitoring first-class.** We detect changed policy pages by hashing the operative sentences Extract returns. *Suggestion:* return a content hash or last-modified time with Extract results, so apps can watch pages without re-reading them.
+- **What worked well:** `include_domains` in restrict mode kept every result on the official domain; Search followed by Extract gave us complete sentences to decide on; and the request ID plus credit usage in each response made our provenance ledger straightforward.
 
 ## Project timing
 
