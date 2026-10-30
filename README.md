@@ -2,7 +2,7 @@
 
 **Check the fix before you ship it.** MarginGuard finds where a small online store is losing margin, then tests the suggested fix against live official policy before the seller acts on it.
 
-[Live demo](__DEMO_URL__) · [Demo video](__VIDEO_URL__) · [Spec](docs/SPEC.md) · [Architecture](docs/ARCHITECTURE.md)
+[Live demo](https://allenllii.github.io/marginguard/) · [Demo video](__VIDEO_URL__) · [Spec](docs/SPEC.md) · [Architecture](docs/ARCHITECTURE.md)
 
 Built for the Nebius x NVIDIA Global AI Hackathon: **Best Apps and Agents** track, **Best Use of Tavily** prize.
 
@@ -59,7 +59,7 @@ Recorded from the local app on 2026-10-30 with synthetic data ([ledger](evidence
 
 ## Try it
 
-**Hosted demo (no account, no keys).** [Open the demo](__DEMO_URL__), click **See the discount policy counterexample**, then switch the discount origin between *Manual / POS / draft* and *Unknown* to watch the next check change. The hosted build runs offline: it replays the recorded live Tavily and Nemotron responses above and labels them as recorded. It makes no provider calls.
+**Hosted demo (no account, no keys).** [Open the demo](https://allenllii.github.io/marginguard/), click **See the discount policy counterexample**, then switch the discount origin between *Manual / POS / draft* and *Unknown* to watch the next check change. The hosted build runs offline: it replays the recorded live Tavily and Nemotron responses above and labels them as recorded. It makes no provider calls.
 
 **Run locally (offline).**
 
@@ -105,9 +105,17 @@ Seed 73021 generates 504 orders (September 1-28, 2026) with three planted issues
 
 Modeled exposure is a review candidate, not realized savings. Discount ceiling (default 20%) and shipping allowance (default $3) are editable seller assumptions, not platform rules. CSV format: [template](data/template.csv); UTF-8, USD, up to 2 MiB / 10,000 rows.
 
+## Benchmark: what retrieval did and did not do
+
+We preregistered a small with- vs without-retrieval benchmark ([preregistration](docs/benchmark/PREREGISTRATION.md), [results](docs/benchmark/RESULTS.md)): 24 synthetic holdout cases written by an independent AI agent, the same Nemotron-3.5-Lightning prompt, schema and parameters in both arms, two replicates, scoring blind to arm.
+
+**Result: the frozen Tavily package did not improve the model's decisions.** Nemotron answered "insufficient" in 93 of 96 outputs with or without sources; on the 8 applicable-policy cases the with-sources arm scored 0.875 vs 1.000 (p = 1.0, too few families to detect a difference). The main limit was retrieval coverage in the harness's fixed basic query: only 4 of 24 packages contained the page the gold relies on. All roles were AI agents; no human reviewed the gold. Cost: 24 Tavily credits and about 97k Nebius tokens (estimated USD 0.20; invoices not checked).
+
+What this means for the product: MarginGuard does not rely on the model to decide applicability. The decision comes from code over the retrieved passage, and when the passage is missing the answer is a hold.
+
 ## Tests
 
-`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, __UNIT_TESTS__ unit/API tests, __FRAMEWORK_TESTS__ benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run __BROWSER_TESTS__ Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
+`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 317 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 77 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
 
 ## Limits
 
