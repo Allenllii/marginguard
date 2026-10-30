@@ -12,10 +12,10 @@ TAVILY_ENABLE_LIVE = "true"
 NEBIUS_ENABLE_LIVE = "true"
 NEBIUS_MODEL = "nvidia/Nemotron-3_5-Lightning"
 NEBIUS_REASONING_MODEL = "nvidia/nemotron-3-super-120b-a12b"
-# Per provider: 4 calls/minute, 20/day, 100 in total, enforced in D1 before each call.
+# Per provider: 4 calls/minute, 40/day, 300 in total, enforced in D1 before each call.
 LIVE_MINUTE_LIMIT = "4"
-LIVE_DAILY_LIMIT = "20"
-LIVE_TOTAL_LIMIT = "100"
+LIVE_DAILY_LIMIT = "40"
+LIVE_TOTAL_LIMIT = "300"
 # Covers the judging period (ends 2026-12-23).
 LIVE_ENABLED_UNTIL = "2026-12-24T00:00:00Z"
 # Set after the account owner confirmed Tavily and Nebius spending caps (2026-10-30).

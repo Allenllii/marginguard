@@ -53,7 +53,7 @@ TypeScript, React, Vite, Node.js, Express, Zod, Tavily Search API, Tavily Extrac
 
 ## Try it
 
-- Live demo (synthetic data, no account, no keys): https://marginguard.marginguard-demo.workers.dev . It makes real Tavily Search + Extract and Nemotron calls on Cloudflare Workers, capped per provider at 4/minute, 20/day and 100 in total (durable D1 ledger) through December 24, 2026.
+- Live demo (synthetic data, no account, no keys): https://marginguard.marginguard-demo.workers.dev . It makes real Tavily Search + Extract and Nemotron calls on Cloudflare Workers, capped per provider at 4/minute, 40/day and 300 in total (durable D1 ledger) through December 24, 2026.
 - Offline mirror: https://allenllii.github.io/marginguard/ replays recorded live runs with no provider calls, if the live budget is used up.
 - Live mode: clone the repo, add your own `TAVILY_API_KEY` and `NEBIUS_API_KEY`, set the two enable flags, `npm run dev`. See README.
 
