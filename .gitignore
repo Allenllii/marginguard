@@ -20,3 +20,6 @@ offline-dist/
 
 # Final evaluation inputs, approvals, responses, billing ledger and blind keys
 benchmark-private/
+
+# Static GitHub Pages build
+pages-dist/
