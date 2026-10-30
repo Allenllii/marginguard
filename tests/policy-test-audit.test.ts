@@ -31,7 +31,7 @@ test('audit preserves all three decisions, assumptions, exact source records and
   assert.equal(report.exportedAt, exportedAt);
   const suite = buildPolicyTestSuite({ packet: p, action });
   assert.equal(report.evaluation.action, action);
-  assert.equal(report.evaluation.rulesetVersion, 'policy-to-test/v1');
+  assert.equal(report.evaluation.rulesetVersion, 'policy-to-test/v2');
   assert.equal(report.evaluation.scenarios.length, 3);
   assert.deepEqual(report.evaluation.scenarios.map(card => card.verdict), suite.cards.map(card => card.verdict));
   for (const card of report.evaluation.scenarios) {

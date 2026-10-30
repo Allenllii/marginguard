@@ -8,7 +8,7 @@ Open the offline discount counterexample, then choose **Download Policy-to-Test 
 
 - The current proposed action and all three assumed discount-origin scenarios: judgment, reason, explicit HOLD reason, next check, outstanding evidence and accepted source matches.
 - Dataset SHA-256 **prefix**, synthetic flag, USD currency, seller assumptions, finding ID, CSV row numbers, formula and modeled exposure in integer cents. Raw CSV, order records, product labels and filenames are outside the export schema.
-- Received packet mode/status/context/query/note, source IDs/URLs/full supplied snippets, saved-review dates, publication dates and region labels. Source text is plain JSON data and is preserved rather than redacted. Presence in the source list does not mean a source passed matching.
+- Received packet mode/status/context/query/note, source IDs/URLs/full supplied snippets, saved-review dates, publication dates and region labels. Source text is plain JSON data and is preserved rather than redacted. Presence in the source list does not mean `decidePolicy` cited it.
 - Separate export and reported retrieval timestamps, explicit evidence limitations, evaluator version and stable fingerprints.
 
 Fixture retrieval is always `null`, even if a caller supplies a date. A failed or empty live-labelled packet has `retrievedAt: null`; `reportedCheckedAt` preserves what the received packet reported. A successful live label remains **unverified**: downloading or hashing does not authenticate a source, request ID, effective date or current applicability.
@@ -21,7 +21,7 @@ Exposure remains an assumption-based review amount. It is not realized savings, 
 
 `PolicyResearch` passes its existing analysis metadata and selected finding to `PolicyTestLab`. The download handler rebuilds decisions from the current packet and action. It cannot accept caller-supplied verdicts. It creates a JSON Blob, removes its temporary link, revokes its URL, retains keyboard focus and announces download preparation through the existing live status. A standalone lab can omit dataset metadata; the export records `dataset: null` and an explicit missing-linkage limitation.
 
-`POLICY_TEST_RULESET_VERSION` is `policy-to-test/v1`. Bump it when matching, applicability or judgment semantics change. This version is an implementation label, not a source-code signature.
+`POLICY_TEST_RULESET_VERSION` is `policy-to-test/v2` (since October 29: verdicts come from `decidePolicy`, see `POLICY-TO-TEST.md`). Bump it when screening, applicability or judgment semantics change. This version is an implementation label, not a source-code signature.
 
 ## Reproduce and compare
 
