@@ -17,7 +17,7 @@ Generic AI advice fails here because it never checks the platform's own rules ag
 1. **Finds the leak with exact math.** Import an order CSV. Deterministic code computes contribution in integer cents and flags discount stacking, shipping overruns and return spikes. Every finding shows its formula, its source rows and the seller assumptions behind it.
 2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard sends **Tavily Search** a neutral query (it names the topic, not the answer we expect) restricted to the platform's own domain, then **Tavily Extract** pulls the official page so the rule engine reads full sentences instead of a cut-off snippet. The rule engine decides whether that text applies to the seller's context. For the two Shopify discount-combination pages we reviewed (manual/POS and automatic/code origins), the result also says if the official page has changed since our review; other pages have no reviewed copy to compare against.
 3. **Changes the next action, not the numbers.** In the demo case Tavily returns Shopify's POS policy: *"Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions."* The settings fix is rebutted, and the next check becomes an audit of staff/manual overrides. Same 28 rows, same $658.08 modeled exposure, different action.
-4. **Holds when context is missing.** An unknown discount origin, a non-US region or an ordinary app mistaken for the Scripts API holds the recommendation whatever the sources say. A retracted or contrary passage also holds; no passage, or passages that conflict, return "not enough evidence".
+4. **Holds when context is missing.** An unknown discount origin, a non-US region, an app whose discount mechanism is unknown, or Shopify Scripts (retired by Shopify on 2026-06-30) holds the recommendation whatever the sources say. A retracted or contrary passage also holds; no passage, or passages that conflict, return "not enough evidence".
 5. **Drafts the check with NVIDIA Nemotron on Nebius Token Factory.** Code supplies the policy statement behind each citation; Nemotron-3.5-Lightning writes the hypothesis, the validation step and the uncertainty. Code checks every citation against the returned sources and rejects numbers in the prose. A held or under-evidenced case never reaches the model.
 6. **Tests a promotion before launch.** In Promo Preflight, describe a campaign in plain English. Nemotron 3 Super turns it into structured rules; code checks every value against the campaign text and against a local parser where one applies. Tavily pulls the governing policy page, the seller confirms, and an integer simulator finds the worst cart. The built-in sample walkthrough shows how stacking can turn a $50 cart into **−$6.00 contribution**.
 
@@ -40,7 +40,7 @@ flowchart LR
 
 | Technology | Where | What it does |
 | --- | --- | --- |
-| **Tavily Search** | `server/tavily.ts` | Fixed, neutral queries (never order data), `include_domains` restricted to help.shopify.com, woocommerce.com, usps.com or ups.com; results are screened and de-duplicated. The retrieved text decides the verdict. |
+| **Tavily Search** | `server/tavily.ts` | Fixed, neutral queries (never order data), `include_domains` restricted to help.shopify.com, woocommerce.com, usps.com or ups.com; results are screened and de-duplicated. In the recorded live cases (manual and automatic/code Shopify discounts, USPS shipping) the retrieved text decides the verdict; other offline contexts use authored policy summaries, labelled as such. |
 | **Tavily Extract** | `server/tavily.ts`, `server/preflight-policy.ts` | Pulls the full official page after Search so the decision reads complete sentences, and flags a change on the reviewed Shopify discount-combination pages; in Promo Preflight, pulls the reviewed policy page before any rule is proposed. |
 | **Nebius Token Factory** | `server/nebius.ts`, `server/preflight-intent.ts` | OpenAI-compatible API; model IDs verified with `GET /v1/models` before each call. |
 | **NVIDIA Nemotron-3.5-Lightning** | cited policy draft, analyst brief | Fast structured drafts: the recorded policy draft took 1.0 s and 579 input / 100 output tokens. The last live brief failed the no-digits check and fell back; its prompt now sends no numbers, and that change has not been re-run live. |
@@ -83,7 +83,7 @@ NEBIUS_MODEL=nvidia/Nemotron-3_5-Lightning
 NEBIUS_REASONING_MODEL=nvidia/nemotron-3-super-120b-a12b
 ```
 
-Then `npm run dev`, open the counterexample, tick the consent box and click **Search official policies**, then **Draft with NVIDIA**. Each provider is capped at 2 calls/minute, 20/day and 100 per process by default.
+Then `npm run dev`, open the counterexample, tick the consent box and click **Search official policies**, then **Draft with Nemotron**. Each provider is capped at 2 calls/minute, 20/day and 100 per process by default.
 
 Requires Node.js 24.19+.
 

@@ -129,11 +129,11 @@ export function buildPolicyTestSuite({ packet, action }: { packet: ResearchPacke
 
   const manual = decide('manual');
   if (manual.status === 'contradicted') {
-    const says = p.context.platform === 'Shopify' ? 'Shopify says manual POS and draft-order discounts' : 'The cited policy says manual discounts';
+    const says = p.context.platform === 'Shopify' ? 'Shopify says custom discounts applied manually in POS or on draft orders' : 'The cited policy says manual discounts';
     result.cards[1] = { ...result.cards[1], verdict: settingsFix ? 'contradicted' : 'supported', evidence: cite(manual, 'manual-exception'),
       reason: settingsFix
-        ? `${says} ignore combination settings, so changing those settings won’t stop this leak.`
-        : `${says} ignore combination settings, so the leak has to be stopped where staff apply them. It doesn’t prove anyone made a mistake.`,
+        ? `${says} ignore combination settings, so a settings change is not the established fix here.`
+        : `${says} ignore combination settings, so the next check is where staff apply them. It doesn’t prove anyone made a mistake.`,
       nextCheck: nextChecks.audit, missingEvidence: missing.audit };
   }
 
