@@ -192,5 +192,9 @@
       "date": "2026-10-30 (UTC), between 02:55 and 03:03"
     }
   ],
-  "followup_cost": "Tavily: 6 credits total (3 advanced searches at 2 credits each). No Nebius calls."
+  "followup_cost": "Tavily: 6 credits total (3 advanced searches at 2 credits each). No Nebius calls.",
+  "offline_replay": {
+    "tavily": "Hosted fixture for Shopify + discount + manual origin replays S1 of request 19444728-22d2-4be8-ab7e-7c4d0714bb07 (title Shopify Help Center | Discount combinations on POS). This file did not store the S1 snippet text; the replayed text is the S1 snippet for the same title, URL and query recorded in evidence/tavily-live-proof.json (request 75fc38ff-9fd0-4b4a-ae88-26ffc1aa57e5, 2026-10-27).",
+    "nvidia": "Offline remediation for that packet replays the documentedPolicy, inference, nextStep and uncertainty fields of Nemotron-3.5-Lightning request 31354285bac744de81d06e20979fcac4 from the network capture of this run."
+  }
 }
