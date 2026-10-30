@@ -50,13 +50,16 @@ The model never computes money or decides eligibility. Those stay in `server/ana
 
 ## A real live run
 
-Recorded from the local app on 2026-10-30 with synthetic data ([ledger](evidence/live-run-20261030.json)):
+The current pipeline, end to end through the local app on 2026-10-30: Shopify / US / manual discount origin, synthetic Northstar data ([ledger](evidence/live-e2e-20261030.json)). This is the run the hosted demo replays for the manual case.
 
 | Call | Result |
 | --- | --- |
-| Tavily Search, help.shopify.com | request `19444728-22d2-4be8-ab7e-7c4d0714bb07`, 1 credit, 1.5 s; returned the Shopify POS combination policy |
-| Decision | settings fix rebutted → audit manual/POS/draft overrides |
-| Nemotron-3.5-Lightning completion | request `31354285bac744de81d06e20979fcac4`, 579 input / 100 output tokens, 1.0 s |
+| Tavily advanced Search, help.shopify.com | request `463868a5-33a1-4a47-b8b1-189a68f035b3`, 2 credits, 0.16 s; three official pages |
+| Tavily Extract, top two pages | request `8b80d04b-e8b2-4eef-994a-b8966b94d332`, 1 credit, 0.14 s; complete operative sentences from the Combining discounts and POS pages |
+| Decision (code) | contradicted on S1, S2: the combination-settings fix is rebutted → audit manual/POS/draft-order overrides |
+| Nemotron-3.5-Lightning draft | request `9f6e4415caf991a89fe1af98e3236a62`, 719 input / 94 output tokens, 0.98 s round trip; **rejected by the validator** (it cited sources as bare IDs, not `{sourceId}` objects), so the app showed the rule-based checks |
+
+This was the second of two full attempts. The first (Search `c2b70258…`, Extract `2a964c10…`) returned the same sources, and its draft also failed validation; the app does not expose that reason. Total: 5 Tavily credits, 2 Nemotron completions. No validated Nemotron draft exists for this packet, so the hosted demo shows the rule-based checks for it.
 
 ## Try it
 
