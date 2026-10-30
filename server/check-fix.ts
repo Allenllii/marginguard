@@ -36,6 +36,26 @@ export function screenCheckFix(fix: string, context: CheckFixContext): CheckFixR
   return null;
 }
 
+// The eval showed the planning model routing a free-shipping discount code to a carrier
+// site and treating a price change as a discount. Code decides the topic from the fix's
+// own words; a fix with none of them is outside the supported topics and holds.
+export function fixTopic(fix: string): CheckFixTopic | null {
+  const t = fix.toLowerCase();
+  if (/\b(?:discounts?|coupons?|promo(?:tion)?s?|codes?|combin\w*|stack\w*|bogo|automatic discount|individual use|minimum purchase)\b/u.test(t)) return 'discounts';
+  if (/\b(?:returns?|refunds?|exchanges?|restock\w*|return window)\b/u.test(t)) return 'returns';
+  if (/\b(?:ship\w*|carriers?|usps|ups|postage|parcels?|packages?|ground advantage|surepost|dimensional|labels?|delivery|deliveries)\b/u.test(t)) return 'shipping';
+  return null;
+}
+
+// The claim must stay about the fix: it has to share a content word with it
+// (platform and carrier names don't count).
+const NAMES = new Set(['shopify', 'woocommerce', 'usps', 'ups']);
+export function claimFollowsFix(claim: string, fix: string) {
+  const words = (s: string) => new Set((s.toLowerCase().match(/[a-z]{4,}/gu) ?? []).filter(w => !STOP.has(w) && !NAMES.has(w)).map(w => w.slice(0, 5)));
+  const f = words(fix);
+  return [...words(claim)].some(w => f.has(w));
+}
+
 export function domainFor(topic: CheckFixTopic, context: CheckFixContext): string | null {
   if (topic === 'shipping') return context.carrier === 'USPS' ? 'usps.com' : 'ups.com';
   if (topic === 'discounts' || topic === 'returns') return context.platform === 'Shopify' ? 'help.shopify.com' : 'woocommerce.com';
@@ -224,9 +244,11 @@ export async function checkFixLive(fix: string, context: CheckFixContext, o: Che
     const planParsed = PlanSchema.safeParse(planRaw);
     if (!planParsed.success) throw new Hold('PLAN_SCHEMA_INVALID', 'The planning model returned an unexpected format.');
     const plan = planParsed.data;
-    out.claim = plan.claim; out.topic = plan.topic;
+    const topic = fixTopic(fix);
+    out.claim = plan.claim; out.topic = topic ?? 'other';
     if (UNSUPPORTED_CLAIM.test(plan.claim.replace(/\d/gu, ''))) throw new Hold('PLAN_CLAIM_UNSUPPORTED', 'The planned claim contained links, markup or causal wording.');
-    const domain = domainFor(plan.topic, context);
+    if (topic && !claimFollowsFix(plan.claim, fix)) throw new Hold('CLAIM_DRIFT', 'The planned claim does not match the fix you entered, so no search was made.');
+    const domain = topic ? domainFor(topic, context) : null;
     if (!domain) throw new Hold('TOPIC_UNSUPPORTED', 'This fix is outside the supported policy topics (discounts, shipping, returns), so no search was made.');
     if (!screenQuery(plan.query)) throw new Hold('QUERY_SCREEN', 'The planned search query failed the privacy screen, so it was not sent.');
     out.query = plan.query; out.domain = domain;

@@ -110,21 +110,32 @@ test('schema and prose failures hold with a reason code', async () => {
   }
 });
 
-test("topic 'other' holds after the plan; no Tavily request is sent", async () => {
-  const t = transport({ plan: plan({ topic: 'other' }) });
-  const r = await live(t);
+test('a fix outside discounts, shipping and returns holds after the plan; no Tavily request is sent', async () => {
+  const t = transport({ plan: plan({ topic: 'discounts', claim: 'Shopify lets merchants change product prices at any time.' }) });
+  const r = await checkFixLive('Raise prices on our slowest-selling products', ctx, { tavilyKey: 'k', nebius: { key: 'k', planModel: 'nvidia/plan', judgeModel: 'nvidia/judge' }, request: t.request, reserve: async () => true });
   assert.equal(r.status, 'hold'); assert.match(r.holdReason!, /^\[TOPIC_UNSUPPORTED\] .*outside the supported policy topics/u);
   assert.ok(!t.calls.some(c => c.url.includes('tavily')));
 });
 
-test('domain routing: shipping goes to the carrier, returns and discounts to the platform', async () => {
-  for (const [topic, context, domain] of [['shipping', { ...ctx, carrier: 'UPS' }, 'ups.com'], ['shipping', ctx, 'usps.com'], ['returns', { ...ctx, platform: 'WooCommerce' }, 'woocommerce.com'], ['discounts', ctx, 'help.shopify.com']] as const) {
-    const t = transport({ plan: plan({ topic }), search: { results: [] } });
-    const r = await checkFixLive(FIX, context, { tavilyKey: 'k', nebius: { key: 'k', planModel: 'nvidia/plan', judgeModel: 'nvidia/judge' }, request: t.request, reserve: async () => true });
+test('domain routing follows the fix wording: shipping to the carrier, returns and discounts to the platform', async () => {
+  const cases = [
+    ['Switch lightweight packages to a cheaper ground shipping service', { ...ctx, carrier: 'UPS' }, 'ups.com', 'UPS ground shipping service is available for lightweight packages.'],
+    ['Switch lightweight packages to a cheaper ground shipping service', ctx, 'usps.com', 'USPS ground shipping service is available for lightweight packages.'],
+    ['Shorten the return window for refunds', { ...ctx, platform: 'WooCommerce' }, 'woocommerce.com', 'WooCommerce lets the store set its own return window for refunds.'],
+    ['Require a minimum purchase on the discount code', ctx, 'help.shopify.com', 'Shopify discount codes can require a minimum purchase.'],
+  ] as const;
+  for (const [fix, context, domain, claim] of cases) {
+    // The model's own topic is ignored: code routes by the fix wording.
+    const t = transport({ plan: plan({ topic: 'other', claim }), search: { results: [] } });
+    const r = await checkFixLive(fix, context, { tavilyKey: 'k', nebius: { key: 'k', planModel: 'nvidia/plan', judgeModel: 'nvidia/judge' }, request: t.request, reserve: async () => true });
     assert.deepEqual(t.calls.find(c => c.url.endsWith('/search'))!.body!.include_domains, [domain]);
     assert.equal(r.status, 'insufficient', 'no screened source -> insufficient without a judge call');
     assert.equal(t.calls.filter(c => c.url.endsWith('/chat/completions')).length, 1);
   }
+  // A claim that drifts away from the fix holds before any search.
+  const drift = transport({ plan: plan({ claim: 'USPS Ground Advantage is available for packages up to seventy pounds.' }) });
+  const r = await checkFixLive('Require a minimum purchase on the discount code', ctx, { tavilyKey: 'k', nebius: { key: 'k', planModel: 'nvidia/plan', judgeModel: 'nvidia/judge' }, request: drift.request, reserve: async () => true });
+  assert.match(r.holdReason!, /^\[CLAIM_DRIFT\]/u); assert.ok(!drift.calls.some(c => c.url.includes('tavily')));
 });
 
 test('retraction text and injection text on a page are screened out', async () => {
@@ -215,4 +226,16 @@ test('recorded examples are byte-identical to the live eval evidence and replay 
     assert.equal(replay.mode, 'recorded'); assert.equal(replay.proof, null); assert.match(replay.label, /^Recorded live run \(requests .+, 2026-10-30\), replayed offline/u);
     assert.equal(JSON.stringify({ ...replay, mode: 'live', label: r.response.label, proof: r.response.proof }), JSON.stringify(r.response));
   }
+});
+
+test('code decides the topic from the fix wording, and the planned claim must stay about the fix', async () => {
+  const { fixTopic, claimFollowsFix } = await import('../server/check-fix.js');
+  // Frozen eval items (evidence/check-fix-eval-20261030.json).
+  assert.equal(fixTopic('Tighten Shopify discount combination settings to stop staff POS discounts stacking'), 'discounts');
+  assert.equal(fixTopic('Add a minimum purchase requirement to our free shipping code'), 'discounts');
+  assert.equal(fixTopic('Shorten the return window from 30 to 14 days'), 'returns');
+  assert.equal(fixTopic('Switch lightweight packages to USPS Ground Advantage'), 'shipping');
+  assert.equal(fixTopic('Raise prices on our slowest-selling products'), null);
+  assert.equal(claimFollowsFix('Shopify discount codes can require a minimum purchase amount.', 'Add a minimum purchase requirement to our free shipping code'), true);
+  assert.equal(claimFollowsFix('USPS Ground Advantage is available for packages up to seventy pounds.', 'Add a minimum purchase requirement to our free shipping code'), false);
 });
