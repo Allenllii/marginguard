@@ -29,7 +29,15 @@
       "credits": 1,
       "query": "Shopify official documentation manual POS draft order discounts bypass combination settings exceptions",
       "sources_accepted": 3,
-      "note": "S2 and S3 returned identical snippets from two URLs."
+      "note": "S2 and S3 returned identical snippets from two URLs.",
+      "sources": [
+        {
+          "id": "S1",
+          "title": "Shopify Help Center | Discount combinations on POS",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+          "snippet": "Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions. You can't apply custom line item discounts to a split line item. After you apply a custom line item discount in Shopify POS, additional product discount codes can't be applied to that same item. All automatic discounts and discount codes follow the same combination rules and calculation order as"
+        }
+      ]
     },
     {
       "provider": "Nebius Token Factory",
@@ -194,7 +202,7 @@
   ],
   "followup_cost": "Tavily: 6 credits total (3 advanced searches at 2 credits each). No Nebius calls.",
   "offline_replay": {
-    "tavily": "Hosted fixture for Shopify + discount + manual origin replays S1 of request 19444728-22d2-4be8-ab7e-7c4d0714bb07 (title Shopify Help Center | Discount combinations on POS). This file did not store the S1 snippet text; the replayed text is the S1 snippet for the same title, URL and query recorded in evidence/tavily-live-proof.json (request 75fc38ff-9fd0-4b4a-ae88-26ffc1aa57e5, 2026-10-27).",
+    "tavily": "Hosted fixture for Shopify + discount + manual origin replays S1 of request 19444728-22d2-4be8-ab7e-7c4d0714bb07 verbatim. The S1 text (recorded above from the browser network capture of the /api/research response) was checked byte-for-byte against the replayed fixture; it is also identical to S1 of the earlier request 75fc38ff-9fd0-4b4a-ae88-26ffc1aa57e5 (2026-10-27).",
     "nvidia": "Offline remediation for that packet replays the documentedPolicy, inference, nextStep and uncertainty fields of Nemotron-3.5-Lightning request 31354285bac744de81d06e20979fcac4 from the network capture of this run."
   }
 }
