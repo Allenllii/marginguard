@@ -1,5 +1,18 @@
 # Observed sponsor integration
 
+## Policy retrieval v3: Search, then Extract (2026-10-30)
+
+`server/tavily.ts` `research()` now runs two Tavily calls in the main policy flow.
+
+1. **Search.** The query describes the seller's situation and asks for the governing rule without assuming the answer, for example `Shopify how do manually applied POS and draft order discounts interact with discount combination settings`. It uses advanced depth, `chunks_per_source: 3`, `max_results: 3` and `include_domains` restricted to the platform or carrier help domain. Results are screened for domain, injection text, retractions, region and duplicates; a `#fragment` URL of an accepted page counts as the same source.
+2. **Extract.** One call reads the top two screened pages in full (`extract_depth: basic`, markdown, 10 s provider timeout, 15 s client timeout, 500 KB response bound, no retry). The page is split into complete sentences; a list item keeps its lead-in line, so "The following discount types always apply to an order, regardless of any combination settings:" stays attached to "Custom discounts that are manually applied to an order." Selection is deterministic: up to three sentences with the most context terms, in page order, at most 1200 characters. These sentences become the source passage that `decidePolicy` judges sentence by sentence. A page that fails, times out, is oversized, comes back under another URL or echoes the key keeps its search chunk, and the packet note names which sources are full-page sentences and which are chunks.
+
+Each call is reserved against the live budget before it is sent (`service.ts` passes `reserveExtract`). If the Extract reservation is denied, the search result is returned and the note says Extract was not sent. Callers that pass no hook (operator scripts, the integration verifier) stay search-only.
+
+The packet records provenance in `retrieval.steps` (operation, URL, request ID, credits, latency, outcome) alongside the existing `proof`. For the Shopify discount-combination pages, the SHA-256 of the reviewed operative sentences is stored; when a live Extract yields different sentences, the packet carries `policyChanged: { url, reviewedAt }` and the note asks for re-review while keeping the decision.
+
+The hosted offline demo replays one recorded live Search + Extract run each for Shopify manual discounts, Shopify native discounts and USPS shipping, byte for byte, from `evidence/live-retrieval-v3-20261030.json`. That file is the call ledger: 4 searches (8 credits) and 4 Extract calls (reported 1 credit; documented worst case 4), 12 credits at most, all HTTP 200, no retries, no Nebius calls. One native run was superseded after a URL-mapping fix and is recorded as such. Other contexts show authored summaries labelled as such.
+
 This is an operator integration record for one synthetic development case. It is not the final benchmark, an independent whole-project review, or a competition-readiness claim.
 
 ## What actually ran

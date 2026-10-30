@@ -96,7 +96,8 @@ export function createService(options: { env?: Record<string, string | undefined
         if (upstream) searchInFlight = true;
         try {
           if (upstream) { const denial = await reserve('tavily'); if (denial) return denial; nextSearch = now() + 10000; }
-          const result = await research(kind, context, live, tavily, request);
+          // Extract is a second billable call: reserve it separately before it is sent.
+          const result = await research(kind, context, live, tavily, request, upstream ? { reserveExtract: async () => !await reserve('tavily') } : {});
           if (result.retryAfterSeconds) nextSearch = Math.max(nextSearch, now() + result.retryAfterSeconds * 1000);
           const packet = { ...result, researchId: live ? crypto.randomUUID() : fixtureReference(kind, context) };
           if (live) await store.put(packet);
