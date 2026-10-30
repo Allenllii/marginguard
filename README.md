@@ -2,7 +2,7 @@
 
 **Check the fix before you ship it.** MarginGuard finds where a small online store is losing margin, then tests the suggested fix against live official policy before the seller acts on it.
 
-[Live demo](https://allenllii.github.io/marginguard/) · [Demo video](__VIDEO_URL__) · [Spec](docs/SPEC.md) · [Architecture](docs/ARCHITECTURE.md)
+[Live demo](https://marginguard.marginguard-demo.workers.dev) · [Offline mirror](https://allenllii.github.io/marginguard/) · [Demo video](__VIDEO_URL__) · [Spec](docs/SPEC.md) · [Architecture](docs/ARCHITECTURE.md)
 
 Built for the Nebius x NVIDIA Global AI Hackathon: **Best Apps and Agents** track, **Best Use of Tavily** prize.
 
@@ -65,7 +65,9 @@ It took six end-to-end attempts. Tavily returned byte-identical sources every ti
 
 ## Try it
 
-**Hosted demo (no account, no keys).** [Open the demo](https://allenllii.github.io/marginguard/), click **See the discount policy counterexample**, then switch the discount origin between *Manual / POS / draft* and *Unknown*: the next check changes as soon as you pick. The hosted build runs offline and makes no provider calls. It replays recorded Tavily Search + Extract responses for the manual, automatic/code and USPS cases and, in Promo Preflight, the recorded Nemotron 3 Super interpretation of a free-form campaign. Each is labelled as recorded.
+**Live demo (no account, no keys).** [Open the live demo](https://marginguard.marginguard-demo.workers.dev). It runs on Cloudflare Workers with real Tavily and Nemotron calls behind a durable budget: each provider allows 4 calls a minute, 20 a day and 100 in total, recorded in a D1 ledger before every call, until December 24, 2026. Click **See the discount policy counterexample**, tick the consent box, then **Search official policies** (Tavily Search + Extract) and **Draft with Nemotron**; switch the discount origin between *Manual / POS / draft* and *Unknown* to watch the next check change. In Promo Preflight, type your own campaign and let Nemotron 3 Super turn it into rules. When the daily budget is used up, the app says so and the recorded runs remain available.
+
+**Offline mirror.** [allenllii.github.io/marginguard](https://allenllii.github.io/marginguard/) runs the same build entirely in your browser with no provider calls. It replays recorded Tavily Search + Extract responses for the manual, automatic/code and USPS cases, the recorded Nemotron draft, and the recorded Nemotron 3 Super campaign interpretation, each labelled as recorded.
 
 **Run locally (offline).**
 
@@ -127,7 +129,7 @@ What this means for the product: MarginGuard does not rely on the model to decid
 
 ## Limits
 
-All data is synthetic and there is no store connection: the seller supplies the discount origin. The policy rules cover a deliberately small set of Shopify, WooCommerce, USPS and UPS cases. Live mode runs locally with your own keys; the hosted demo replays a recorded run.
+All data is synthetic and there is no store connection: the seller supplies the discount origin. The policy rules cover a deliberately small set of Shopify, WooCommerce, USPS and UPS cases. The live demo is capped per provider (see above); the offline mirror replays recorded runs.
 
 ## Project layout
 

@@ -1,0 +1,116 @@
+{
+  "description": "Live calls through the public Cloudflare Workers deployment https://marginguard.marginguard-demo.workers.dev on 2026-10-30 (synthetic data). No keys or headers recorded.",
+  "deployment": {
+    "platform": "Cloudflare Workers",
+    "budgetStore": "D1 (durable)",
+    "limitsPerProvider": {
+      "minute": 4,
+      "daily": 20,
+      "total": 100
+    },
+    "enabledUntil": "2026-12-24T00:00:00Z"
+  },
+  "attempts": [
+    {
+      "step": "first deploy, research live (Shopify/US/discount/manual)",
+      "outcome": "failed: Tavily call threw inside the Worker. Cause: Workers reject fetch redirect:\"error\"; fixed by worker/edge-fetch.ts (send manual, refuse any 3xx). Same failure for a native-origin retry used to read logs."
+    },
+    {
+      "step": "research live after fix",
+      "status": "ok",
+      "mode": "live",
+      "retrieval": {
+        "steps": [
+          {
+            "op": "search",
+            "ok": true,
+            "latencyMs": 3733,
+            "requestId": "044f8844-ebd0-4a7f-913e-63ae76126fbb",
+            "credits": 2
+          },
+          {
+            "op": "extract",
+            "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+            "ok": true,
+            "latencyMs": 134,
+            "credits": 1,
+            "requestId": "a8063619-1646-454f-ba90-77931a3ef130"
+          },
+          {
+            "op": "extract",
+            "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+            "ok": true,
+            "requestId": "a8063619-1646-454f-ba90-77931a3ef130"
+          }
+        ]
+      },
+      "sources": [
+        {
+          "id": "S1",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations"
+        },
+        {
+          "id": "S2",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts"
+        },
+        {
+          "id": "S3",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-types/buy-x-get-y"
+        }
+      ]
+    },
+    {
+      "step": "remediate live (Nemotron-3.5-Lightning, structured output)",
+      "mode": "live",
+      "proof": {
+        "requestedAt": "2026-10-30T05:27:27.577Z",
+        "requestId": "751d75ebf8b52ec08e76be3eb1e8c5bf",
+        "latencyMs": 3797,
+        "inputTokens": 892,
+        "outputTokens": 193
+      },
+      "draft": {
+        "documentedPolicy": [
+          {
+            "sourceId": "S1",
+            "statement": "The returned passage describes a manual-discount exception to combination settings."
+          },
+          {
+            "sourceId": "S2",
+            "statement": "The returned passage describes a manual-discount exception to combination settings."
+          }
+        ],
+        "inference": "The manual-discount exception to combination settings may have allowed the applied discount to bypass intended restrictions on the flagged orders.",
+        "nextStep": "Open the sales channel order list and filter for the affected orders. For each order, compare the applied discount line against the planned promotion and verify who applied it. Then check the order timeline and location to confirm whether the discount was applied manually in POS or via a draft order override. If the discount line matches a manually applied custom discount and the combination settings were left at default, the hypothesis is supported; if the discount aligns with an automatic promotion or staff permissions, the hypothesis is ruled out.",
+        "uncertainty": "The policy effective date and the store's specific plan eligibility have not been confirmed; these must be verified before any remediation action is taken."
+      }
+    },
+    {
+      "step": "preflight prepare live (Nemotron 3 Super + Tavily Search/Extract)",
+      "campaign": "15% off everything plus free shipping on orders over $60",
+      "status": "NEEDS_CONFIRMATION",
+      "interpretation": "nemotron_interpreted",
+      "rules": [
+        {
+          "id": "R1",
+          "type": "percent",
+          "scope": "product",
+          "basisPoints": 1500,
+          "minSubtotalCents": 0,
+          "minItems": 0
+        },
+        {
+          "id": "R2",
+          "type": "free_shipping",
+          "minSubtotalCents": 6000,
+          "minItems": 0
+        }
+      ]
+    }
+  ],
+  "d1LedgerAfter": {
+    "tavily": 6,
+    "nebius": 3,
+    "period": "2026-10-30"
+  }
+}
