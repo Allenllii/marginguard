@@ -17,7 +17,7 @@ test('saved-source fixture can be drafted by a different cold service instance w
   const reply = await cold.dispatch('POST', '/api/remediate', { csv: createDemoCsv(), issueId: 'discount-stacking', researchId: packet.researchId, live: false });
   assert.equal(reply.status, 200);
   const result = reply.body as { mode: string; proof?: unknown; nextStep: string };
-  assert.equal(result.mode, 'fixture'); assert.equal(result.proof, undefined); assert.match(result.nextStep, /Audit store\/plan eligibility/);
+  assert.equal(result.mode, 'fixture'); assert.equal(result.proof, undefined); assert.match(result.nextStep, /Audit staff\/manual POS/);
 });
 test('fixture references accept only complete enumerated context, never source text', () => {
   const id = fixtureReference('discount', context);

@@ -29,10 +29,12 @@ export function createService(options: { env?: Record<string, string | undefined
   const hosted = env.PUBLIC_DEMO === 'true', liveSafe = !hosted || (budget.durable && env.PROVIDER_HARD_CAPS_VERIFIED === 'true');
   const expires = Date.parse(env.LIVE_ENABLED_UNTIL || '2026-12-16T00:00:00Z');
   if (!Number.isFinite(expires)) throw new Error('LIVE_ENABLED_UNTIL must be an ISO date.');
+  // Offline QA runs the whole browser suite against one process; production keeps 120/min.
+  const apiMinuteLimit = env.QA_API_MINUTE_LIMIT === '2000' && env.TAVILY_ENABLE_LIVE === 'false' && env.NEBIUS_ENABLE_LIVE === 'false' ? 2000 : 120;
   let modelInFlight = false, searchInFlight = false, nextModel = 0, nextSearch = 0, apiMinute = -1, apiCount = 0;
   // Ephemeral proposals hold generated rules, never seller data. Restarts expire safely.
   const proposals = new Map<string, { rules: PreflightRule[]; expires: number }>();
-  async function reserve(service: LiveService): Promise<Reply | null> {
+  async function reserve(service: LiveService | readonly LiveService[]): Promise<Reply | null> {
     if (!liveSafe) return { status: 503, body: { error: 'Public live calls require a durable budget store and verified provider hard caps. Offline demo remains available.' } };
     if (now() >= expires) return { status: 503, body: { error: 'This live-demo authorization window has ended. Offline analysis remains available.' } };
     const result = await budget.reserve(service, now());
@@ -41,7 +43,7 @@ export function createService(options: { env?: Record<string, string | undefined
   return { async dispatch(method: string, path: string, body?: unknown): Promise<Reply> {
     if (method === 'GET' && path === '/api/health') return { status: 200, body: { ok: true, provider: providerStatus({ ...nvidia, enabled: nvidia.enabled && liveSafe && now() < expires }), tavily: tavilyStatus({ ...tavily, enabled: tavily.enabled && liveSafe && now() < expires }), models: { fast: nvidia.model, reasoning: nvidia.reasoningModel, routing: { explain: 'fast', remediate: 'fast', preflightIntent: 'reasoning' } }, limits: { ...limits, scope: budget.durable ? 'durable' : 'process lifetime', liveSafe, enabledUntil: new Date(expires).toISOString() } } };
     const minute = Math.floor(now() / 60000); if (minute !== apiMinute) { apiMinute = minute; apiCount = 0; }
-    if (++apiCount > 120) return { status: 429, body: { error: 'Request rate exceeded. Try again shortly.' }, headers: { 'Retry-After': '60' } };
+    if (++apiCount > apiMinuteLimit) return { status: 429, body: { error: 'Request rate exceeded. Try again shortly.' }, headers: { 'Retry-After': '60' } };
     try {
       if (method === 'POST' && path === '/api/preflight/prepare') {
         const { activity, context, live } = z.object({ activity: z.string().min(1).max(240), context: ContextSchema, live: z.boolean().default(false) }).strict().parse(body);
@@ -52,11 +54,11 @@ export function createService(options: { env?: Record<string, string | undefined
         const reservation: { denial: Reply | null } = { denial: null };
         try {
           const prepared = await preparePreflightBridge(activity, { reviewPreflightSource: options.reviewPreflightSource, live, tavily, nebius: nvidia, request, now,
-            reserve: async service => {
-              reservation.denial = await reserve(service);
+            reserve: async services => {
+              reservation.denial = await reserve(services);
               if (reservation.denial) return false;
-              if (service === 'tavily') nextSearch = Math.max(nextSearch, now() + 10000);
-              else nextModel = Math.max(nextModel, now() + 10000);
+              if (services.includes('tavily')) nextSearch = Math.max(nextSearch, now() + 10000);
+              if (services.includes('nebius')) nextModel = Math.max(nextModel, now() + 10000);
               return true;
             },
             onRateLimit: (service, seconds) => {
@@ -96,7 +98,8 @@ export function createService(options: { env?: Record<string, string | undefined
         if (upstream) searchInFlight = true;
         try {
           if (upstream) { const denial = await reserve('tavily'); if (denial) return denial; nextSearch = now() + 10000; }
-          const result = await research(kind, context, live, tavily, request);
+          // Extract is a second billable call: reserve it separately before it is sent.
+          const result = await research(kind, context, live, tavily, request, upstream ? { reserveExtract: async () => !await reserve('tavily') } : {});
           if (result.retryAfterSeconds) nextSearch = Math.max(nextSearch, now() + result.retryAfterSeconds * 1000);
           const packet = { ...result, researchId: live ? crypto.randomUUID() : fixtureReference(kind, context) };
           if (live) await store.put(packet);

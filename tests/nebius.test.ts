@@ -77,3 +77,24 @@ test('only the documented hosted Lightning profile disables thinking, without in
   assert.deepEqual(bodies.map(b => b.max_tokens), [1600, 1400]);
   assert.ok(bodies.every(b => b.store === false && JSON.stringify(b.chat_template_kwargs) === '{"enable_thinking":false}' && b.model === model));
 });
+
+test('brief input carries no numbers and digit-free evidence IDs, so a compliant brief can cite findings and pass the no-digits rule', async () => {
+  const evidence = modelEvidence(analysis);
+  assert.ok(!/\d/.test(JSON.stringify(evidence)), 'model evidence must not contain digits');
+  assert.deepEqual(evidence.map(e => e.exposure_rank).slice(0, 3), ['largest', 'second largest', 'third largest'].slice(0, evidence.length));
+  let system = '';
+  const request = (async (url: string | URL | Request, init?: RequestInit) => {
+    if (String(url).endsWith('/models')) return response({ data: [{ id: config.model }] });
+    const sent = JSON.parse(String(init?.body)); system = sent.messages[0].content;
+    assert.ok(!/\d/.test(sent.messages[1].content), 'user message must not contain digits');
+    const cited = { ...valid(), priorities: evidence.map(e => ({ issueId: e.evidence_id, reason: `Finding ${e.evidence_id} is the ${e.exposure_rank} modeled exposure.`, nextStep: 'Review the affected process and run a small controlled operational test.' })) };
+    return response({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(cited) } }] });
+  }) as typeof fetch;
+  const result = await explain(analysis, true, config, request);
+  assert.match(system, /only by its evidence_id/);
+  assert.equal(result.mode, 'live');
+  assert.deepEqual(result.priorities.map(p => p.issueId), analysis.issues.map(i => i.id));
+  // The validator itself is unchanged: digits in prose still fall back.
+  const withDigits = await explain(analysis, true, config, mockCompletion({ ...valid(), summary: 'Start with the finding worth about six hundred dollars, row 12.' }));
+  assert.equal(withDigits.mode, 'fixture');
+});

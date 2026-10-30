@@ -6,7 +6,7 @@ import { FRONTEND_DIRECTORY } from '../shared/build-paths.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const production = process.argv.includes('--production');
-const runtimeEnv = process.argv.includes('--offline-qa') ? { ...process.env, TAVILY_ENABLE_LIVE: 'false', NEBIUS_ENABLE_LIVE: 'false' } : process.env;
+const runtimeEnv = process.argv.includes('--offline-qa') ? { ...process.env, TAVILY_ENABLE_LIVE: 'false', NEBIUS_ENABLE_LIVE: 'false', QA_API_MINUTE_LIMIT: '2000' } : process.env;
 const app = createApp(production, runtimeEnv);
 if (production) { app.use(express.static(path.join(root, FRONTEND_DIRECTORY))); app.get('/', (_req, res) => res.sendFile(path.join(root, FRONTEND_DIRECTORY, 'index.html'))); }
 else { const { createServer } = await import('vite'); const vite = await createServer({ root, server: { middlewareMode: true }, appType: 'spa' }); app.use(vite.middlewares); }

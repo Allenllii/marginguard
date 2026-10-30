@@ -2,16 +2,18 @@ import type { Remediation, ResearchPacket } from '../shared/types';
 
 export default function PolicyDraftCard({ remedy, packet }: { remedy: Remediation; packet: ResearchPacket }) {
   const live = remedy.mode === 'live';
+  // The offline replay of a real Nemotron response is labelled by the server as recorded.
+  const recorded = !live && /^recorded nemotron/i.test(remedy.fallbackReason ?? '');
+  const modelText = live || recorded;
   return <section className="remediation" aria-label="Analyst draft for review">
-    <div className="section-title"><strong>{live ? 'Nemotron on Nebius — draft for review' : 'Offline analyst checks'}</strong><span className="caption">{remedy.model ?? 'No model called'}</span></div>
+    <div className="section-title"><strong>{live ? 'Nemotron on Nebius — draft for review' : recorded ? 'Recorded Nemotron draft' : 'Offline analyst checks'}</strong><span className="caption">{remedy.model ?? 'No model called'}</span></div>
     {remedy.fallbackReason ? <p className="fallback-note">{remedy.fallbackReason}</p> : null}
     <h4>What the cited policy says</h4>
-    <p className="caption">Policy scope is limited to the cited passage.</p>
     {remedy.documentedPolicy.map((policy, index) => { const source = packet.sources.find(s => s.id === policy.sourceId); return <p key={index}>{policy.statement} {source ? <a className="source-citation" href={source.url} target="_blank" rel="noopener noreferrer">[{policy.sourceId}]</a> : null}</p>; })}
-    <h4>{live ? 'Model hypothesis — unverified' : 'Rule-based rationale'}</h4><p>{remedy.inference}</p>
-    <h4>{live ? 'Proposed validation step' : 'Next validation step'}</h4><p>{remedy.nextStep}</p>
+    <h4>{modelText ? 'Model hypothesis — unverified' : 'Rule-based rationale'}</h4><p>{remedy.inference}</p>
+    <h4>{modelText ? 'Proposed validation step' : 'Next validation step'}</h4><p>{remedy.nextStep}</p>
     <h4>What remains uncertain</h4><p>{remedy.uncertainty}</p>
-    <p className="draft-authority">Decision status comes from the evidence check above. A draft cannot approve a remedy or estimate recovery.</p>
+    <p className="draft-authority">Code made the decision above. A draft cannot approve a remedy or estimate recovery.</p>
     {remedy.proof ? <p className="proof">Nemotron request {remedy.proof.requestId ?? 'ID not returned'} — {remedy.proof.latencyMs} ms observed — {remedy.proof.requestedAt}</p> : null}
   </section>;
 }

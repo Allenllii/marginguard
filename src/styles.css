@@ -142,3 +142,15 @@ td small,
 .pf-hero .limits>summary{color:#f8dfaa}
 .pf-hero .limits>summary:focus-visible{outline-color:#f8dfaa}
 @media(max-width:680px){.demo-banner{font-size:11px;text-align:left;padding:8px 16px}}
+.skip-link{position:absolute;left:16px;top:-60px;z-index:100;padding:10px 16px;border-radius:6px;background:#142d3b;color:#fff;font-weight:600;font-size:14px;text-decoration:none}
+.skip-link:focus,.skip-link:focus-visible{top:12px;outline:3px solid #83aa50;outline-offset:2px}
+.page-content:focus{outline:none}
+.policy-changed{margin:12px 0;padding:12px;border:1px solid #e9cf96;background:#fff4dc;color:#142d3b;font-size:13px;line-height:1.6}
+.policy-changed a{color:#1c5169;font-weight:600;display:inline-flex;align-items:center;gap:3px}
+.retrieval-steps{margin-top:14px;padding:12px;border:1px solid #dfe8d0;border-radius:6px;background:#f6f9f1;color:#142d3b;font-size:12px}
+.retrieval-steps ol{margin:8px 0 0;padding:0;list-style:none;line-height:1.7}
+.retrieval-steps li{display:flex;flex-wrap:wrap;gap:4px 12px;overflow-wrap:anywhere}
+.retrieval-steps li+li{margin-top:4px}
+.retrieval-steps code{font-size:11px}
+.retrieval-steps .step-status{font-weight:600;color:#2f6b4f}
+.retrieval-steps li.failed .step-status{color:#88402c}

@@ -30,7 +30,13 @@ export interface ResearchPacket {
   researchId: string; kind: IssueKind; context: ResearchContext; mode: 'fixture' | 'live';
   query: string; checkedAt: string | null; sources: PolicySource[]; status: 'ok' | 'no-results' | 'error';
   note: string; retryAfterSeconds?: number; proof?: { requestId: string | null; latencyMs: number; usageCredits: number | null };
+  /** Provider calls behind this packet, in order (Search, then Extract per page). Recorded on replays. */
+  retrieval?: { steps: RetrievalStep[] };
+  /** A live Extract's operative sentences differ from the reviewed version; decision kept, needs re-review. */
+  policyChanged?: { url: string; reviewedAt: string };
 }
+/** One Tavily call (or one page of a multi-URL Extract call; credits/latency sit on the call's first page). */
+export interface RetrievalStep { op: 'search' | 'extract'; url?: string; requestId?: string; credits?: number; latencyMs?: number; ok: boolean; detail?: string; }
 export interface Remediation {
   mode: 'fixture' | 'live'; model: string | null;
   documentedPolicy: { sourceId: string; statement: string }[];

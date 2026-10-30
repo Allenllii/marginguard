@@ -31,7 +31,7 @@ test('seller omits the order rule, stale results disappear, and the fixture stay
   await page.getByRole('button', { name: 'Remove rule 2', exact: true }).click();
   await expect(worst(page)).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Download JSON audit' })).toHaveCount(0);
-  await expect(page.getByRole('status')).toContainText('previous result has been cleared');
+  await expect(page.getByRole('region', { name: 'What is left in the worst basket?' }).getByRole('status')).toContainText('previous result has been cleared');
   await run(page);
   await expect(worst(page)).toHaveText('$2.00');
   await expect(page.getByTestId('preflight-status')).toHaveText('On hold');
@@ -39,11 +39,11 @@ test('seller omits the order rule, stale results disappear, and the fixture stay
 
 test('noninteger and malicious inputs fail closed with an accessible error', async ({ page }) => {
   await page.goto('/#preflight');
-  await page.getByLabel('SKU 1 price (cents)', { exact: true }).fill('50.01'); await run(page);
+  await page.getByLabel('SKU 1 price ($)', { exact: true }).fill('50.0.1'); await run(page);
   await expect(page.getByRole('alert')).toBeFocused();
-  await expect(page.getByRole('alert')).toContainText('whole number');
+  await expect(page.getByRole('alert')).toContainText('dollar amount');
   await expect(worst(page)).toHaveCount(0);
-  await page.getByLabel('SKU 1 price (cents)', { exact: true }).fill('5000');
+  await page.getByLabel('SKU 1 price ($)', { exact: true }).fill('50.00');
   await page.getByLabel('SKU 1 ID', { exact: true }).fill('<img src=x onerror=alert(1)>'); await run(page);
   await expect(page.getByRole('alert')).toBeVisible();
   await expect(page.locator('img')).toHaveCount(0);
@@ -106,7 +106,7 @@ test('JSON export contains replayable inputs, formula, trace, bounds and evidenc
   expect(report.formula).toContain('contribution');
 });
 
-for (const width of [320, 390, 1440]) test(`layout and labels: ${width}px, reduced motion, all controls have accessible names`, async ({ page }) => {
+for (const width of [320, 375, 390, 1440]) test(`layout and labels: ${width}px, reduced motion, all controls have accessible names`, async ({ page }) => {
   await page.setViewportSize({ width, height: 900 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/#preflight'); await run(page);
@@ -169,4 +169,38 @@ test('browser Back to Preflight releases hidden evidence-drawer scroll and keybo
   expect(await page.evaluate(() => { const element = document.activeElement; return !!element?.getClientRects().length && !element.closest('[hidden]'); })).toBe(true);
   await page.keyboard.press('Escape');
   expect(await page.evaluate(() => document.body.style.overflow)).not.toBe('hidden');
+});
+
+test('seller units: dollars and percentages convert to exact integer cents and basis points', async ({ page }) => {
+  await page.goto('/#preflight');
+  const walkthrough = page.getByLabel('Synthetic example walkthrough');
+  await expect(walkthrough).toContainText('SAMPLE WALKTHROUGH');
+  await expect(walkthrough).toContainText('Without the order discount: contribution +$2.00');
+  await expect(walkthrough.locator('.pf-pill')).toHaveCount(0);
+  await expect(page.getByLabel('SKU 1 price ($)', { exact: true })).toHaveValue('50.00');
+  await expect(page.getByLabel('Rule 1 discount (%)', { exact: true })).toHaveValue('20');
+  await page.getByLabel('SKU 1 price ($)', { exact: true }).fill('49.995');
+  await expect(page.getByText('Rounded to $50.00 = 5000 cents', { exact: true })).toBeVisible();
+  await page.getByLabel('Payment fee (%)', { exact: true }).fill('2.9');
+  await expect(page.getByText('Uses 290 bp', { exact: true })).toBeVisible();
+  await run(page);
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download JSON audit', exact: true }).click();
+  const report = JSON.parse(await readFile((await (await download).path())!, 'utf8'));
+  expect(report.input.skus[0].priceCents).toBe(5000); expect(report.input.paymentFeeBps).toBe(290);
+  expect(report.input.rules[0].basisPoints).toBe(2000);
+  expect(Number.isInteger(report.worst.contributionCents)).toBe(true);
+});
+
+test('375px: visible back control, keyboard focus ring and no horizontal scroll', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 }); await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/#preflight');
+  const back = page.getByRole('link', { name: /Back to analysis/ });
+  await expect(back).toBeVisible();
+  for (let i = 0; i < 6 && !(await back.evaluate(node => node === document.activeElement)); i++) await page.keyboard.press('Tab');
+  await expect(back).toBeFocused();
+  expect(await back.evaluate(node => getComputedStyle(node).outlineStyle)).not.toBe('none');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.keyboard.press('Enter');
+  await expect(page.getByText('504 validated orders')).toBeVisible();
 });

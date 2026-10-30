@@ -45,6 +45,6 @@ assert.equal((await (await post('/api/analyze', { csv: demo.csv })).json()).tota
 const packet = await (await post('/api/research', { kind: 'discount', context: { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'manual' }, live: false })).json();
 assert.equal(packet.mode, 'fixture'); assert.equal(packet.checkedAt, null);
 const remedy = await (await post('/api/remediate', { csv: demo.csv, issueId: 'discount-stacking', researchId: packet.researchId, live: false })).json();
-assert.equal(remedy.mode, 'fixture'); assert.ok(remedy.nextStep.includes('Audit store/plan eligibility'));
+assert.equal(remedy.mode, 'fixture'); assert.ok(remedy.nextStep.includes('Audit staff/manual POS'));
 assert.equal((await module.default.fetch(new Request('https://marginguard.example/api/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }), env)).status, 403);
 console.log(`Portable Worker ESM built: ${offlineOnly ? out + '/server/index.js' : './worker/index.js'} (${Buffer.byteLength(code)} bytes), ${Object.keys(assets).length} embedded assets, no Node builtins; offline health/page smoke passed. Profile: ${offlineOnly ? 'forced offline, ignores runtime provider configuration' : 'standard, hosted live gates enforced'}.`);

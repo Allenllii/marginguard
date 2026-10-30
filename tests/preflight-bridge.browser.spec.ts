@@ -213,7 +213,7 @@ test('bridge mocked delayed confirmation cannot display old money after a cost e
   await expect(page.getByText('Live Nemotron proposal · needs your confirmation', { exact: false })).toBeVisible();
   const received = page.waitForResponse(response => response.url().endsWith('/api/preflight/confirm'));
   await page.getByRole('checkbox', { name: reviewLabel, exact: true }).check(); await confirmButton(page).click(); await entered;
-  await page.getByLabel('SKU 1 price (cents)', { exact: true }).fill('5100');
+  await page.getByLabel('SKU 1 price ($)', { exact: true }).fill('51.00');
   release(); await finished; await (await received).finished(); await renderFrame(page);
   await expect(page.getByTestId('preflight-worst-contribution')).toHaveCount(0);
   await expect(receipt(page)).toHaveCount(0); expect(mock.confirmations).toHaveLength(1);
@@ -226,7 +226,7 @@ for (const invalidate of ['cancel', 'cost edit'] as const) test(`bridge mocked d
   const received = page.waitForResponse(response => response.url().endsWith('/api/preflight/prepare'));
   await prepareButton(page).click(); await delayed.entered;
   if (invalidate === 'cancel') await page.getByRole('button', { name: 'Cancel preparation', exact: true }).click();
-  else await page.getByLabel('SKU 1 price (cents)', { exact: true }).fill('5100');
+  else await page.getByLabel('SKU 1 price ($)', { exact: true }).fill('51.00');
   delayed.release(); await delayed.finished; await (await received).finished(); await renderFrame(page);
   await expect(page.getByText('Live Nemotron proposal · needs your confirmation', { exact: false })).toHaveCount(0);
   await expect(receipt(page)).toHaveCount(0); expect(mock.preparations).toHaveLength(1); expect(mock.confirmations).toHaveLength(0);
@@ -277,7 +277,9 @@ test('bridge fixture at 320px: keyboard confirmation and reduced motion retain r
   await page.setViewportSize({ width: 320, height: 900 }); await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/#preflight');
   const toggle = page.getByText('Describe a campaign: Tavily + Nemotron propose the rules', { exact: true });
-  await toggle.focus(); await page.keyboard.press('Enter');
+  // The panel starts open; the summary still toggles from the keyboard.
+  await toggle.focus(); await page.keyboard.press('Enter'); await expect(page.locator('details.pf-bridge')).not.toHaveAttribute('open');
+  await page.keyboard.press('Enter'); await expect(page.locator('details.pf-bridge')).toHaveAttribute('open');
   const preview = page.getByRole('button', { name: 'Show sample proposal (offline)', exact: true });
   await preview.focus(); await page.keyboard.press('Enter');
   await expect(confirmButton(page)).toBeDisabled();
@@ -339,4 +341,40 @@ test('unreviewed policy: long fingerprint wraps at 320px with reduced motion and
   await expect(review).toContainText(policyReviewDossier(dossierBody)!.bodySha256);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   await page.screenshot({ path: test.info().outputPath('unreviewed-policy-320.png'), fullPage: true });
+});
+
+test('offline replay: the recorded Nemotron 3 Super reading of the VIP campaign is validated, confirmed and simulated', async ({ page }) => {
+  const urls: string[] = []; page.on('request', request => urls.push(request.url()));
+  await page.goto('/#preflight');
+  const text = page.getByRole('textbox', { name: 'Campaign description', exact: true });
+  await expect(text).toHaveValue('20% off sitewide plus an extra $10 off orders over $75 for VIPs, stackable with free shipping');
+  await page.getByRole('button', { name: 'Interpret campaign (offline replay)', exact: true }).click();
+  const region = page.getByRole('region', { name: 'Proposed campaign rules', exact: true });
+  await expect(region).toContainText('Recorded Nemotron 3 Super interpretation (request chatcmpl-8ae1c087d8a60974, 2026-10-30), replayed offline');
+  await expect(region).toContainText('R2: $10.00 off [1000 cents] · when subtotal at least $75.00 [7500 cents]');
+  await expect(page.getByTestId('preflight-unmodeled')).toContainText('customer segment');
+  await expect(region).not.toContainText(/live Nemotron proposal/i);
+  await expect(confirmButton(page)).toBeDisabled();
+  await page.getByRole('checkbox', { name: reviewLabel, exact: true }).check(); await confirmButton(page).click();
+  await expect(page.getByTestId('preflight-worst-contribution')).toHaveText('$2.00');
+  await expect(page.getByTestId('preflight-status')).toHaveText('On hold');
+  await expect(receipt(page)).toContainText('replayed offline'); await expect(receipt(page)).toContainText('0 provider calls');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download JSON audit', exact: true }).click();
+  const exported = JSON.parse(await readFile((await (await download).path())!, 'utf8'));
+  expect(exported.bridge.mode).toBe('fixture'); expect(exported.bridge.providerAttempts).toBe(0); expect(exported.bridge.model).toBeNull();
+  expect(exported.bridge.replay.requestId).toBe('chatcmpl-8ae1c087d8a60974'); expect(exported.bridge.replay.unmodeledConditions).toEqual(['customer_segment']);
+  expect(JSON.stringify(exported)).not.toContain('"proof"');
+  expect(exported.input.rules.map((rule: { type: string }) => rule.type)).toEqual(['percent', 'fixed', 'free_shipping']);
+  expect(urls.filter(url => url.includes('/api/'))).toEqual([]);
+});
+
+test('offline replay: other text says live interpretation needs local keys and proposes nothing', async ({ page }) => {
+  await page.goto('/#preflight');
+  await page.getByRole('textbox', { name: 'Campaign description', exact: true }).fill('25% off sitewide for members this weekend');
+  await page.getByRole('button', { name: 'Interpret campaign (offline replay)', exact: true }).click();
+  await expect(page.getByText(/needs a live Nemotron call, which runs only on a local server with your Tavily and Nebius keys/)).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Proposed campaign rules', exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: 'Show sample proposal (offline)', exact: true }).click();
+  await expect(page.getByText('Offline sample proposal', { exact: false })).toBeVisible();
 });

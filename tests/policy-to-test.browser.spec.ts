@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { ResearchPacket } from '../shared/types';
 
-test('Policy-to-Test reuses one fixture packet, changes only the hypothesis, and clears with context', async ({ page }) => {
+test('Policy-to-Test reuses one fixture packet, changes only the hypothesis, and follows a context change', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.dataset-strip')).toContainText('504 validated orders');
   const requests: string[] = [];
@@ -26,16 +26,15 @@ test('Policy-to-Test reuses one fixture packet, changes only the hypothesis, and
   expect(await page.locator('.policy-input-evidence strong').textContent()).toBe(exposure);
   expect(requests).toHaveLength(count);
   await manual.locator('summary').click();
-  await expect(manual.locator('blockquote')).toContainText('apply manually in Shopify POS always apply');
-  await expect(manual.getByRole('link')).toHaveAttribute('href', 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts');
+  await expect(manual.locator('blockquote').filter({ hasText: 'apply manually in Shopify POS always apply' })).toHaveCount(1);
+  await expect(manual.locator('a[href="https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts"]')).toHaveCount(1);
+  // Saved mode: a context change re-runs the saved decision at once (no live call).
   await page.getByLabel('Discount origin').selectOption('native');
-  await expect(lab).toHaveCount(0);
-  await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
   await expect(native.locator('.ptl-verdict')).toHaveText('Supported for investigation');
   await expect(manual.locator('.ptl-verdict')).toContainText('On hold');
   await page.getByLabel('Policy finding').selectOption({ label: 'Shipping overrun' });
-  await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
-  await expect(page.locator('.policy-source')).toHaveCount(1);
+  // The recorded USPS Search + Extract replay carries three official sources.
+  await expect(page.locator('.policy-source')).toHaveCount(3);
   await expect(lab).toHaveCount(0);
   expect(requests.every(path => path === '/api/research')).toBe(true);
 });

@@ -23,7 +23,7 @@ test('offline judge entry supports deterministic import and fixture evidence wit
     const denied = await (await offline.fetch(request('/api/research', { kind: 'discount', context, live: true }), hostileRuntime)).json();
     assert.equal(denied.mode, 'fixture'); assert.equal(denied.proof, undefined); assert.equal(denied.sources.length, 0);
     const packet = await (await offline.fetch(request('/api/research', { kind: 'discount', context, live: false }), hostileRuntime)).json();
-    assert.equal(packet.mode, 'fixture'); assert.equal(packet.checkedAt, null); assert.equal(packet.proof, undefined);
+    assert.equal(packet.mode, 'fixture'); assert.equal(packet.checkedAt, null); assert.equal(packet.proof, undefined); assert.match(packet.note, /^Recorded live Tavily Search \+ Extract/); assert.deepEqual(packet.retrieval.steps.map((step: { op: string }) => step.op), ['search', 'extract', 'extract']);
     const result = await (await offline.fetch(request('/api/remediate', { csv: demo.csv, issueId: 'discount-stacking', researchId: packet.researchId, live: true }), hostileRuntime)).json();
     assert.equal(result.mode, 'fixture'); assert.equal(result.proof, undefined); assert.match(result.nextStep, /Audit staff\/manual POS/);
     assert.equal(outbound, 0);
