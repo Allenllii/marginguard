@@ -50,7 +50,23 @@ npm run build:offline-demo
 
 `check` runs lint, strict TypeScript, frontend/Worker builds, unit/API tests and small synthetic rule/routing evaluations. The offline build also checks embedded HTML/JS/CSS, disabled providers and a cross-instance fixture draft. For browser tests, run `npm run start:qa` in one terminal and `npm run test:ui` in another. Chrome must be installed; `MARGINGUARD_TEST_URL` can select another tested app origin. Browser tests use synthetic data.
 
-This source increment passed **209 unit/API tests, 65 offline evaluation-harness self-tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **43 browser scenarios** passed on local Node and forced-offline Worker boundaries. Raw regression logs remain local. These are development regressions; the predeclared final benchmark has **not run**.
+This source increment passed **256 unit/API tests, 65 offline evaluation-harness self-tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **54 browser scenarios** passed on local Node and forced-offline Worker boundaries. Raw regression logs remain local. These are development regressions; the predeclared final benchmark has **not run**.
+
+## Optional campaign preparation
+
+Open **Promo Preflight**, then **Review a campaign with policy evidence**. The
+synthetic preview sends no request and requires rule review before simulation.
+Local live mode separately requires an availability check, supported seller
+context, one-use credit consent, then a second explicit rule confirmation. The
+model interprets a narrow normalized grammar; it cannot invent money or change
+the store. The JSON audit records preparation provenance separately from the
+integer calculation.
+
+The new bridge's one controlled actual probe made two successful Tavily HTTP
+requests, then **HOLD** after extraction. No NVIDIA request or proposal resulted.
+The browser success path is currently verified with mocks, not a successful
+actual bridge run. Existing live analyst evidence above belongs to its separate
+recorded workflow. See [bridge review and actual observations](docs/SPONSOR-BRIDGE-REVIEW.md).
 
 ## Synthetic data and calculation contract
 
