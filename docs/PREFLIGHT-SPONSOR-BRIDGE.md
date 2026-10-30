@@ -121,8 +121,26 @@ a $75 minimum subtotal, free shipping, `customer_segment` unmodeled. Confirmatio
 then ran the integer engine with zero provider requests (HOLD on fixture
 evidence). Ultra produced identical rules (5.2 s). A grammar campaign returned
 `grammar_confirmed`. Two failures are recorded: a second prepare 35 s later was
-held by the per-minute budget after Search had spent a credit, and the fast-model
+held by the per-minute budget after Search had spent a credit (fixed: the bridge
+now reserves the whole pipeline before Search, see below), and the fast-model
 explain call returned prose with digits, so its existing validator fell back.
+
+### Offline replay of the recorded run
+
+The hosted offline demo defaults the campaign box to the VIP campaign above.
+**Interpret campaign (offline replay)** replays that recorded Super output,
+labelled "Recorded Nemotron 3 Super interpretation (request
+chatcmpl-8ae1c087d8a60974, 2026-10-30), replayed offline". The rules and the
+unmodeled `customer_segment` live in `RECORDED_INTERPRETATION`
+(`shared/preflight-bridge-response.ts`); `tests/preflight-recorded-replay.test.ts`
+asserts they equal step 1 of the evidence ledger. The replay passes the same
+`checkInterpretation` gate as a live reply (zod contract, engine validator,
+grounding, grammar cross-check), then the usual explicit confirmation and
+integer simulation in the browser, with zero provider calls. The audit export
+records it as `mode: "fixture"` with a `replay` block (request id, model, date);
+it carries no `proof` object. Any other text offline gets a message that live
+interpretation needs a local server with Tavily and Nebius keys, plus the sample
+proposal.
 
 ## Privacy boundary
 
@@ -150,11 +168,17 @@ arrive only at confirmation and remain in the deterministic server calculation.
   unresolved scope, expiry, region mismatch or detected contradictory clause
   keeps HOLD. These are conservative exclusion rules, not a general semantic
   policy verifier; ambiguous or qualified documentation may HOLD for review.
-- The existing `LiveBudget.reserve('tavily' | 'nebius')` runs before **each**
-  physical attempt: Search, Extract, model catalog, completion. A successful
-  pipeline consumes two reservations per provider. Default per-minute limits
-  therefore allow one pipeline per minute. Failed and uncertain requests still
-  consume their reservations; no refunds or hidden retries occur.
+- Before Search, the bridge reserves the whole pipeline in one call:
+  `LiveBudget.reserve(['tavily', 'tavily', 'nebius', 'nebius'])` (Search, Extract,
+  model catalog, completion). If the minute, day or total budget cannot cover all
+  four, the prepare is denied with zero provider calls. `MemoryBudget` checks and
+  counts the set atomically. `D1Budget` runs a read-only capacity check, then
+  atomic conditional increments; if a concurrent writer wins in between, the
+  earlier increments stay counted and nothing is dispatched (the ledger can
+  over-count, never under-count). Each physical request then draws on that
+  reservation, never beyond it. Default per-minute limits allow one pipeline per
+  minute. A pipeline that stops early keeps all four reservations; failed and
+  uncertain requests are not refunded and are never retried.
 - Public durable-budget requirements, verified hard caps, authorization expiry,
   shared in-flight locks, API rate limiting and provider cooldowns remain in
   `createService`. HTTP 429 cooldowns are shared with existing routes. The bridge
@@ -195,7 +219,8 @@ npm run benchmark:test
 
 Tests cover malicious URLs/text, full-document and cross-stage conflicts,
 `failed_results` on HTTP 200, invented/dropped/reordered model actions, refusal,
-truncation, budget exhaustion before every stage, unknown outcomes, public caps,
+truncation, budget denial before the first request (including a second prepare
+in the same minute), unknown outcomes, public caps,
 expiry, shared cooldown/in-flight guards, exact confirmation, replay/expiry,
 fixture preservation and end-to-end mock integer-engine parity. Real provider
 verification is separate from mock pass counts. The controlled October 29 probe
