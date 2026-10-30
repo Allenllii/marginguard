@@ -50,7 +50,7 @@ npm run build:offline-demo
 
 `check` runs lint, strict TypeScript, frontend/Worker builds, unit/API tests and small synthetic rule/routing evaluations. The offline build also checks embedded HTML/JS/CSS, disabled providers and a cross-instance fixture draft. For browser tests, run `npm run start:qa` in one terminal and `npm run test:ui` in another. Chrome must be installed; `MARGINGUARD_TEST_URL` can select another tested app origin. Browser tests use synthetic data.
 
-This source increment passed **256 unit/API tests, 65 offline evaluation-harness self-tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **54 browser scenarios** passed on local Node and forced-offline Worker boundaries. Raw regression logs remain local. These are development regressions; the predeclared final benchmark has **not run**.
+This integrated candidate passed **264 unit/API tests, 65 offline evaluation-harness self-tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **57 browser scenarios** passed on local Node and forced-offline Worker boundaries. Raw regression logs remain local. These are development regressions; the predeclared final benchmark has **not run**.
 
 ## Optional campaign preparation
 
@@ -125,6 +125,32 @@ The default `npm run test:ui` includes the mapping regressions. A focused run us
 
 Policy-to-Test challenges a proposed investigation against native, manual and unknown synthetic origins using one existing policy packet. Exact passages and a narrow rule/title catalog determine supported, contradicted or HOLD; unknown context, retractions, expired guidance and incompatible regions hold. This new view makes no provider call and has not received a new live-model evaluation. See [contract and limitations](docs/POLICY-TO-TEST.md).
 
+**Download Policy-to-Test audit (JSON)** preserves the proposed action, three
+scenario judgments, HOLD reasons, exact received source text and dataset
+assumptions in a local snapshot. It makes no new request and excludes raw CSV,
+order records and product labels. Fingerprints detect differences and do not
+authenticate evidence. See [export contract](docs/POLICY-TEST-AUDIT.md).
+
 ## Promo Preflight
 
 The isolated sandbox exhaustively evaluates bounded seller-authored promotion rules in integer cents, exposes the worst modeled contribution and exports replayable inputs. It is not a Shopify checkout emulator, store execution or a savings forecast. Hypothetical source attestations stay explicit; missing evidence holds. Workspace navigation preserves imported analysis and releases hidden dialog effects. See [model and limits](docs/PROMO-PREFLIGHT.md) and [audit corrections](docs/AUDIT-FOLLOWUP.md). The existing public Site is a separately versioned offline demonstration; source publication does not claim its deployment was updated.
+
+
+## Reviewed bridge and same-cart follow-up
+
+The local sponsor bridge now has a verified synthetic browser path through real
+Tavily Search/Extract and NVIDIA on Nebius, followed by explicit operator review
+and an integer-only simulation. The earlier HOLD observations remain preserved;
+HTTP success is never relabeled as a usable proposal. This is a local development
+observation, not a claim that the hosted offline demo makes live calls, that a
+human was authenticated, or that a real checkout is verified.
+
+The preflight reference catalog is deliberately narrow: the exact reviewed
+Shopify extraction must match its SHA-256 fingerprint. Changed or unreviewed
+source bytes HOLD pending review; eligibility conditions remain unverified.
+See [diagnosis and boundaries](docs/BRIDGE-DIAGNOSTICS.md).
+
+**Compare the same cart** locks one basket and its costs before comparing the
+original and an explicitly reviewed alternative. It reports conditional
+contribution difference, never realized savings. Source edits invalidate the
+lock. See [comparison contract](docs/SAME-CART-COMPARISON.md).
