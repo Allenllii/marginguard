@@ -2,7 +2,7 @@
 
 ## Preferred: native Sites Worker ESM
 
-Registered project: `appgprj_6ae108e911088191834d591d732db251`. A current read-only native check returned active status, custom access, saved version zero and no live or expected URL. No judge URL is verified. See [JUDGE-DEMO-PLAN.md](JUDGE-DEMO-PLAN.md) for the locally prepared forced-offline profile; no source push, access change or deployment was performed by that preparation.
+Registered project: `appgprj_6ae108e911088191834d591d732db251`. A current read-only native check returned active status, custom access, saved version zero and no live or expected URL. No judge URL is verified. See [JUDGE-DEMO-PLAN.md](history/JUDGE-DEMO-PLAN.md) for the locally prepared forced-offline profile; no source push, access change or deployment was performed by that preparation.
 
 ```text
 npm ci --ignore-scripts --registry=https://registry.npmjs.org
