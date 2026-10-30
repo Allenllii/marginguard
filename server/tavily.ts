@@ -20,7 +20,7 @@ export function searchPlan(kind: IssueKind, context: ResearchContext) {
   const query = kind === 'shipping' ? `${context.carrier} how are United States package shipping prices determined by weight, dimensions and service` : `${context.platform} how do ${origin} interact with ${rules}`;
   return { query, domains: [domain], relevant: kind === 'shipping' ? /shipping|package|dimensional|postage|surcharge|weight|rates/i : kind === 'discount' ? /discount|coupon|promotion|combin/i : /return|refund|exchange/i };
 }
-const cleanText = (s: string) => s.replace(/<[^>]*>/g, ' ').replace(/\p{Cc}/gu, ' ').replace(/\s+/g, ' ').trim();
+export const cleanText = (s: string) => s.replace(/<[^>]*>/g, ' ').replace(/\p{Cc}/gu, ' ').replace(/\s+/g, ' ').trim();
 export function selectPassage(content: string, kind: IssueKind, context: ResearchContext): string {
   const terms = kind === 'shipping' ? ['dimension', 'weight', 'surcharge', 'measure', 'rate', 'service'] : context.discountOrigin === 'manual' ? ['manual', 'draft', 'pos', 'bypass', 'regardless', 'always apply'] : context.discountOrigin === 'scripts-api' ? ['scripts api', 'bypass', 'regardless', 'always apply'] : ['combination settings', 'combin', 'eligible', 'restriction', 'individual use'];
   const score = (text: string) => terms.reduce((s, t) => s + (text.toLowerCase().includes(t) ? 1 : 0), 0);
@@ -36,7 +36,7 @@ export function selectPassage(content: string, kind: IssueKind, context: Researc
   return (best?.text ?? '').slice(0, 1200);
 }
 const passageKey = (text: string) => text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
-const unsafeText = /ignore.{0,30}(instructions|previous)|system prompt|api.?key|execute.{0,20}(code|command)|send.{0,20}(secret|credential)|you are (chatgpt|an assistant)/i;
+export const unsafeText = /ignore.{0,30}(instructions|previous)|system prompt|api.?key|execute.{0,20}(code|command)|send.{0,20}(secret|credential)|you are (chatgpt|an assistant)/i;
 export function safeSources(raw: unknown, kind: IssueKind, context: ResearchContext): PolicySource[] {
   const parsed = z.object({ results: z.array(z.object({ title: z.string().max(2000), url: z.string().max(2048), content: z.string().max(30000).default(''), score: z.number().optional(), published_date: z.string().nullable().optional() })).max(20) }).parse(raw);
   const plan = searchPlan(kind, context), seen = new Set<string>(), seenPassages = new Set<string>();
@@ -121,7 +121,7 @@ export type ResearchHooks = {
   reserveExtract?: () => Promise<boolean>;
 };
 type Extracted = { pages: Map<string, string>; requestId?: string; credits?: number; latencyMs: number; failure?: string };
-async function extractPages(urls: string[], config: TavilyConfig, request: typeof fetch): Promise<Extracted> {
+export async function extractPages(urls: string[], config: TavilyConfig, request: typeof fetch): Promise<Extracted> {
   const start = performance.now(), pages = new Map<string, string>();
   try {
     const response = await request('https://api.tavily.com/extract', { method: 'POST', headers: { Authorization: `Bearer ${config.key}`, 'Content-Type': 'application/json' }, redirect: 'error', signal: AbortSignal.timeout(15000), body: JSON.stringify({ urls, extract_depth: 'basic', format: 'markdown', timeout: 10, include_images: false, include_favicon: false, include_usage: true }) });
