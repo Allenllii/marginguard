@@ -2,6 +2,7 @@ import { createService, type ResearchStore } from '../server/service.js';
 import { D1Budget, budgetLimits, type D1Like } from '../server/budget.js';
 import { boundedJson } from '../server/http.js';
 import { createDemoCsv } from '../server/demo.js';
+import { edgeFetch } from './edge-fetch.js';
 import type { ResearchPacket } from '../shared/types.js';
 
 declare const __MG_ASSETS__: Record<string, { body: string; type: string }>;
@@ -31,7 +32,7 @@ export default { async fetch(request: Request, env: WorkerEnv): Promise<Response
       const values = Object.fromEntries(Object.entries(env).filter((entry): entry is [string, string] => typeof entry[1] === 'string'));
       // Fail closed for public live calls without a migrated durable budget binding.
       values.PUBLIC_DEMO = 'true';
-      service = createService({ env: values, ...(env.DB ? { budget: new D1Budget(env.DB, budgetLimits(values)), store: new D1ResearchStore(env.DB) } : {}) }); services.set(env, service);
+      service = createService({ env: values, request: edgeFetch(), ...(env.DB ? { budget: new D1Budget(env.DB, budgetLimits(values)), store: new D1ResearchStore(env.DB) } : {}) }); services.set(env, service);
     }
     let body: unknown;
     if (request.method === 'POST') {
