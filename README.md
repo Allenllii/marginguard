@@ -21,6 +21,9 @@ Generic AI advice fails here because it never checks the platform's own rules ag
 5. **Drafts the check with NVIDIA Nemotron on Nebius Token Factory.** Code supplies the policy statement behind each citation; Nemotron-3.5-Lightning writes the hypothesis, the validation step and the uncertainty. Code checks every citation against the returned sources and rejects numbers in the prose. A held or under-evidenced case never reaches the model.
 6. **Tests a promotion before launch.** In Promo Preflight, describe a campaign in plain English. Nemotron 3 Super turns it into structured rules; code checks every value against the campaign text and against a local parser where one applies. Tavily pulls the governing policy page, the seller confirms, and an integer simulator finds the worst cart. The built-in sample walkthrough shows how stacking can turn a $50 cart into **−$6.00 contribution**.
 
+7. **Checks any fix you paste in.** In **Check a fix**, type advice from any assistant ("shorten the return window to 14 days", "tighten discount combination settings"). Code picks the official site from the fix's wording; Nemotron-3.5-Lightning writes the testable claim and a search query; Tavily Search + Extract fetch the official page; Nemotron 3 Super judges supported / contradicted / not enough evidence with quotes; and code accepts only quotes that appear verbatim in the Tavily text. On a frozen 8-item list the third run matched the expected verdict 7/8 times ([eval and limits](docs/CHECK-ANY-FIX.md)); it is a model judgment with verified quotes, not legal advice.
+8. **Watches the policy pages decisions depend on.** **Policy watch** (in Data & method) re-extracts the reviewed Shopify pages with one Tavily Extract call and reports unchanged / changed / unavailable against the fingerprints our decisions were reviewed on ([how](docs/POLICY-WATCH.md)).
+
 ## How the sponsor technology is used
 
 ```mermaid
@@ -125,7 +128,7 @@ What this means for the product: MarginGuard does not rely on the model to decid
 
 ## Tests
 
-`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 343 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 90 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
+`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 367 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 100 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
 
 ## Limits
 

@@ -17,7 +17,9 @@ Small online sellers get margin alerts and generic advice ("tighten your discoun
 3. **Holds when context is missing.** An unknown discount origin, a non-US region, an app whose discount mechanism is unknown, or Shopify Scripts (retired by Shopify on 2026-06-30) puts the recommendation on HOLD whatever the sources say. A retracted or contrary passage also holds; no passage, or conflicting passages, return "not enough evidence".
 4. **Drafts a cited check with NVIDIA Nemotron on Nebius Token Factory.** Code supplies the policy statement behind each citation; Nemotron-3.5-Lightning writes the hypothesis, the validation step and the uncertainty from aggregate figures and the retrieved passages. Code checks every citation and rejects numbers in the prose; a held case never reaches the model.
 5. **Tests a promotion before launch.** In Promo Preflight the seller describes a campaign in plain English; Nemotron 3 Super turns it into rules, code checks them, the seller confirms, and an integer-cent simulator evaluates every basket, shows the worst-case cart and compares it under the original and a reviewed alternative rule.
-6. **Exports an audit.** Findings, assumptions, sources, decision status and what would disprove the hypothesis export as a report.
+6. **Checks any fix you paste in.** Type advice from any AI assistant. Code picks the official site from the fix's wording; Nemotron-3.5-Lightning turns it into a testable claim and search query; Tavily Search + Extract fetch the official page; Nemotron 3 Super judges supported / contradicted / not enough evidence with quotes; code accepts only quotes found verbatim in the Tavily text. On our frozen 8-item list the third run matched 7/8 expected verdicts (the list also guided the fixes, so this is not an independent accuracy claim).
+7. **Watches the policy pages behind each decision.** One Tavily Extract call re-reads the reviewed Shopify pages and reports unchanged / changed / unavailable against the fingerprints our decisions were reviewed on.
+8. **Exports an audit.** Findings, assumptions, sources, decision status and what would disprove the hypothesis export as a report.
 
 ## How we built it
 

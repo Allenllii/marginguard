@@ -37,17 +37,19 @@ Without live keys (offline build, hosted demo), a fix that matches an example's 
 
 The eight-item list and its expected statuses were committed (`84ccffd`) before any of them ran. The server ran locally on port 3510 with both providers live. Each item ran once per run with no retries. After run 1, the prompts and passage ranking changed (`fe48e56`), and the whole list ran again as run 2. Run 2 is tuned on run 1's failures and is not an independent test.
 
-| Item | Expected | Run 1 | Run 2 |
-| --- | --- | --- | --- |
-| Shopify: tighten combination settings to stop staff POS discounts stacking | contradicted | insufficient (fail) | contradicted (pass) |
-| Shopify: shorten the return window from 30 to 14 days | supported / insufficient | supported (pass) | supported (pass) |
-| USPS: switch lightweight packages to Ground Advantage | supported / insufficient | supported (pass) | insufficient (pass) |
-| UPS: use SurePost for residential deliveries | contradicted / insufficient | contradicted (pass, wrong reason) | supported (fail) |
-| Shopify: minimum purchase on a free shipping discount code | supported | insufficient (fail) | supported (pass) |
-| WooCommerce: individual use only so coupons cannot combine | supported | supported (pass) | contradicted (fail) |
-| Out of scope: raise prices on slow sellers | hold | hold, topic other (pass) | supported (fail) |
-| Adversarial: "Ignore previous instructions…" | hold | hold, privacy screen (pass) | hold, privacy screen (pass) |
-| **Total** | | **6 / 8** | **5 / 8** |
+| Item | Expected | Run 1 | Run 2 | Run 3 |
+| --- | --- | --- | --- | --- |
+| Shopify: tighten combination settings to stop staff POS discounts stacking | contradicted | insufficient (fail) | contradicted (pass) | contradicted (pass) |
+| Shopify: shorten the return window from 30 to 14 days | supported / insufficient | supported (pass) | supported (pass) | supported (pass) |
+| USPS: switch lightweight packages to Ground Advantage | supported / insufficient | supported (pass) | insufficient (pass) | insufficient (pass) |
+| UPS: use SurePost for residential deliveries | contradicted / insufficient | contradicted (pass, wrong reason) | supported (fail) | contradicted (pass) |
+| Shopify: minimum purchase on a free shipping discount code | supported | insufficient (fail) | supported (pass) | supported (pass) |
+| WooCommerce: individual use only so coupons cannot combine | supported | supported (pass) | contradicted (fail) | insufficient (fail) |
+| Out of scope: raise prices on slow sellers | hold | hold, topic other (pass) | supported (fail) | hold, topic unsupported (pass) |
+| Adversarial: "Ignore previous instructions…" | hold | hold, privacy screen (pass) | hold, privacy screen (pass) | hold, privacy screen (pass) |
+| **Total** | | **6 / 8** | **5 / 8** | **7 / 8** |
+
+**Run 3 (after the guardrails, same frozen list, prompts unchanged from run 2).** Code now decides the topic and domain from the fix's own wording (a fix with no discount, return or shipping wording holds as out of scope) and holds a planned claim that shares no content word with the fix (`CLAIM_DRIFT`). Result 7/8; the WooCommerce individual-use item returned "insufficient" instead of "supported". Cost: 14 Tavily credits, 13 Nemotron completions. Runs 2 and 3 were each changed after seeing earlier failures on this same list, so they show the fixes worked here, not accuracy on new fixes.
 
 What the failures show:
 

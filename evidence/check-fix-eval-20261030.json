@@ -1373,6 +1373,608 @@
           }
         }
       ]
+    },
+    {
+      "run": "run-3",
+      "startedAt": "2026-10-30T06:05:47.995Z",
+      "finishedAt": "2026-10-30T06:11:19.814Z",
+      "note": "After run 2: code routes the topic by the fix wording (out-of-scope fixes hold) and holds planned claims that share no content word with the fix (CLAIM_DRIFT). Prompts unchanged from run 2. Same frozen list, run once, no retries.",
+      "totals": {
+        "items": 8,
+        "pass": 7,
+        "tavilyCredits": 14,
+        "tavilyCalls": 12,
+        "nebiusCompletions": 13,
+        "inputTokens": 6577,
+        "outputTokens": 7994
+      },
+      "results": [
+        {
+          "id": "shopify-pos-stacking",
+          "httpStatus": 200,
+          "wallMs": 16192,
+          "expected": [
+            "contradicted"
+          ],
+          "actual": "contradicted",
+          "pass": true,
+          "holdCode": null,
+          "body": {
+            "status": "contradicted",
+            "mode": "live",
+            "label": "Live Tavily Search + Extract and Nemotron plan + judge, 2026-10-30.",
+            "claim": "Shopify allows staff POS discounts to be combined with other discount types unless specific combination settings are applied.",
+            "topic": "discounts",
+            "query": "how to prevent discount combination on Shopify POS",
+            "domain": "help.shopify.com",
+            "sources": [
+              {
+                "id": "S1",
+                "title": "Shopify Help Center | Combining discounts",
+                "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+                "passage": "Multiple discounts are applied to an order only when the setting on each discount allows the combination. If two or more discounts are applied, but can't be combined due to the discount combination setting or the content of the cart, then the best discount for the customer's cart is always applied. The following discount types always apply to an order, regardless of any combination settings for other discounts on the same order: Custom discounts that are manually applied to an order. For example, a custom discount applied to a POS cart, or a custom discount on a draft order. The following discount types always apply to an order, regardless of any combination settings for other discounts on the same order: Discounts added to an order using the Scripts API."
+              },
+              {
+                "id": "S2",
+                "title": "Shopify Help Center | Applying discounts in the Shopify POS app",
+                "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/applying-discounts",
+                "passage": "Discount types available in the Shopify POS app. To combine discounts using the Shopify POS app, refer to discount combinations on POS. This only deactivates the automatic discount for the specific transaction. Discount codes can't be applied to exchanges in the Shopify POS app."
+              },
+              {
+                "id": "S3",
+                "title": "Shopify Help Center | Discount combinations on POS",
+                "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+                "passage": "Start for free Log in # Discount combinations on POS When you process a sale in Shopify POS, you can apply both automatic discounts and discount codes that you've configured in your Shopify admin, as well as custom discounts that are specific to the transaction. Learn more about setting up and configuring discount combinations. ## On this page Requirements POS-specific discount behavior Testing discount combinations ## Requirements Discounts must be configured as combinable in your Shopify admin before they combine in POS transactions. ## POS-specific discount behavior When working with discount combinations in Shopify POS, note the following behaviors: Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions."
+              }
+            ],
+            "quotes": [
+              {
+                "sourceId": "S1",
+                "quote": "The following discount types always apply to an order, regardless of any combination settings for other discounts on the same order: Custom discounts that are manually applied to an order. For example, a custom discount applied to a POS cart,"
+              },
+              {
+                "sourceId": "S3",
+                "quote": "Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions."
+              }
+            ],
+            "explanation": "The policy states that custom discounts applied manually in Shopify POS always apply to an order regardless of any combination settings for other discounts. This means staff POS discounts will combine with other discounts even when combination settings would otherwise prevent it. Therefore the claim that they only combine unless specific combination settings are applied is not supported.",
+            "nextCheck": "In Shopify admin review the discount combination settings for the staff POS discount then run a test sale in the POS app applying both a staff discount and another discount to observe whether both discounts are applied.",
+            "holdReason": null,
+            "retrieval": {
+              "steps": [
+                {
+                  "op": "search",
+                  "ok": true,
+                  "latencyMs": 1832,
+                  "requestId": "e7d6304c-06e7-4cb7-92d9-941a94737881",
+                  "credits": 2
+                },
+                {
+                  "op": "extract",
+                  "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+                  "ok": true,
+                  "latencyMs": 139,
+                  "credits": 1,
+                  "requestId": "f67e2251-c6ba-4110-b26b-b2570af8a212"
+                },
+                {
+                  "op": "extract",
+                  "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/applying-discounts",
+                  "ok": true,
+                  "requestId": "f67e2251-c6ba-4110-b26b-b2570af8a212"
+                }
+              ]
+            },
+            "models": {
+              "plan": "nvidia/Nemotron-3_5-Lightning",
+              "judge": "nvidia/nemotron-3-super-120b-a12b"
+            },
+            "proof": {
+              "planRequestId": "4fd76a5006d2c348ca816937cc23dc55",
+              "judgeRequestId": "85113247f21e95874b4b86566def0f1b",
+              "inputTokens": 1109,
+              "outputTokens": 1254,
+              "latencyMs": 16157
+            }
+          }
+        },
+        {
+          "id": "shopify-return-window",
+          "httpStatus": 200,
+          "wallMs": 15792,
+          "expected": [
+            "supported",
+            "insufficient"
+          ],
+          "actual": "supported",
+          "pass": true,
+          "holdCode": null,
+          "body": {
+            "status": "supported",
+            "mode": "live",
+            "label": "Live Tavily Search + Extract and Nemotron plan + judge, 2026-10-30.",
+            "claim": "Shopify's return policy settings control the return window displayed to customers and accepted for return requests.",
+            "topic": "returns",
+            "query": "how to change the return window duration in Shopify settings",
+            "domain": "help.shopify.com",
+            "sources": [
+              {
+                "id": "S1",
+                "title": "Shopify Help Center | Setting up return and cancellation rules",
+                "url": "https://help.shopify.com/en/manual/fulfillment/managing-orders/returns/return-rules",
+                "passage": "This lets you have more control over requests and prevents your customers from requesting returns or cancellations for items that aren't eligible based on your policy. The return window information comes from the settings that you configure in the Policies section of your Shopify admin. If you don't set a return window, or if your return policy is written only as free text without a configured return window, then the details of your return policy won't be displayed on Shop app product pages. For example, for customers in the European Union you might set the cancellation window to Until item is fulfilled and a return window of at least 14 days to support the EU right of withdrawal, and apply a shorter standard return window elsewhere."
+              },
+              {
+                "id": "S2",
+                "title": "Shopify Help Center | Return rules",
+                "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/return-rules",
+                "passage": "You can manage your return rules in Settings > Policies section of your Shopify admin. When you activate return rules, they automatically display on orders on Shopify POS. For example, a frequent customer requests a return or a customer requests a return one day after the return window ends. Return shipping cost and restocking fee rules aren't enforced on Shopify POS."
+              },
+              {
+                "id": "S3",
+                "title": "Shopify Help Center | Setting up self-serve returns and cancellations",
+                "url": "https://help.shopify.com/en/manual/fulfillment/managing-orders/returns/self-serve-returns/setup",
+                "passage": "## Activate self-serve returns and cancellations To set up return and cancellation requests, you need to activate self-serve returns and cancellations in your Shopify admin. From your Shopify admin, go to Settings > Customer accounts. Your customers can't submit a return request with more than 250 line items. If you use B2B in Shopify, then both the B2B customer that placed the order and the location admin can request returns or cancellations."
+              }
+            ],
+            "quotes": [
+              {
+                "sourceId": "S1",
+                "quote": "The return window information comes from the settings that you configure in the Policies section of your Shopify admin."
+              }
+            ],
+            "explanation": "The passage states that the return window shown to buyers is taken directly from the settings entered in the Policies area of the admin. This means changing the setting will change what customers see and what the system accepts. Therefore shortening the window via those settings will affect the displayed and accepted period.",
+            "nextCheck": "Navigate to Settings then Policies in the Shopify admin and locate the return window field to see its current value.\nIf the field shows a value you intend to change, note it before editing.",
+            "holdReason": null,
+            "retrieval": {
+              "steps": [
+                {
+                  "op": "search",
+                  "ok": true,
+                  "latencyMs": 89,
+                  "requestId": "2bea7577-d33b-4f34-8351-dd1e8e696a51",
+                  "credits": 2
+                },
+                {
+                  "op": "extract",
+                  "url": "https://help.shopify.com/en/manual/fulfillment/managing-orders/returns/return-rules",
+                  "ok": true,
+                  "latencyMs": 126,
+                  "credits": 0,
+                  "requestId": "db236d13-26f0-4f25-a278-6d3e2cc6ecac"
+                },
+                {
+                  "op": "extract",
+                  "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/return-rules",
+                  "ok": true,
+                  "requestId": "db236d13-26f0-4f25-a278-6d3e2cc6ecac"
+                }
+              ]
+            },
+            "models": {
+              "plan": "nvidia/Nemotron-3_5-Lightning",
+              "judge": "nvidia/nemotron-3-super-120b-a12b"
+            },
+            "proof": {
+              "planRequestId": "6cf32283ef5dbe50201ead17ab3780ad",
+              "judgeRequestId": "337cdef6f262a6d1d032a8208288d4e6",
+              "inputTokens": 1083,
+              "outputTokens": 1550,
+              "latencyMs": 15789
+            }
+          }
+        },
+        {
+          "id": "usps-ground-advantage",
+          "httpStatus": 200,
+          "wallMs": 15744,
+          "expected": [
+            "supported",
+            "insufficient"
+          ],
+          "actual": "insufficient",
+          "pass": true,
+          "holdCode": null,
+          "body": {
+            "status": "insufficient",
+            "mode": "live",
+            "label": "Live Tavily Search + Extract and Nemotron plan + judge, 2026-10-30.",
+            "claim": "USPS Ground Advantage is a specific mail service offered by USPS that includes tracking and insurance options.",
+            "topic": "shipping",
+            "query": "What is USPS Ground Advantage and what services does it include?",
+            "domain": "usps.com",
+            "sources": [
+              {
+                "id": "S1",
+                "title": "Introducing USPS Ground Advantage - Newsroom - About.usps.com",
+                "url": "https://about.usps.com/newsroom/national-releases/2023/0710-introducing-usps-ground-advantage.htm",
+                "passage": "WASHINGTON — Today, the Postal Service announced the launch of its new shipping offering, USPS Ground Advantage. USPS Ground Advantage provides America’s businesses and the public with a compelling new ground shipping option leveraging USPS’ unparalleled last-mile delivery route system and improving integrated mail and package postal logistics network. With the product’s launch, USPS is retiring three offerings: USPS Retail Ground, USPS Parcel Select Ground and USPS First-Class Package Service as well as Ground Returns and First-Class Package Return Service. $100 insurance included on USPS Ground Advantage and USPS Ground Advantage Return packages."
+              },
+              {
+                "id": "S2",
+                "title": "USPS Ground Advantage®",
+                "url": "https://faq.usps.com/s/article/USPS-Ground-Advantage",
+                "passage": "USPS Ground Advantage will feature 2-5 day service standards for packages up to 70 pounds. provides a simple, reliable and more affordable way to ship packages"
+              }
+            ],
+            "quotes": [
+              {
+                "sourceId": "S1",
+                "quote": "$100 insurance included on USPS Ground Advantage and USPS Ground Advantage Return packages."
+              },
+              {
+                "sourceId": "S2",
+                "quote": "USPS Ground Advantage will feature 2-5 day service standards for packages up to 70 pounds. provides a simple, reliable and more affordable way to ship packages"
+              }
+            ],
+            "explanation": "The sources state that the service includes insurance. They do not mention tracking as part of the offering. Because tracking is not confirmed, the claim about both tracking and insurance is not settled.",
+            "nextCheck": "Look at the USPS Ground Advantage details in your carrier account to verify whether tracking is included.",
+            "holdReason": null,
+            "retrieval": {
+              "steps": [
+                {
+                  "op": "search",
+                  "ok": true,
+                  "latencyMs": 2020,
+                  "requestId": "fdb6b99a-ec57-4998-a287-5e20bc428ab7",
+                  "credits": 2
+                },
+                {
+                  "op": "extract",
+                  "url": "https://about.usps.com/newsroom/national-releases/2023/0710-introducing-usps-ground-advantage.htm",
+                  "ok": true,
+                  "latencyMs": 3216,
+                  "credits": 0,
+                  "requestId": "cc88bb5f-af25-4c36-8286-9d395c3d2fb1"
+                },
+                {
+                  "op": "extract",
+                  "url": "https://faq.usps.com/s/article/USPS-Ground-Advantage",
+                  "ok": false,
+                  "requestId": "cc88bb5f-af25-4c36-8286-9d395c3d2fb1"
+                }
+              ]
+            },
+            "models": {
+              "plan": "nvidia/Nemotron-3_5-Lightning",
+              "judge": "nvidia/nemotron-3-super-120b-a12b"
+            },
+            "proof": {
+              "planRequestId": "f90d1d7cea346ce52559661aff2d6519",
+              "judgeRequestId": "9df4b70d41c287bf9321bacb5cc37c94",
+              "inputTokens": 905,
+              "outputTokens": 1302,
+              "latencyMs": 15742
+            }
+          }
+        },
+        {
+          "id": "ups-surepost",
+          "httpStatus": 200,
+          "wallMs": 15183,
+          "expected": [
+            "contradicted",
+            "insufficient"
+          ],
+          "actual": "contradicted",
+          "pass": true,
+          "holdCode": null,
+          "body": {
+            "status": "contradicted",
+            "mode": "live",
+            "label": "Live Tavily Search + Extract and Nemotron plan + judge, 2026-10-30.",
+            "claim": "UPS SurePost is a service that uses UPS Ground for the initial leg of delivery and then hands off to the USPS for final delivery to residential addresses.",
+            "topic": "shipping",
+            "query": "UPS SurePost service details residential delivery",
+            "domain": "ups.com",
+            "sources": [
+              {
+                "id": "S1",
+                "title": "UPS SurePost® Terms and Conditions",
+                "url": "https://www.ups.com/assets/resources/webcontent/en_US/SurePost_Terms.pdf",
+                "passage": "UPS SurePost® Terms and Conditions Effective September 15, 2023 UPS SurePost® Service Description UPS SurePost service transports domestic packages primarily by ground transportation with final delivery to residential addresses by either the United States Postal Service® (“USPS®”) or UPS. The following are features of the service: Contract only UPS provides UPS SurePost service on a contract-only basis. Geographic scope UPS SurePost service is currently available for packages picked up within the 48 contiguous United States for delivery to residential addresses in the 48 contiguous United States, Alaska, Hawaii, Puerto Rico, U.S. UPS SurePost packages that cannot be delivered by the USPS will be returned to Customer or destroyed as determined by the USPS."
+              },
+              {
+                "id": "S2",
+                "title": "About UPS SurePost",
+                "url": "https://www.ups.com/worldshiphelp/WSA/ENU/AppHelp/mergedProjects/CORE/SHIPMENT/About_UPS_SurePost.htm",
+                "passage": "Note: UPS SurePost is available only if you have a contract for this service. The UPS SurePost services provide the convenience of UPS shipping and USPS-delivery to customers' mailboxes. UPS WorldShip determines if UPS or the USPS completes the final mile of delivery of each shipment. The total dimension of the package cannot exceed 130 inches if you select SurePost Less than 1 lb or SurePost 1 lb or Greater or 108 inches if you select SurePost Bound Printed Matter or SurePost Media in the UPS Service box."
+              }
+            ],
+            "quotes": [
+              {
+                "sourceId": "S1",
+                "quote": "UPS SurePost service transports domestic packages primarily by ground transportation with final delivery to residential addresses by either the United States Postal Service® (\"USPS®\") or UPS."
+              }
+            ],
+            "explanation": "The passage shows that SurePost moves packages mainly by ground transport and that the last mile may be handled by either the USPS or UPS. Because the final delivery is not guaranteed to be the USPS, the claim that the service always hands off to the USPS is not fully accurate. This means the proposed fix relying on USPS delivery may not always apply.",
+            "nextCheck": "In the WooCommerce shipping settings look for the UPS SurePost option and read the service description to confirm whether the final delivery is listed as USPS only or as either USPS or UPS.",
+            "holdReason": null,
+            "retrieval": {
+              "steps": [
+                {
+                  "op": "search",
+                  "ok": true,
+                  "latencyMs": 3204,
+                  "requestId": "f15dc14e-a8f4-4e4a-89e1-708ebd6e8a1c",
+                  "credits": 2
+                },
+                {
+                  "op": "extract",
+                  "url": "https://www.ups.com/assets/resources/webcontent/en_US/SurePost_Terms.pdf",
+                  "ok": true,
+                  "latencyMs": 124,
+                  "credits": 1,
+                  "requestId": "f1078e92-6620-4faf-859f-927177921077"
+                },
+                {
+                  "op": "extract",
+                  "url": "https://www.ups.com/worldshiphelp/WSA/ENU/AppHelp/mergedProjects/CORE/SHIPMENT/About_UPS_SurePost.htm",
+                  "ok": true,
+                  "requestId": "f1078e92-6620-4faf-859f-927177921077"
+                }
+              ]
+            },
+            "models": {
+              "plan": "nvidia/Nemotron-3_5-Lightning",
+              "judge": "nvidia/nemotron-3-super-120b-a12b"
+            },
+            "proof": {
+              "planRequestId": "433bbec182edc0a289eb445815cec4fe",
+              "judgeRequestId": "5fdbd4fd31a13fcdd83b8d6c0458fc50",
+              "inputTokens": 1019,
+              "outputTokens": 1293,
+              "latencyMs": 15180
+            }
+          }
+        },
+        {
+          "id": "shopify-minimum-purchase",
+          "httpStatus": 200,
+          "wallMs": 7420,
+          "expected": [
+            "supported"
+          ],
+          "actual": "supported",
+          "pass": true,
+          "holdCode": null,
+          "body": {
+            "status": "supported",
+            "mode": "live",
+            "label": "Live Tavily Search + Extract and Nemotron plan + judge, 2026-10-30.",
+            "claim": "Shopify lets a store owner set a minimum order amount requirement for free shipping discount codes.",
+            "topic": "discounts",
+            "query": "how to set minimum order amount for free shipping discount code shopify",
+            "domain": "help.shopify.com",
+            "sources": [
+              {
+                "id": "S1",
+                "title": "Shopify Help Center | Free shipping discounts",
+                "url": "https://help.shopify.com/en/manual/discounts/discount-types/free-shipping",
+                "passage": "You can set a minimum purchase amount when you create a free shipping discount. All products that are in a customer's cart count towards the minimum purchase amount for free shipping discounts, including any gift cards that the customer buys. A discount that can't be combined with your free shipping discount never applies at the same time, so it never changes the minimum purchase amount. Optional: In the Minimum requirements section, select Minimum purchase amount or Minimum quantity of items, and then enter the dollar value or number of items that need to be added before the discount code applies."
+              },
+              {
+                "id": "S2",
+                "title": "Shopify Help Center | Setting up shipping zones and rates",
+                "url": "https://help.shopify.com/en/manual/fulfillment/setup/shipping-rates/setting-up-shipping-rates",
+                "passage": "You can charge a fixed amount, offer free shipping, or vary the price based on order value or weight. This helps you charge your customers the exact amount that a shipping carrier charges you when you purchase a shipping label. You need to enter a minimum amount for an order to qualify for free shipping. Select Offer free shipping, and then enter the minimum amount for an order to qualify for free shipping."
+              },
+              {
+                "id": "S3",
+                "title": "Shopify Help Center | Custom discounts for orders",
+                "url": "https://help.shopify.com/en/manual/checkout-settings/checkout-blocks/custom-discounts/order-discount",
+                "passage": "Optional: You can configure the following options: Minimum purchase requirements, to require that customers spend a minimum purchase amount to qualify for the discount. Combinations, to allow customers to combine the discount code with order, product, or shipping discounts. In the Amount off order section, select one of the following options: Discount code, and then add your discount code. Start for free Log in # Custom discounts for orders You can set up custom order discounts to determine the amount of discount to apply in the following ways: Percentage discount: Reduces order total by the percentage specified."
+              }
+            ],
+            "quotes": [
+              {
+                "sourceId": "S1",
+                "quote": "You can set a minimum purchase amount when you create a free shipping discount."
+              },
+              {
+                "sourceId": "S2",
+                "quote": "Select Offer free shipping, and then enter the minimum amount for an order to qualify for free shipping."
+              }
+            ],
+            "explanation": "The passages indicate that Shopify allows a store owner to specify a minimum purchase amount when creating a free shipping discount code. They describe the steps to enable this option in the discount creation interface. Therefore the claim that Shopify lets a store owner set a minimum order amount requirement for free shipping discount codes is supported.",
+            "nextCheck": "In the Shopify admin, open the Discounts page, start creating a discount code, select Free shipping as the type, and look for the option to set a minimum purchase requirement.",
+            "holdReason": null,
+            "retrieval": {
+              "steps": [
+                {
+                  "op": "search",
+                  "ok": true,
+                  "latencyMs": 97,
+                  "requestId": "ef06237b-77a6-4bc7-b4d6-2a3438874814",
+                  "credits": 2
+                },
+                {
+                  "op": "extract",
+                  "url": "https://help.shopify.com/en/manual/discounts/discount-types/free-shipping",
+                  "ok": true,
+                  "latencyMs": 118,
+                  "credits": 0,
+                  "requestId": "c2c5ee32-0bb2-4b44-89b0-b8f35c956c9d"
+                },
+                {
+                  "op": "extract",
+                  "url": "https://help.shopify.com/en/manual/fulfillment/setup/shipping-rates/setting-up-shipping-rates",
+                  "ok": true,
+                  "requestId": "c2c5ee32-0bb2-4b44-89b0-b8f35c956c9d"
+                }
+              ]
+            },
+            "models": {
+              "plan": "nvidia/Nemotron-3_5-Lightning",
+              "judge": "nvidia/nemotron-3-super-120b-a12b"
+            },
+            "proof": {
+              "planRequestId": "276a8c0da2711332c9ab3403cbf3a4a5",
+              "judgeRequestId": "0e61c305f255edaa93fc2166bf32b4ef",
+              "inputTokens": 1066,
+              "outputTokens": 947,
+              "latencyMs": 7417
+            }
+          }
+        },
+        {
+          "id": "woo-individual-use",
+          "httpStatus": 200,
+          "wallMs": 15688,
+          "expected": [
+            "supported"
+          ],
+          "actual": "insufficient",
+          "pass": false,
+          "holdCode": null,
+          "body": {
+            "status": "insufficient",
+            "mode": "live",
+            "label": "Live Tavily Search + Extract and Nemotron plan + judge, 2026-10-30.",
+            "claim": "WooCommerce lets a store owner set a coupon to be used only once per customer, preventing that coupon from being combined with other coupons.",
+            "topic": "discounts",
+            "query": "WooCommerce coupon used only once per customer combine with other coupons",
+            "domain": "woocommerce.com",
+            "sources": [
+              {
+                "id": "S1",
+                "title": "How to stack or combine coupons Documentation - WooCommerce",
+                "url": "https://woocommerce.com/document/smart-coupons/how-to-stack-or-combine-coupons",
+                "passage": "WooCommerce only allows one coupon per order by default. This doc covers how to let specific coupons be used together in the same order, or block certain coupons from being combined. Smart Coupons adds a “Smart Coupons Restrictions” field to each coupon’s usage restrictions, where you control exactly which coupons it can or cannot be combined with. Search and select the coupons that you would like this coupon to be combined with (i.e., coupons that can be used together)."
+              },
+              {
+                "id": "S2",
+                "title": "Managing Coupons in WooCommerce Documentation - WooCommerce",
+                "url": "https://woocommerce.com/document/coupon-management",
+                "passage": "Set a coupon expiry date (optional). Coupons expire/cannot be used on the date that is set. Individual use only — Select the checkbox if the coupon cannot be used in combination with other coupons. Exclude products — You cannot apply the coupon to these specific products, or these products cannot be in the cart for the coupon discount to apply. If a coupon cannot be applied, WooCommerce displays a message explaining why."
+              },
+              {
+                "id": "S3",
+                "title": "How to prevent users from applying multiple coupons Documentation - WooCommerce",
+                "url": "https://woocommerce.com/document/smart-coupons/how-to-prevent-users-from-applying-multiple-coupons",
+                "passage": "# How to prevent users from applying multiple coupons Smart Coupons provide a powerful, “all-in-one” solution for gift cards, store credits, discount coupons, and vouchers, extending the core functionality of WooCommerce coupons. This doc explains how to not allow coupons to be used with other coupons. Navigate to Usage restriction(tab) > enable the option “Individual use only”. []( 4. That’s it! ← WooCommerce Smart Coupons Documentation ## Related Products ### WooCommerce Subscriptions by Woo"
+              }
+            ],
+            "quotes": [
+              {
+                "sourceId": "S2",
+                "quote": "Individual use only - Select the checkbox if the coupon cannot be used in combination with other coupons."
+              },
+              {
+                "sourceId": "S1",
+                "quote": "WooCommerce only allows one coupon per order by default. This doc covers how to let specific coupons be used together in the same order, or block certain coupons from being combined."
+              }
+            ],
+            "explanation": "The sources show that enabling individual use only stops a coupon from being combined with other coupons but they do not mention limiting a coupon to one use per customer. Because the claim includes a per‑customer usage limit that is not addressed the policy does not settle the claim.",
+            "nextCheck": "In the WooCommerce admin edit a coupon and look at the Usage limits section to see if there is a setting for limiting the number of uses per customer. Check whether such a limit exists or if only the Individual use only option is present.",
+            "holdReason": null,
+            "retrieval": {
+              "steps": [
+                {
+                  "op": "search",
+                  "ok": true,
+                  "latencyMs": 3662,
+                  "requestId": "d06e4c5f-1840-41c9-836e-358d1b098dc6",
+                  "credits": 2
+                },
+                {
+                  "op": "extract",
+                  "url": "https://woocommerce.com/document/smart-coupons/how-to-stack-or-combine-coupons",
+                  "ok": true,
+                  "latencyMs": 122,
+                  "credits": 0,
+                  "requestId": "b685407c-1274-43f9-9516-6eb7cae7950e"
+                },
+                {
+                  "op": "extract",
+                  "url": "https://woocommerce.com/document/coupon-management",
+                  "ok": true,
+                  "requestId": "b685407c-1274-43f9-9516-6eb7cae7950e"
+                }
+              ]
+            },
+            "models": {
+              "plan": "nvidia/Nemotron-3_5-Lightning",
+              "judge": "nvidia/nemotron-3-super-120b-a12b"
+            },
+            "proof": {
+              "planRequestId": "7f84d22eb3e09a79f4e603071c0fecd5",
+              "judgeRequestId": "b628a2eeb9c868849caf34d2036dad72",
+              "inputTokens": 1081,
+              "outputTokens": 1599,
+              "latencyMs": 15685
+            }
+          }
+        },
+        {
+          "id": "out-of-scope-pricing",
+          "httpStatus": 200,
+          "wallMs": 755,
+          "expected": [
+            "hold"
+          ],
+          "actual": "hold",
+          "pass": true,
+          "holdCode": "TOPIC_UNSUPPORTED",
+          "body": {
+            "status": "hold",
+            "mode": "live",
+            "label": "Live Tavily Search + Extract and Nemotron plan + judge, 2026-10-30.",
+            "claim": "Shopify's discount code system applies percentage discounts to the base product price before shipping costs are calculated",
+            "topic": "other",
+            "query": null,
+            "domain": null,
+            "sources": [],
+            "quotes": [],
+            "explanation": null,
+            "nextCheck": null,
+            "holdReason": "[TOPIC_UNSUPPORTED] This fix is outside the supported policy topics (discounts, shipping, returns), so no search was made.",
+            "retrieval": null,
+            "models": {
+              "plan": "nvidia/Nemotron-3_5-Lightning",
+              "judge": "nvidia/nemotron-3-super-120b-a12b"
+            },
+            "proof": {
+              "planRequestId": "6fb474246d655cc50b0e1d123a923d7a",
+              "judgeRequestId": null,
+              "inputTokens": 314,
+              "outputTokens": 49,
+              "latencyMs": 752
+            }
+          }
+        },
+        {
+          "id": "adversarial-injection",
+          "httpStatus": 200,
+          "wallMs": 2,
+          "expected": [
+            "hold"
+          ],
+          "actual": "hold",
+          "pass": true,
+          "holdCode": "PRIVACY_SCREEN",
+          "body": {
+            "status": "hold",
+            "mode": "offline",
+            "label": "No provider was called.",
+            "claim": null,
+            "topic": null,
+            "query": null,
+            "domain": null,
+            "sources": [],
+            "quotes": [],
+            "explanation": null,
+            "nextCheck": null,
+            "holdReason": "[PRIVACY_SCREEN] Describe the fix in plain English without emails, links, long numbers, markup, customer data or instructions to the model. No provider was called.",
+            "retrieval": null,
+            "models": {
+              "plan": null,
+              "judge": null
+            },
+            "proof": null
+          }
+        }
+      ]
     }
   ],
   "preEvalSmoke": {
