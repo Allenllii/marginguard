@@ -54,12 +54,12 @@ The current pipeline, end to end through the local app on 2026-10-30: Shopify / 
 
 | Call | Result |
 | --- | --- |
-| Tavily advanced Search, help.shopify.com | request `463868a5-33a1-4a47-b8b1-189a68f035b3`, 2 credits, 0.16 s; three official pages |
-| Tavily Extract, top two pages | request `8b80d04b-e8b2-4eef-994a-b8966b94d332`, 1 credit, 0.14 s; complete operative sentences from the Combining discounts and POS pages |
+| Tavily advanced Search, help.shopify.com | request `515542b8-52d0-4ef4-859a-053ebafcf71e`, 2 credits; three official pages |
+| Tavily Extract, top two pages | request `9979922b-4628-4755-a47b-3053b1bfc222`; complete operative sentences from the Combining discounts and POS pages |
 | Decision (code) | contradicted on S1, S2: the combination-settings fix is rebutted → audit manual/POS/draft-order overrides |
-| Nemotron-3.5-Lightning draft | request `9f6e4415caf991a89fe1af98e3236a62`, 719 input / 94 output tokens, 0.98 s round trip; **rejected by the validator** (it cited sources as bare IDs, not `{sourceId}` objects), so the app showed the rule-based checks |
+| Nemotron-3.5-Lightning draft (structured output) | request `dde827435f59ed6bbcba7c3e7aed671d`, 760 input / 110 output tokens, about 1 s; **passed validation**: next step "Audit staff/manual POS and draft-order overrides…", and it states that the exception does not establish the cause |
 
-This was the second of two full attempts. The first (Search `c2b70258…`, Extract `2a964c10…`) returned the same sources, and its draft also failed validation; the app does not expose that reason. Total: 5 Tavily credits, 2 Nemotron completions. No validated Nemotron draft exists for this packet, so the hosted demo shows the rule-based checks for it.
+It took five end-to-end attempts. Tavily returned byte-identical sources every time; the Nemotron draft failed validation in attempts 1, 2 and 4 (bare citation IDs, a next step that repeated the rebutted fix, an unrecorded reason), and attempt 3's draft was later rejected for saying the exception "explains the exposure". We fixed the causes in code (accept bare IDs, reject contradicting or causal drafts, name the failed check) and switched the draft call to Token Factory's JSON-schema structured output; attempt 5 passed on the first call. All five attempts are in the ledger.
 
 ## Try it
 
@@ -121,7 +121,7 @@ What this means for the product: MarginGuard does not rely on the model to decid
 
 ## Tests
 
-`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 334 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 87 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy. <!-- verify-after-merge: counts from v4/polish (npm test 334, benchmark:test 65, Playwright 87) -->
+`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 338 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 88 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
 
 ## Limits
 
