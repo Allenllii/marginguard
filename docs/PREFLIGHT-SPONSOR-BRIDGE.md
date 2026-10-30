@@ -111,6 +111,19 @@ no substitution. `GET /api/health` reports `models: { fast, reasoning, routing }
 The intent call uses `temperature: 0`, `max_tokens: 4096` (room for reasoning),
 a 90 s timeout, a 200 KB response-body bound and `finish_reason: stop` only.
 
+### Local live check, 2026-10-30 (03:01-03:04 UTC)
+
+Sanitized ledger: `evidence/live-intent-20261030.json` (5 completions, 2 Tavily
+credits, no retries). Through the real local server, the VIP example above
+returned `NEEDS_CONFIRMATION` / `nemotron_interpreted` from Super (412 prompt,
+1018 completion tokens of which 899 reasoning, 9.8 s): 20% product, $10 fixed at
+a $75 minimum subtotal, free shipping, `customer_segment` unmodeled. Confirmation
+then ran the integer engine with zero provider requests (HOLD on fixture
+evidence). Ultra produced identical rules (5.2 s). A grammar campaign returned
+`grammar_confirmed`. Two failures are recorded: a second prepare 35 s later was
+held by the per-minute budget after Search had spent a credit, and the fast-model
+explain call returned prose with digits, so its existing validator fell back.
+
 ## Privacy boundary
 
 The campaign description itself is sent to Nemotron. Before any provider request,
