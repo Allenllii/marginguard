@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { checkInterpretation, recordedModelOutput, RECORDED_INTERPRETATION } from '../shared/preflight-bridge-response.js';
 import { screenCampaignText } from '../server/preflight-intent.js';
-import { PREFLIGHT_FIXTURE, runPreflight } from '../shared/preflight.js';
+import { PREFLIGHT_FIXTURE, runPreflight, withThresholdBasket } from '../shared/preflight.js';
 
 test('offline replay is the recorded Nemotron 3 Super run, verbatim from the evidence ledger', async () => {
   const ledger = JSON.parse(await readFile('evidence/live-intent-20261030.json', 'utf8'));
@@ -34,4 +34,29 @@ test('the replay passes the same gate as a live reply and the engine reproduces 
   const ungrounded = recordedModelOutput(); ungrounded.rules[1] = { ...ungrounded.rules[1], amountCents: 1500 } as typeof ungrounded.rules[1];
   assert.equal(checkInterpretation(RECORDED_INTERPRETATION.campaign, ungrounded).ok, false);
   assert.equal(checkInterpretation('25% off sitewide plus an extra $10 off orders over $75 for VIPs', recordedModelOutput()).ok, false);
+});
+
+test('the replay is simulated on a synthetic basket that can cross the $75 threshold, exposing the stacking risk', () => {
+  const sample = { ...structuredClone(PREFLIGHT_FIXTURE), rules: structuredClone(RECORDED_INTERPRETATION.rules) };
+  // On the one-$50-item sample the $75 rule never fires: worst +200, within the floor.
+  assert.equal(runPreflight(sample).worst.triggeredRules.includes('R2'), false);
+  const input = withThresholdBasket(sample);
+  assert.ok(input);
+  assert.deepEqual(input.skus, [{ id: 'DEMO-SKU-40', priceCents: 4000, unitCostCents: 2400 }]);
+  assert.equal(input.maxQuantity, 3);
+  const result = runPreflight(input);
+  // 2 x $40 = $80 >= $75: $80 -20% = $64, -$10 = $54, free shipping; 54 - 48 COGS - 8 shipping = -$2.00.
+  assert.deepEqual(result.worst.basket, [{ skuId: 'DEMO-SKU-40', quantity: 2 }]);
+  assert.deepEqual(result.worst.triggeredRules, ['R1', 'R2', 'R3']);
+  assert.equal(result.worst.contributionCents, -200);
+  assert.equal(result.riskBreach, true);
+  assert.equal(result.status, 'HOLD');
+  assert.equal(result.searchSpace.scenarios, 48);
+  // Not swapped: no threshold (sample proposal), a seller-edited basket, or a threshold the synthetic basket cannot reach either.
+  assert.equal(withThresholdBasket(structuredClone(PREFLIGHT_FIXTURE)), null);
+  assert.equal(withThresholdBasket({ ...sample, maxQuantity: 2 }), null);
+  assert.equal(withThresholdBasket({ ...sample, skus: [{ id: 'MINE', priceCents: 5000, unitCostCents: 3000 }] }), null);
+  assert.equal(withThresholdBasket({ ...sample, rules: [{ ...sample.rules[1], minSubtotalCents: 20000 }] }), null);
+  // Pure: the caller's input is not mutated.
+  assert.equal(sample.maxQuantity, 1);
 });

@@ -29,16 +29,16 @@
     },
     {
       "id": "A3",
-      "group": "applicable",
+      "group": "conflicting-or-insufficient",
       "kind": "shipping",
       "platform": "Shopify",
       "carrier": "USPS",
       "region": "US",
       "origin": "native",
       "passage": "USPS postage prices depend on service and package characteristics. Review the applicable shipping service rate table and actual package measurements.",
-      "expected": "review",
-      "nextCheck": "USPS rate",
-      "abstain": false
+      "expected": "insufficient",
+      "nextCheck": "carrier/service rate",
+      "abstain": true
     },
     {
       "id": "A4",

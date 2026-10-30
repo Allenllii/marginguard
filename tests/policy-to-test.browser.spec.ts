@@ -77,3 +77,25 @@ test('Policy-to-Test stays readable at 320px with keyboard targets and reduced m
   expect(moving).toBe(0);
   await lab.screenshot({ path: 'evidence/policy-to-test-integrated-320.png', animations: 'disabled' });
 });
+
+test('accessibility at 375px: verdict changes are announced, origin switch is one tap from the case, small controls are ≥24px, hidden file input skips Tab', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/');
+  await expect(page.locator('.dataset-strip')).toContainText('504 validated orders');
+  await expect(page.getByLabel('Import order CSV')).toHaveAttribute('tabindex', '-1');
+  await page.getByRole('button', { name: 'Import CSV', exact: true }).focus(); await page.keyboard.press('Tab');
+  expect(await page.evaluate(() => (document.activeElement as HTMLInputElement | null)?.type)).not.toBe('file');
+  await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
+  const live = page.getByTestId('decision-announcer');
+  await expect(live).toHaveText(/^Policy says the suggested fix won’t work\. Next check: Audit staff\/manual POS/);
+  await page.getByRole('button', { name: 'Switch discount origin', exact: true }).click();
+  const origin = page.getByLabel('Discount origin');
+  await expect(origin).toBeFocused(); await expect(origin).toBeInViewport();
+  await origin.selectOption('unknown');
+  await expect(live).toHaveText(/^On hold — needs more evidence\. Next check: Identify the discount origin/);
+  const targets = [page.getByRole('button', { name: 'Reset demo', exact: true }), page.getByRole('button', { name: 'Export policy evidence', exact: true }), page.getByRole('link', { name: 'Open official source' }).first()];
+  for (const target of targets) expect((await target.boundingBox())!.height).toBeGreaterThanOrEqual(24);
+  await page.evaluate(() => { location.hash = '#preflight'; });
+  await expect(page.getByRole('main')).toHaveCount(1);
+  await expect(page.locator('main.main')).toBeHidden();
+});

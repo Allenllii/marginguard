@@ -144,13 +144,14 @@ function changedPolicy(sources: PolicySource[], fromExtract: Set<string>, kind: 
 }
 
 // --- Recorded live retrievals, replayed verbatim offline --------------------
-// Source: evidence/live-retrieval-v3-20261030.json (tests assert byte identity).
+// Sources: manual = evidence/live-e2e-20261030.json (replay); native and USPS =
+// evidence/live-retrieval-v3-20261030.json. Tests assert byte identity.
 // Fixture packets never carry `proof`; request IDs appear in the note and steps.
 type Recorded = { query: string; note: string; sources: PolicySource[]; steps: RetrievalStep[] };
 export const RECORDED_RETRIEVALS: Record<'shopify-discount-manual' | 'shopify-discount-native' | 'usps-shipping', Recorded> = {
   "shopify-discount-manual": {
     "query": "Shopify how do manually applied POS and draft order discounts interact with discount combination settings",
-    "note": "Recorded live Tavily Search + Extract (requests bd7ee08e… and 2a6642be…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+    "note": "Recorded live Tavily Search + Extract (requests 515542b8… and 9979922b…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
     "sources": [
       {
         "id": "S1",
@@ -168,9 +169,9 @@ export const RECORDED_RETRIEVALS: Record<'shopify-discount-manual' | 'shopify-di
       },
       {
         "id": "S3",
-        "title": "Shopify Help Center | Managing draft orders on Shopify POS",
-        "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/draft-orders",
-        "snippet": "If the Automatic discounts setting is turned off in More actions, then any automatic discount is removed from the draft order. #### Steps: 1. From Shopify POS, tap the Order icon. 2. Tap Load Drafts. 3. Tap the draft order that you want to edit. 4. Tap Load to cart. 5. Take one of the following steps to apply an admin discount: Tap the Apply discount tile on the smart grid, and then tap Discount code. Tap your discount-specific smart grid tile. Tap > Apply discount > Discount code. 6. Enter a discount code that was created in the admin, and then tap Save.",
+        "title": "Shopify Help Center | Discounts",
+        "url": "https://help.shopify.com/en/manual/discounts",
+        "snippet": "# Discounts Offering discounts can be a marketing strategy that you use to drive sales in your Shopify store. To offer discounts, you can create discount codes or set up automatic discounts, or you can alternatively set sale prices for individual products. You can create codes for a monetary value discount, a percentage discount, a buy X get Y discount, or a free shipping discount. Customers can enter discount codes online at checkout, or in person if you're using Shopify POS. You can also create other types of discount by using a third-party app from the Shopify App Store. Some third-party apps let you manage discounts directly in your Shopify admin, or you might need to create your discounts in the app's settings.",
         "publishedDate": null
       }
     ],
@@ -178,23 +179,23 @@ export const RECORDED_RETRIEVALS: Record<'shopify-discount-manual' | 'shopify-di
       {
         "op": "search",
         "ok": true,
-        "latencyMs": 4996,
-        "requestId": "bd7ee08e-0943-4353-a223-2d4dc6755ae9",
+        "latencyMs": 169,
+        "requestId": "515542b8-52d0-4ef4-859a-053ebafcf71e",
         "credits": 2
       },
       {
         "op": "extract",
         "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
         "ok": true,
-        "latencyMs": 187,
+        "latencyMs": 149,
         "credits": 0,
-        "requestId": "2a6642be-00e7-4667-9b5a-bb25b2efcdda"
+        "requestId": "9979922b-4628-4755-a47b-3053b1bfc222"
       },
       {
         "op": "extract",
         "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
         "ok": true,
-        "requestId": "2a6642be-00e7-4667-9b5a-bb25b2efcdda"
+        "requestId": "9979922b-4628-4755-a47b-3053b1bfc222"
       }
     ]
   },

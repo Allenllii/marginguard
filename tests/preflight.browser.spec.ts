@@ -204,3 +204,15 @@ test('375px: visible back control, keyboard focus ring and no horizontal scroll'
   await page.keyboard.press('Enter');
   await expect(page.getByText('504 validated orders')).toBeVisible();
 });
+
+test('after visiting analysis, Preflight exposes one main landmark and 24px links/buttons at 375px', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/'); await expect(page.locator('main.main')).toBeVisible();
+  await page.goto('/#preflight');
+  await expect(page.getByRole('main')).toHaveCount(1);
+  await expect(page.getByRole('main')).toHaveAccessibleName('Promotion collision sandbox');
+  await page.getByRole('button', { name: 'Interpret campaign (offline replay)', exact: true }).click();
+  const small = await page.evaluate(() => { document.querySelectorAll('.pf-shell details').forEach(details => { (details as HTMLDetailsElement).open = true; });
+    return [...document.querySelectorAll('.pf-shell :is(a, button, summary)')].filter(element => element.checkVisibility()).map(element => ({ text: element.textContent?.trim(), box: element.getBoundingClientRect() })).filter(({ box }) => box.width < 24 || box.height < 24).map(({ text }) => text); });
+  expect(small).toEqual([]);
+});

@@ -76,6 +76,14 @@ test('only the documented hosted Lightning profile disables thinking, without in
   assert.equal(bodies.length, 2);
   assert.deepEqual(bodies.map(b => b.max_tokens), [1600, 1400]);
   assert.ok(bodies.every(b => b.store === false && JSON.stringify(b.chat_template_kwargs) === '{"enable_thinking":false}' && b.model === model));
+  // The draft request asks Token Factory to enforce the shape, with citations limited to permitted IDs.
+  const format = bodies[1].response_format as { type: string; json_schema: { schema: { properties: { documentedPolicy: { items: { properties: { sourceId: { enum: string[] } } } } } } } };
+  assert.equal(format.type, 'json_schema');
+  assert.deepEqual(format.json_schema.schema.properties.documentedPolicy.items.properties.sourceId.enum, ['S1']);
+  // A rejected draft says why, without provider text.
+  const rejected = await remediate(analysis.issues.find(i => i.kind === 'discount')!, packet, true, { ...config, model }, mock({ ...policy, inference: 'This exception explains the exposure across the affected rows.' }));
+  assert.equal(rejected.mode, 'fixture');
+  assert.match(rejected.fallbackReason ?? '', /used numbers, links or causal wording/);
 });
 
 test('brief input carries no numbers and digit-free evidence IDs, so a compliant brief can cite findings and pass the no-digits rule', async () => {

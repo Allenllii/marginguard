@@ -36,6 +36,21 @@ is a sample walkthrough of the golden example; the campaign panel above the form
 replays a recorded Nemotron interpretation offline (see
 [PREFLIGHT-SPONSOR-BRIDGE.md](PREFLIGHT-SPONSOR-BRIDGE.md)).
 
+The recorded campaign includes "$10 off orders over $75", which the one-$50-item
+sample can never reach. When a confirmed proposal (recorded or live) has a
+threshold the untouched sample basket cannot reach, `withThresholdBasket` swaps
+in a labelled synthetic basket: `DEMO-SKU-40` at $40.00 (unit cost $24.00),
+quantity 1-3. A seller-edited basket is never replaced. On that basket the engine
+finds the worst cart at 2 units: $80.00 crosses $75, then 20% (-$16.00), $10 off
+and free shipping leave $54.00 against $48.00 COGS and $8.00 shipping cost, so
+contribution is **-$2.00**, below the $0.00 floor (48 scenarios, HOLD).
+
+Ticking "I reviewed these rules, their order, thresholds and stacking, and
+approve a simulation only" is the explicit semantics confirmation for that
+simulation: the confirmed input carries `semantics: "explicit_simulation"` and
+section 04's confirmation box is ticked to match. The remaining HOLD reasons are
+fixture provenance and the missing seller references.
+
 Run the small, reproducible synthetic example in a terminal:
 
 ```sh

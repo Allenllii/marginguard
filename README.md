@@ -15,7 +15,7 @@ Generic AI advice fails here because it never checks the platform's own rules ag
 ## What MarginGuard does
 
 1. **Finds the leak with exact math.** Import an order CSV. Deterministic code computes contribution in integer cents and flags discount stacking, shipping overruns and return spikes. Every finding shows its formula, its source rows and the seller assumptions behind it.
-2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard sends **Tavily Search** a neutral query (it names the topic, not the answer we expect) restricted to the platform's own domain, then **Tavily Extract** pulls the official page so the rule engine reads full sentences instead of a cut-off snippet. The rule engine decides whether that text applies to the seller's context. If the official page has changed since we reviewed it, the result says so.
+2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard sends **Tavily Search** a neutral query (it names the topic, not the answer we expect) restricted to the platform's own domain, then **Tavily Extract** pulls the official page so the rule engine reads full sentences instead of a cut-off snippet. The rule engine decides whether that text applies to the seller's context. For the two Shopify discount-combination pages we reviewed (manual/POS and automatic/code origins), the result also says if the official page has changed since our review; other pages have no reviewed copy to compare against.
 3. **Changes the next action, not the numbers.** In the demo case Tavily returns Shopify's POS policy: *"Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions."* The settings fix is rebutted, and the next check becomes an audit of staff/manual overrides. Same 28 rows, same $658.08 modeled exposure, different action.
 4. **Holds when context is missing.** An unknown discount origin, a non-US region or an ordinary app mistaken for the Scripts API holds the recommendation whatever the sources say. A retracted or contrary passage also holds; no passage, or passages that conflict, return "not enough evidence".
 5. **Drafts the check with NVIDIA Nemotron on Nebius Token Factory.** Code supplies the policy statement behind each citation; Nemotron-3.5-Lightning writes the hypothesis, the validation step and the uncertainty. Code checks every citation against the returned sources and rejects numbers in the prose. A held or under-evidenced case never reaches the model.
@@ -41,7 +41,7 @@ flowchart LR
 | Technology | Where | What it does |
 | --- | --- | --- |
 | **Tavily Search** | `server/tavily.ts` | Fixed, neutral queries (never order data), `include_domains` restricted to help.shopify.com, woocommerce.com, usps.com or ups.com; results are screened and de-duplicated. The retrieved text decides the verdict. |
-| **Tavily Extract** | `server/tavily.ts`, `server/preflight-policy.ts` | Pulls the full official page after Search so the decision reads complete sentences and can detect a changed page; in Promo Preflight, pulls the reviewed policy page before any rule is proposed. |
+| **Tavily Extract** | `server/tavily.ts`, `server/preflight-policy.ts` | Pulls the full official page after Search so the decision reads complete sentences, and flags a change on the reviewed Shopify discount-combination pages; in Promo Preflight, pulls the reviewed policy page before any rule is proposed. |
 | **Nebius Token Factory** | `server/nebius.ts`, `server/preflight-intent.ts` | OpenAI-compatible API; model IDs verified with `GET /v1/models` before each call. |
 | **NVIDIA Nemotron-3.5-Lightning** | cited policy draft, analyst brief | Fast structured drafts: the recorded policy draft took 1.0 s and 579 input / 100 output tokens. The last live brief failed the no-digits check and fell back; its prompt now sends no numbers, and that change has not been re-run live. |
 | **NVIDIA Nemotron 3 Super** | Promo Preflight | Reasoning model that turns free-form campaign text into rules; code checks each value against the text and a local parser before the seller confirms. |
@@ -50,13 +50,16 @@ The model never computes money or decides eligibility. Those stay in `server/ana
 
 ## A real live run
 
-Recorded from the local app on 2026-10-30 with synthetic data ([ledger](evidence/live-run-20261030.json)):
+The current pipeline, end to end through the local app on 2026-10-30: Shopify / US / manual discount origin, synthetic Northstar data ([ledger](evidence/live-e2e-20261030.json)). This is the run the hosted demo replays for the manual case.
 
 | Call | Result |
 | --- | --- |
-| Tavily Search, help.shopify.com | request `19444728-22d2-4be8-ab7e-7c4d0714bb07`, 1 credit, 1.5 s; returned the Shopify POS combination policy |
-| Decision | settings fix rebutted → audit manual/POS/draft overrides |
-| Nemotron-3.5-Lightning completion | request `31354285bac744de81d06e20979fcac4`, 579 input / 100 output tokens, 1.0 s |
+| Tavily advanced Search, help.shopify.com | request `515542b8-52d0-4ef4-859a-053ebafcf71e`, 2 credits; three official pages |
+| Tavily Extract, top two pages | request `9979922b-4628-4755-a47b-3053b1bfc222`; complete operative sentences from the Combining discounts and POS pages |
+| Decision (code) | contradicted on S1, S2: the combination-settings fix is rebutted → audit manual/POS/draft-order overrides |
+| Nemotron-3.5-Lightning draft (structured output) | request `dde827435f59ed6bbcba7c3e7aed671d`, 760 input / 110 output tokens, about 1 s; **passed validation**: next step "Audit staff/manual POS and draft-order overrides…", and it states that the exception does not establish the cause |
+
+It took five end-to-end attempts. Tavily returned byte-identical sources every time; the Nemotron draft failed validation in attempts 1, 2 and 4 (bare citation IDs, a next step that repeated the rebutted fix, an unrecorded reason), and attempt 3's draft was later rejected for saying the exception "explains the exposure". We fixed the causes in code (accept bare IDs, reject contradicting or causal drafts, name the failed check) and switched the draft call to Token Factory's JSON-schema structured output; attempt 5 passed on the first call. All five attempts are in the ledger.
 
 ## Try it
 
@@ -118,7 +121,7 @@ What this means for the product: MarginGuard does not rely on the model to decid
 
 ## Tests
 
-`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 331 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 86 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
+`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 338 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 88 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
 
 ## Limits
 
