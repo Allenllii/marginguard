@@ -27,6 +27,9 @@ const Packet = z.object({
   status: z.enum(['ok', 'no-results', 'error']), note: text(1200),
   retryAfterSeconds: z.number().int().min(0).max(3600).optional(),
   proof: z.object({ requestId: nullableId, latencyMs: nonnegative, usageCredits: nonnegative.nullable() }).strict().optional(),
+  // Provenance only (shared/types.ts ResearchPacket); never projected into references.
+  retrieval: z.object({ steps: z.array(z.object({ op: z.enum(['search', 'extract']), url: z.string().max(2048).optional(), requestId: text(256).optional(), credits: nonnegative.optional(), latencyMs: nonnegative.optional(), ok: z.boolean(), detail: text(200).optional() }).strict()).max(6) }).strict().optional(),
+  policyChanged: z.object({ url: z.string().max(2048), reviewedAt: text(40) }).strict().optional(),
 }).strict();
 
 export interface PreflightPolicyReference {

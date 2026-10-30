@@ -1,0 +1,467 @@
+{
+  "description": "Live Tavily Search + Extract recordings made through server/tavily.ts research() (branch v3/deep) with an injected reserveExtract that always allowed, from a local operator script. Keys came from an ignored local env file; no key, header or full page body is stored here. Raw response bodies are identified by SHA-256 only.",
+  "recordedAtUtc": "2026-10-30T03:46:21Z to 2026-10-30T03:48:06Z",
+  "budget": {
+    "capCredits": 12,
+    "searches": 4,
+    "searchCredits": 8,
+    "extractCalls": 4,
+    "extractUrls": 7,
+    "extractReportedCredits": 1,
+    "extractPricing": "Tavily docs: basic Extract costs 1 credit per 5 successful URL extractions; usage may report 0 until 5 extractions accumulate. Worst case if each call rounds up: 4 credits.",
+    "totalReportedCredits": 9,
+    "worstCaseCredits": 12,
+    "nebiusCalls": 0
+  },
+  "calls": [
+    {
+      "n": 1,
+      "case": "shopify-discount-manual",
+      "endpoint": "https://api.tavily.com/search",
+      "startedAt": "2026-10-30T03:46:21.491Z",
+      "request": {
+        "query": "Shopify how do manually applied POS and draft order discounts interact with discount combination settings",
+        "topic": "general",
+        "search_depth": "advanced",
+        "chunks_per_source": 3,
+        "max_results": 3,
+        "include_domains": [
+          "help.shopify.com"
+        ],
+        "include_domains_mode": "restrict",
+        "include_answer": false,
+        "include_raw_content": false,
+        "include_images": false,
+        "include_usage": true,
+        "auto_parameters": false
+      },
+      "httpStatus": 200,
+      "requestId": "bd7ee08e-0943-4353-a223-2d4dc6755ae9",
+      "reportedCredits": 2,
+      "tavilyResponseTimeSeconds": 4.86,
+      "observedLatencyMs": 4990,
+      "responseBytes": 5421,
+      "responseSha256": "52bdae74318b64a4e9f7640a240243fefff04e6c4766f0654e1ace1e06fc454f"
+    },
+    {
+      "n": 2,
+      "case": "shopify-discount-manual",
+      "endpoint": "https://api.tavily.com/extract",
+      "startedAt": "2026-10-30T03:46:26.487Z",
+      "request": {
+        "urls": [
+          "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts"
+        ],
+        "extract_depth": "basic",
+        "format": "markdown",
+        "timeout": 10,
+        "include_images": false,
+        "include_favicon": false,
+        "include_usage": true
+      },
+      "httpStatus": 200,
+      "requestId": "2a6642be-00e7-4667-9b5a-bb25b2efcdda",
+      "reportedCredits": 0,
+      "tavilyResponseTimeSeconds": 0.02,
+      "observedLatencyMs": 186,
+      "responseBytes": 42214,
+      "responseSha256": "02e0a4a91795002a8023ca36bf227a50cf346510de82742445dd161f82c83a4f"
+    },
+    {
+      "n": 3,
+      "case": "shopify-discount-native (superseded run)",
+      "endpoint": "https://api.tavily.com/search",
+      "startedAt": "2026-10-30T03:46:26.678Z",
+      "request": {
+        "query": "Shopify how do automatic discounts and discount codes interact with discount combination settings",
+        "topic": "general",
+        "search_depth": "advanced",
+        "chunks_per_source": 3,
+        "max_results": 3,
+        "include_domains": [
+          "help.shopify.com"
+        ],
+        "include_domains_mode": "restrict",
+        "include_answer": false,
+        "include_raw_content": false,
+        "include_images": false,
+        "include_usage": true,
+        "auto_parameters": false
+      },
+      "httpStatus": 200,
+      "requestId": "f8d75d98-f281-4b08-8aca-080f08c89e59",
+      "reportedCredits": 2,
+      "tavilyResponseTimeSeconds": 6.07,
+      "observedLatencyMs": 6110,
+      "responseBytes": 6923,
+      "responseSha256": "d577e59f089534e30e0a8c7bef150f9fafd1e96db4983f0e53b3705c37591848"
+    },
+    {
+      "n": 4,
+      "case": "shopify-discount-native (superseded run)",
+      "endpoint": "https://api.tavily.com/extract",
+      "startedAt": "2026-10-30T03:46:32.790Z",
+      "request": {
+        "urls": [
+          "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "https://help.shopify.com/en/manual/discounts/discount-combinations#test-discounts"
+        ],
+        "extract_depth": "basic",
+        "format": "markdown",
+        "timeout": 10,
+        "include_images": false,
+        "include_favicon": false,
+        "include_usage": true
+      },
+      "httpStatus": 200,
+      "requestId": "291b4e05-5659-4aad-82cb-9699740484dd",
+      "reportedCredits": 1,
+      "tavilyResponseTimeSeconds": 0.01,
+      "observedLatencyMs": 155,
+      "responseBytes": 67261,
+      "responseSha256": "55ad87d729c3aec23405d5bd4de4fb46e4368b809ff7feb15b94f2e2311065db"
+    },
+    {
+      "n": 5,
+      "case": "usps-shipping",
+      "endpoint": "https://api.tavily.com/search",
+      "startedAt": "2026-10-30T03:46:32.948Z",
+      "request": {
+        "query": "USPS how are United States package shipping prices determined by weight, dimensions and service",
+        "topic": "general",
+        "search_depth": "advanced",
+        "chunks_per_source": 3,
+        "max_results": 3,
+        "include_domains": [
+          "usps.com"
+        ],
+        "include_domains_mode": "restrict",
+        "include_answer": false,
+        "include_raw_content": false,
+        "include_images": false,
+        "include_usage": true,
+        "auto_parameters": false
+      },
+      "httpStatus": 200,
+      "requestId": "8fadcea1-69d2-451a-9ab3-77135eeb8254",
+      "reportedCredits": 2,
+      "tavilyResponseTimeSeconds": 3.85,
+      "observedLatencyMs": 3898,
+      "responseBytes": 5240,
+      "responseSha256": "a3cc3be94bba50c770ca7685a51de75002c079ab3affe605b637daa6779806fc"
+    },
+    {
+      "n": 6,
+      "case": "usps-shipping",
+      "endpoint": "https://api.tavily.com/extract",
+      "startedAt": "2026-10-30T03:46:36.848Z",
+      "request": {
+        "urls": [
+          "https://www.usps.com/ship/mail-shipping-services.htm",
+          "https://www.usps.com/ship/priority-mail.htm"
+        ],
+        "extract_depth": "basic",
+        "format": "markdown",
+        "timeout": 10,
+        "include_images": false,
+        "include_favicon": false,
+        "include_usage": true
+      },
+      "httpStatus": 200,
+      "requestId": "ca2d8d4e-1993-4f8c-9bdf-f0de542f23c7",
+      "reportedCredits": 0,
+      "tavilyResponseTimeSeconds": 0.02,
+      "observedLatencyMs": 70,
+      "responseBytes": 33205,
+      "responseSha256": "076998c9a289ba38289f64dcdc52f0fac4a3ffcbc0e20114c53e688e2826279e"
+    },
+    {
+      "n": 7,
+      "case": "shopify-discount-native",
+      "endpoint": "https://api.tavily.com/search",
+      "startedAt": "2026-10-30T03:48:06.142Z",
+      "request": {
+        "query": "Shopify how do automatic discounts and discount codes interact with discount combination settings",
+        "topic": "general",
+        "search_depth": "advanced",
+        "chunks_per_source": 3,
+        "max_results": 3,
+        "include_domains": [
+          "help.shopify.com"
+        ],
+        "include_domains_mode": "restrict",
+        "include_answer": false,
+        "include_raw_content": false,
+        "include_images": false,
+        "include_usage": true,
+        "auto_parameters": false
+      },
+      "httpStatus": 200,
+      "requestId": "76e93d77-4811-4db9-b2ef-519d14353ca3",
+      "reportedCredits": 2,
+      "tavilyResponseTimeSeconds": 0,
+      "observedLatencyMs": 145,
+      "responseBytes": 6922,
+      "responseSha256": "7bedad47dbf21843edcbb784a9a4d6a52e1d076a243e9aac2f8e9ac30783d0a9"
+    },
+    {
+      "n": 8,
+      "case": "shopify-discount-native",
+      "endpoint": "https://api.tavily.com/extract",
+      "startedAt": "2026-10-30T03:48:06.293Z",
+      "request": {
+        "urls": [
+          "https://help.shopify.com/en/manual/discounts/discount-combinations"
+        ],
+        "extract_depth": "basic",
+        "format": "markdown",
+        "timeout": 10,
+        "include_images": false,
+        "include_favicon": false,
+        "include_usage": true
+      },
+      "httpStatus": 200,
+      "requestId": "cf6f9793-d06d-41a5-b790-42810bb9292c",
+      "reportedCredits": 0,
+      "tavilyResponseTimeSeconds": 0.02,
+      "observedLatencyMs": 125,
+      "responseBytes": 39116,
+      "responseSha256": "d728d2518ebf4b638ea0ec0ec090e05c41af7b4cdf7897ccec76893196b5fa31"
+    }
+  ],
+  "supersededRun": {
+    "case": "shopify-discount-native",
+    "calls": [
+      3,
+      4
+    ],
+    "reason": "The Extract response contained both the page URL and its #test-discounts fragment URL. The first version of research() mapped both results to the page URL, so S1 sentences came from the fragment result. Fixed (exact URL match first, never overwrite; distinct pages only), then re-recorded once as calls 7-8. Calls 3-4 are not replayed."
+  },
+  "replays": {
+    "shopify-discount-manual": {
+      "kind": "discount",
+      "context": {
+        "platform": "Shopify",
+        "carrier": "USPS",
+        "region": "US",
+        "discountOrigin": "manual"
+      },
+      "query": "Shopify how do manually applied POS and draft order discounts interact with discount combination settings",
+      "liveNote": "Live Tavily advanced search of help.shopify.com, screened for safety. Tavily Extract read 2 official pages in full; S1, S2 are complete operative sentences from the page, S3 is a search chunk.",
+      "replayNote": "Recorded live Tavily Search + Extract (requests bd7ee08e… and 2a6642be…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+      "sources": [
+        {
+          "id": "S1",
+          "title": "Shopify Help Center | Combining discounts",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "snippet": "For example, from a manual discount applied to a POS cart, or a unique discount on a draft order. The following discount types always apply to an order, regardless of any combination settings for other discounts on the same order: Custom discounts that are manually applied to an order. For example, a custom discount applied to a POS cart, or a custom discount on a draft order. You must manually configure each discount's combination settings.",
+          "publishedDate": null
+        },
+        {
+          "id": "S2",
+          "title": "Shopify Help Center | Discount combinations on POS",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+          "snippet": "When you process a sale in Shopify POS, you can apply both automatic discounts and discount codes that you've configured in your Shopify admin, as well as custom discounts that are specific to the transaction. Before you can use discount combinations in Shopify POS, you need to set up your discounts in the Shopify admin and configure them to be combinable. Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.",
+          "publishedDate": null
+        },
+        {
+          "id": "S3",
+          "title": "Shopify Help Center | Managing draft orders on Shopify POS",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/draft-orders",
+          "snippet": "If the Automatic discounts setting is turned off in More actions, then any automatic discount is removed from the draft order. #### Steps: 1. From Shopify POS, tap the Order icon. 2. Tap Load Drafts. 3. Tap the draft order that you want to edit. 4. Tap Load to cart. 5. Take one of the following steps to apply an admin discount: Tap the Apply discount tile on the smart grid, and then tap Discount code. Tap your discount-specific smart grid tile. Tap > Apply discount > Discount code. 6. Enter a discount code that was created in the admin, and then tap Save.",
+          "publishedDate": null
+        }
+      ],
+      "steps": [
+        {
+          "op": "search",
+          "ok": true,
+          "latencyMs": 4996,
+          "requestId": "bd7ee08e-0943-4353-a223-2d4dc6755ae9",
+          "credits": 2
+        },
+        {
+          "op": "extract",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "ok": true,
+          "latencyMs": 187,
+          "credits": 0,
+          "requestId": "2a6642be-00e7-4667-9b5a-bb25b2efcdda"
+        },
+        {
+          "op": "extract",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+          "ok": true,
+          "requestId": "2a6642be-00e7-4667-9b5a-bb25b2efcdda"
+        }
+      ],
+      "decision": {
+        "status": "contradicted",
+        "sourceIds": [
+          "S1",
+          "S2"
+        ]
+      }
+    },
+    "shopify-discount-native": {
+      "kind": "discount",
+      "context": {
+        "platform": "Shopify",
+        "carrier": "USPS",
+        "region": "US",
+        "discountOrigin": "native"
+      },
+      "query": "Shopify how do automatic discounts and discount codes interact with discount combination settings",
+      "liveNote": "Live Tavily advanced search of help.shopify.com, screened for safety. Tavily Extract read 1 official page in full; S1 is complete operative sentences from the page, S2 is a search chunk.",
+      "replayNote": "Recorded live Tavily Search + Extract (requests 76e93d77… and cf6f9793…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+      "sources": [
+        {
+          "id": "S1",
+          "title": "Shopify Help Center | Combining discounts",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "snippet": "You can set up both automatic discounts and discount codes to combine. If an automatic discount isn't applying alongside a customer's discount code, then verify the following settings and limits: Verify combination settings: Ensure both the automatic discount and the discount code are set to combine with each other's class in their Combinations settings. Yes, you can apply both automatic discounts and discount codes to the same cart, as long as each discount is configured to combine with the other discount's class.",
+          "publishedDate": null
+        }
+      ],
+      "steps": [
+        {
+          "op": "search",
+          "ok": true,
+          "latencyMs": 151,
+          "requestId": "76e93d77-4811-4db9-b2ef-519d14353ca3",
+          "credits": 2
+        },
+        {
+          "op": "extract",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "ok": true,
+          "latencyMs": 126,
+          "credits": 0,
+          "requestId": "cf6f9793-d06d-41a5-b790-42810bb9292c"
+        }
+      ],
+      "decision": {
+        "status": "review",
+        "sourceIds": [
+          "S1"
+        ]
+      },
+      "liveSources": [
+        {
+          "id": "S1",
+          "title": "Shopify Help Center | Combining discounts",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "snippet": "You can set up both automatic discounts and discount codes to combine. If an automatic discount isn't applying alongside a customer's discount code, then verify the following settings and limits: Verify combination settings: Ensure both the automatic discount and the discount code are set to combine with each other's class in their Combinations settings. Yes, you can apply both automatic discounts and discount codes to the same cart, as long as each discount is configured to combine with the other discount's class.",
+          "publishedDate": null
+        },
+        {
+          "id": "S2",
+          "title": "Shopify Help Center | Combining discounts",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations#test-discounts",
+          "snippet": "# Combining discounts For some of your promotions, you might want to let customers combine different discounts together. You can choose from eligible combinations that let customers benefit from the best possible total discount based on their cart. You can set up both automatic discounts and discount codes to combine. Each discount that you create has one of the following classes depending on what the discount applies to: #### Note",
+          "publishedDate": null
+        }
+      ],
+      "droppedFromReplay": [
+        {
+          "id": "S2",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations#test-discounts",
+          "reason": "Same page as S1 (#fragment URL). research() now treats a #fragment as the same source and keeps the first, a change made after this recording; the replay omits it. S1 is unchanged."
+        }
+      ]
+    },
+    "usps-shipping": {
+      "kind": "shipping",
+      "context": {
+        "platform": "Shopify",
+        "carrier": "USPS",
+        "region": "US",
+        "discountOrigin": "native"
+      },
+      "query": "USPS how are United States package shipping prices determined by weight, dimensions and service",
+      "liveNote": "Live Tavily advanced search of usps.com, screened for safety. Tavily Extract read 2 official pages in full; S1, S2 are complete operative sentences from the page, S3 is a search chunk.",
+      "replayNote": "Recorded live Tavily Search + Extract (requests 8fadcea1… and ca2d8d4e…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+      "sources": [
+        {
+          "id": "S1",
+          "title": "Mail & Shipping Services | USPS",
+          "url": "https://www.usps.com/ship/mail-shipping-services.htm",
+          "snippet": "Tracking and insurance are included, shipping boxes and envelopes are free, and with Priority Mail Flat Rate®, you don't need to weigh shipments 70 lbs and under. Dimensional (DIM) weight rates apply to large, lightweight packages. If you omit or give inaccurate dimensions and/or dont pay the DIM weight rate (when it applies), you'll pay a dimension-noncompliance fee of $3.00.",
+          "publishedDate": null
+        },
+        {
+          "id": "S2",
+          "title": "Priority Mail | USPS",
+          "url": "https://www.usps.com/ship/priority-mail.htm",
+          "snippet": "Except for Priority Mail Flat Rate packaging, Priority Mail prices are based on weight and zone. Additional Fees: If you give inaccurate dimensions and/or don’t pay the DIM weight rate (when it applies), you’ll pay a dimension-noncompliance fee. Prices are commercial rates based on weight and zone to quickly move your mailings at a reasonable cost.",
+          "publishedDate": null
+        },
+        {
+          "id": "S3",
+          "title": "Parcel Size, Weight & Fee Standards",
+          "url": "https://faq.usps.com/s/article/Parcel-Size-Weight-Fee-Standards",
+          "snippet": "Shape, weight, and size affect the price for large packages. · The U.S. Postal Service™ recommends that you use a scale to determine the weight of your package.",
+          "publishedDate": null
+        }
+      ],
+      "steps": [
+        {
+          "op": "search",
+          "ok": true,
+          "latencyMs": 3900,
+          "requestId": "8fadcea1-69d2-451a-9ab3-77135eeb8254",
+          "credits": 2
+        },
+        {
+          "op": "extract",
+          "url": "https://www.usps.com/ship/mail-shipping-services.htm",
+          "ok": true,
+          "latencyMs": 70,
+          "credits": 0,
+          "requestId": "ca2d8d4e-1993-4f8c-9bdf-f0de542f23c7"
+        },
+        {
+          "op": "extract",
+          "url": "https://www.usps.com/ship/priority-mail.htm",
+          "ok": true,
+          "requestId": "ca2d8d4e-1993-4f8c-9bdf-f0de542f23c7"
+        }
+      ],
+      "decision": {
+        "status": "review",
+        "sourceIds": [
+          "S1",
+          "S2",
+          "S3"
+        ]
+      }
+    }
+  },
+  "reviewedOperativeSentences": [
+    {
+      "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+      "origin": "manual",
+      "sha256": "94c0952b67f6714848f4f754ce562467078aa5ca606b2eaa4901bf48fc7e8477",
+      "reviewedAt": "2026-10-30"
+    },
+    {
+      "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+      "origin": "manual",
+      "sha256": "2540e52d57b71bf11e3525e4da127c05a8a6c551c3d87baf665376b1efe26cf0",
+      "reviewedAt": "2026-10-30"
+    },
+    {
+      "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+      "origin": "native",
+      "sha256": "69e663eb5ba8085bf0126539c7a86e36b84051239de738bc5da938c2c145fedb",
+      "reviewedAt": "2026-10-30"
+    }
+  ],
+  "reproducibility": "Feeding the saved raw responses (identified by responseSha256) back through the committed research() with an injected transport reproduces every replayed source byte for byte. Manual and USPS replay the full live output. Native replays its live S1 unchanged and omits live S2, a #fragment URL of the same page (see replays.shopify-discount-native.droppedFromReplay); fragment de-duplication was added to safeSources after the recording, so the current code returns the same single source for these responses.",
+  "observations": [
+    "Search took 3.9-6.1 s; Extract of two pages took 0.07-0.19 s (Tavily reported response_time 0.01-0.02 s), so those pages were likely served from Tavily cache. The native re-run search (151 ms) was likely a cached repeat of the same query.",
+    "Extract reported usage.credits 0, 1, 0, 0; Tavily documents that usage may show 0 until 5 extractions accumulate, so the ledger also gives the documented worst case.",
+    "No Extract call reported failed_results. Every call returned HTTP 200; no retries."
+  ]
+}

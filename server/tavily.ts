@@ -1,5 +1,7 @@
 import { z } from 'zod';
-import type { IssueKind, PolicySource, ResearchContext, ResearchPacket } from '../shared/types.js';
+import { sha256 } from '@noble/hashes/sha2.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import type { IssueKind, PolicySource, ResearchContext, ResearchPacket, RetrievalStep } from '../shared/types.js';
 import { boundedJson } from './http.js';
 import { inferredSourceRegion, unresolvedPolicyStatement } from '../shared/policy-source-scope.js';
 
@@ -8,11 +10,14 @@ export const KindSchema = z.enum(['discount', 'shipping']);
 export type TavilyConfig = { key?: string; enabled?: boolean };
 export function tavilySettings(): TavilyConfig { return { key: process.env.TAVILY_API_KEY, enabled: process.env.TAVILY_ENABLE_LIVE === 'true' }; }
 export function tavilyStatus(c = tavilySettings()) { return { mode: c.enabled && c.key ? 'configured' : 'fixture', endpoint: 'https://api.tavily.com/search' }; }
+// Queries describe the seller's situation and ask for the governing official
+// rule. They never presuppose the answer (no "bypass" or "exception" wording).
 export function searchPlan(kind: IssueKind, context: ResearchContext) {
   ContextSchema.parse(context); KindSchema.parse(kind);
   const domain = kind === 'shipping' ? context.carrier === 'USPS' ? 'usps.com' : 'ups.com' : context.platform === 'Shopify' ? 'help.shopify.com' : 'woocommerce.com';
-  const origin = context.discountOrigin === 'manual' ? 'manual POS draft order discounts bypass combination settings exceptions' : context.discountOrigin === 'scripts-api' ? 'Scripts API discounts bypass combination settings exceptions' : context.discountOrigin === 'app' || context.discountOrigin === 'app-script' ? 'app discount application method combination eligibility settings' : 'automatic code discount combination eligibility settings';
-  const query = kind === 'shipping' ? `${context.carrier} United States official shipping dimensional weight surcharges package dimensions policy` : `${context.platform} official documentation ${origin}`;
+  const rules = context.platform === 'Shopify' ? 'discount combination settings' : 'coupon usage restrictions such as individual use';
+  const origin = context.discountOrigin === 'manual' ? 'manually applied POS and draft order discounts' : context.discountOrigin === 'scripts-api' ? 'discounts added by the Scripts API' : context.discountOrigin === 'app' || context.discountOrigin === 'app-script' ? 'discounts applied by third-party apps' : 'automatic discounts and discount codes';
+  const query = kind === 'shipping' ? `${context.carrier} how are United States package shipping prices determined by weight, dimensions and service` : `${context.platform} how do ${origin} interact with ${rules}`;
   return { query, domains: [domain], relevant: kind === 'shipping' ? /shipping|package|dimensional|postage|surcharge|weight|rates/i : kind === 'discount' ? /discount|coupon|promotion|combin/i : /return|refund|exchange/i };
 }
 const cleanText = (s: string) => s.replace(/<[^>]*>/g, ' ').replace(/\p{Cc}/gu, ' ').replace(/\s+/g, ' ').trim();
@@ -31,6 +36,7 @@ export function selectPassage(content: string, kind: IssueKind, context: Researc
   return (best?.text ?? '').slice(0, 1200);
 }
 const passageKey = (text: string) => text.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+const unsafeText = /ignore.{0,30}(instructions|previous)|system prompt|api.?key|execute.{0,20}(code|command)|send.{0,20}(secret|credential)|you are (chatgpt|an assistant)/i;
 export function safeSources(raw: unknown, kind: IssueKind, context: ResearchContext): PolicySource[] {
   const parsed = z.object({ results: z.array(z.object({ title: z.string().max(2000), url: z.string().max(2048), content: z.string().max(30000).default(''), score: z.number().optional(), published_date: z.string().nullable().optional() })).max(20) }).parse(raw);
   const plan = searchPlan(kind, context), seen = new Set<string>(), seenPassages = new Set<string>();
@@ -40,8 +46,10 @@ export function safeSources(raw: unknown, kind: IssueKind, context: ResearchCont
     if (url.protocol !== 'https:' || url.username || url.password || url.port || !plan.domains.some(d => url.hostname === d || url.hostname.endsWith(`.${d}`))) continue;
     if (!plan.relevant.test(item.title + ' ' + item.content) || (item.score !== undefined && item.score < 0.25)) continue;
     const content = cleanText(item.content);
-    if (!content || /ignore.{0,30}(instructions|previous)|system prompt|api.?key|execute.{0,20}(code|command)|send.{0,20}(secret|credential)|you are (chatgpt|an assistant)/i.test(content)) continue;
-    if (seen.has(url.href)) continue; seen.add(url.href);
+    if (!content || unsafeText.test(content)) continue;
+    // A #fragment is the same page, not an independent source. Keep the first.
+    const page = url.href.split('#')[0];
+    if (seen.has(page)) continue; seen.add(page);
     if (!plan.relevant.test(content) || content.length < 40) continue;
     // Inspect the complete returned text before selecting a short passage, so
     // truncation cannot discard an expiry or known contrary rule.
@@ -54,36 +62,309 @@ export function safeSources(raw: unknown, kind: IssueKind, context: ResearchCont
   }
   return accepted;
 }
+
+// --- Tavily Extract: full official page -> complete operative sentences -----
+const EXTRACT_MAX_BYTES = 500_000;
+function extractTerms(kind: IssueKind, context: ResearchContext): RegExp[] {
+  if (kind === 'shipping') return [/\bdimension/i, /\bweigh/i, /\bsurcharge/i, /\bmeasure/i, /\brates?\b/i, /\bprices?\b/i];
+  const exception = [/\bcombination (?:settings|restrictions)\b/i, /\bregardless\b/i, /\balways appl(?:y|ies)\b/i];
+  if (context.discountOrigin === 'manual') return [...exception, /\bmanual(?:ly)?\b/i, /\bdraft orders?\b/i, /\bPOS\b/];
+  if (context.discountOrigin === 'scripts-api') return [...exception, /\bScripts API\b/i];
+  if (context.platform === 'WooCommerce') return [/\bindividual use\b/i, /\busage restrictions?\b/i, /\bcombin/i, /\bcoupons?\b/i];
+  return [/\bcombination settings\b/i, /\bcombin(?:e|ed|es|ing)\b/i, /\beligib/i, /\bclass(?:es)?\b/i, /\bdiscount codes?\b/i, /\bautomatic discounts?\b/i];
+}
+/**
+ * Splits an extracted page (markdown) into complete sentences. A list item keeps
+ * its lead-in line ("The following discount types always apply ...: <item>"),
+ * because the lead-in carries the rule the item depends on; `own` (the item's own
+ * words) is what selection scores, so a shared lead-in does not lift every item.
+ */
+export function pageSentences(page: string): { text: string; own: string }[] {
+  const units: { text: string; own: string }[] = [];
+  let leadIn: string | null = null;
+  for (const rawLine of page.replace(/!\[[^\]]*\]\([^)]*\)/g, ' ').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').split(/\r?\n/)) {
+    const line = cleanText(rawLine.replace(/\*{1,3}|_{2,3}|`/g, ''));
+    if (!line) continue;
+    if (/^#{1,6}\s/.test(line) || line.startsWith('|')) { leadIn = null; continue; }
+    const item = line.match(/^(?:[-+*•]|\d+\.)\s+(.*)$/)?.[1];
+    if (item !== undefined) { if (/[.!?]$/.test(item)) units.push({ text: leadIn ? `${leadIn} ${item}` : item, own: item }); continue; }
+    leadIn = line.endsWith(':') ? line : null;
+    units.push(...line.split(/(?<=[.!?])\s+(?=[A-Z0-9"“(])/u).filter(t => /[.!?]$/.test(t)).map(t => ({ text: t, own: t })));
+  }
+  return units.filter(u => u.text.length >= 30 && u.text.length <= 500);
+}
+/**
+ * Deterministic selection: at most three complete sentences that match the most
+ * context terms, returned in page order and capped at 1200 characters. A relevant
+ * sentence the scope checker cannot resolve (retraction, contrary rule) is always
+ * kept, so decidePolicy holds instead of the selection hiding it.
+ */
+export function operativeSentences(page: string, title: string, kind: IssueKind, context: ResearchContext): string {
+  const terms = extractTerms(kind, context), relevant = searchPlan(kind, context).relevant;
+  const scored = pageSentences(page).map(({ text, own }, i) => ({ text, i, score: terms.filter(t => t.test(own)).length }))
+    .filter(u => u.score > 0 && relevant.test(u.text) && !unsafeText.test(u.text));
+  const ordered = [...scored.filter(u => unresolvedPolicyStatement(title, u.text)).slice(0, 1), ...[...scored].sort((a, b) => b.score - a.score || a.i - b.i)];
+  const picked: typeof scored = [];
+  for (const u of ordered) {
+    if (picked.length === 3) break;
+    if (picked.some(p => p.text === u.text) || [...picked, u].reduce((n, p) => n + p.text.length + 1, 0) > 1201) continue;
+    picked.push(u);
+  }
+  return picked.sort((a, b) => a.i - b.i).map(u => u.text).join(' ');
+}
+/** SHA-256 of whitespace/case-normalized operative sentences (policy change detection). */
+export const operativeHash = (text: string) => bytesToHex(sha256(new TextEncoder().encode(text.toLowerCase().replace(/\s+/g, ' ').trim())));
+const sameUrl = (a: string, b: string) => { try { const x = new URL(a), y = new URL(b); x.hash = ''; y.hash = ''; return x.href === y.href; } catch { return false; } };
+const ExtractSchema = z.object({ results: z.array(z.object({ url: z.string().max(2048), raw_content: z.string().max(250_000).nullable().default('') })).max(5), request_id: z.string().max(200).optional(), usage: z.object({ credits: z.number().optional() }).optional() });
+export type ResearchHooks = {
+  /** Reserves budget for ONE Extract call before it is sent. Absent: no Extract (search-only callers). */
+  reserveExtract?: () => Promise<boolean>;
+};
+type Extracted = { pages: Map<string, string>; requestId?: string; credits?: number; latencyMs: number; failure?: string };
+async function extractPages(urls: string[], config: TavilyConfig, request: typeof fetch): Promise<Extracted> {
+  const start = performance.now(), pages = new Map<string, string>();
+  try {
+    const response = await request('https://api.tavily.com/extract', { method: 'POST', headers: { Authorization: `Bearer ${config.key}`, 'Content-Type': 'application/json' }, redirect: 'error', signal: AbortSignal.timeout(15000), body: JSON.stringify({ urls, extract_depth: 'basic', format: 'markdown', timeout: 10, include_images: false, include_favicon: false, include_usage: true }) });
+    const headerId = response.headers.get('x-request-id') || undefined;
+    if (!response.ok) return { pages, requestId: headerId, latencyMs: Math.round(performance.now() - start), failure: `returned HTTP ${response.status}` };
+    const raw = ExtractSchema.parse(await boundedJson(response, EXTRACT_MAX_BYTES));
+    // Keep only the requested official URLs, never a page that echoes the key.
+    // Response order is not guaranteed: match the exact URL first, then the same page without #fragment; never overwrite.
+    for (const r of raw.results) { const url = urls.find(u => u === r.url) ?? urls.find(u => sameUrl(u, r.url)); if (url && !pages.has(url) && r.raw_content && !r.raw_content.includes(config.key!)) pages.set(url, r.raw_content); }
+    return { pages, requestId: headerId ?? raw.request_id, credits: raw.usage?.credits, latencyMs: Math.round(performance.now() - start), failure: pages.size ? undefined : 'returned no usable page' };
+  } catch { return { pages, latencyMs: Math.round(performance.now() - start), failure: 'failed, timed out, or returned oversized or unreadable data' }; }
+}
+function changedPolicy(sources: PolicySource[], fromExtract: Set<string>, kind: IssueKind, context: ResearchContext): ResearchPacket['policyChanged'] {
+  if (kind !== 'discount' || context.platform !== 'Shopify') return undefined;
+  for (const source of sources) {
+    const reviewed = fromExtract.has(source.id) ? REVIEWED_OPERATIVE_SENTENCES.find(r => r.origin === context.discountOrigin && sameUrl(r.url, source.url)) : undefined;
+    if (reviewed && reviewed.sha256 !== operativeHash(source.snippet)) return { url: source.url, reviewedAt: reviewed.reviewedAt };
+  }
+  return undefined;
+}
+
+// --- Recorded live retrievals, replayed verbatim offline --------------------
+// Source: evidence/live-retrieval-v3-20261030.json (tests assert byte identity).
+// Fixture packets never carry `proof`; request IDs appear in the note and steps.
+type Recorded = { query: string; note: string; sources: PolicySource[]; steps: RetrievalStep[] };
+export const RECORDED_RETRIEVALS: Record<'shopify-discount-manual' | 'shopify-discount-native' | 'usps-shipping', Recorded> = {
+  "shopify-discount-manual": {
+    "query": "Shopify how do manually applied POS and draft order discounts interact with discount combination settings",
+    "note": "Recorded live Tavily Search + Extract (requests bd7ee08e… and 2a6642be…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+    "sources": [
+      {
+        "id": "S1",
+        "title": "Shopify Help Center | Combining discounts",
+        "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+        "snippet": "For example, from a manual discount applied to a POS cart, or a unique discount on a draft order. The following discount types always apply to an order, regardless of any combination settings for other discounts on the same order: Custom discounts that are manually applied to an order. For example, a custom discount applied to a POS cart, or a custom discount on a draft order. You must manually configure each discount's combination settings.",
+        "publishedDate": null
+      },
+      {
+        "id": "S2",
+        "title": "Shopify Help Center | Discount combinations on POS",
+        "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+        "snippet": "When you process a sale in Shopify POS, you can apply both automatic discounts and discount codes that you've configured in your Shopify admin, as well as custom discounts that are specific to the transaction. Before you can use discount combinations in Shopify POS, you need to set up your discounts in the Shopify admin and configure them to be combinable. Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.",
+        "publishedDate": null
+      },
+      {
+        "id": "S3",
+        "title": "Shopify Help Center | Managing draft orders on Shopify POS",
+        "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/draft-orders",
+        "snippet": "If the Automatic discounts setting is turned off in More actions, then any automatic discount is removed from the draft order. #### Steps: 1. From Shopify POS, tap the Order icon. 2. Tap Load Drafts. 3. Tap the draft order that you want to edit. 4. Tap Load to cart. 5. Take one of the following steps to apply an admin discount: Tap the Apply discount tile on the smart grid, and then tap Discount code. Tap your discount-specific smart grid tile. Tap > Apply discount > Discount code. 6. Enter a discount code that was created in the admin, and then tap Save.",
+        "publishedDate": null
+      }
+    ],
+    "steps": [
+      {
+        "op": "search",
+        "ok": true,
+        "latencyMs": 4996,
+        "requestId": "bd7ee08e-0943-4353-a223-2d4dc6755ae9",
+        "credits": 2
+      },
+      {
+        "op": "extract",
+        "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+        "ok": true,
+        "latencyMs": 187,
+        "credits": 0,
+        "requestId": "2a6642be-00e7-4667-9b5a-bb25b2efcdda"
+      },
+      {
+        "op": "extract",
+        "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+        "ok": true,
+        "requestId": "2a6642be-00e7-4667-9b5a-bb25b2efcdda"
+      }
+    ]
+  },
+  "shopify-discount-native": {
+    "query": "Shopify how do automatic discounts and discount codes interact with discount combination settings",
+    "note": "Recorded live Tavily Search + Extract (requests 76e93d77… and cf6f9793…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+    "sources": [
+      {
+        "id": "S1",
+        "title": "Shopify Help Center | Combining discounts",
+        "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+        "snippet": "You can set up both automatic discounts and discount codes to combine. If an automatic discount isn't applying alongside a customer's discount code, then verify the following settings and limits: Verify combination settings: Ensure both the automatic discount and the discount code are set to combine with each other's class in their Combinations settings. Yes, you can apply both automatic discounts and discount codes to the same cart, as long as each discount is configured to combine with the other discount's class.",
+        "publishedDate": null
+      }
+    ],
+    "steps": [
+      {
+        "op": "search",
+        "ok": true,
+        "latencyMs": 151,
+        "requestId": "76e93d77-4811-4db9-b2ef-519d14353ca3",
+        "credits": 2
+      },
+      {
+        "op": "extract",
+        "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+        "ok": true,
+        "latencyMs": 126,
+        "credits": 0,
+        "requestId": "cf6f9793-d06d-41a5-b790-42810bb9292c"
+      }
+    ]
+  },
+  "usps-shipping": {
+    "query": "USPS how are United States package shipping prices determined by weight, dimensions and service",
+    "note": "Recorded live Tavily Search + Extract (requests 8fadcea1… and ca2d8d4e…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+    "sources": [
+      {
+        "id": "S1",
+        "title": "Mail & Shipping Services | USPS",
+        "url": "https://www.usps.com/ship/mail-shipping-services.htm",
+        "snippet": "Tracking and insurance are included, shipping boxes and envelopes are free, and with Priority Mail Flat Rate®, you don't need to weigh shipments 70 lbs and under. Dimensional (DIM) weight rates apply to large, lightweight packages. If you omit or give inaccurate dimensions and/or dont pay the DIM weight rate (when it applies), you'll pay a dimension-noncompliance fee of $3.00.",
+        "publishedDate": null
+      },
+      {
+        "id": "S2",
+        "title": "Priority Mail | USPS",
+        "url": "https://www.usps.com/ship/priority-mail.htm",
+        "snippet": "Except for Priority Mail Flat Rate packaging, Priority Mail prices are based on weight and zone. Additional Fees: If you give inaccurate dimensions and/or don’t pay the DIM weight rate (when it applies), you’ll pay a dimension-noncompliance fee. Prices are commercial rates based on weight and zone to quickly move your mailings at a reasonable cost.",
+        "publishedDate": null
+      },
+      {
+        "id": "S3",
+        "title": "Parcel Size, Weight & Fee Standards",
+        "url": "https://faq.usps.com/s/article/Parcel-Size-Weight-Fee-Standards",
+        "snippet": "Shape, weight, and size affect the price for large packages. · The U.S. Postal Service™ recommends that you use a scale to determine the weight of your package.",
+        "publishedDate": null
+      }
+    ],
+    "steps": [
+      {
+        "op": "search",
+        "ok": true,
+        "latencyMs": 3900,
+        "requestId": "8fadcea1-69d2-451a-9ab3-77135eeb8254",
+        "credits": 2
+      },
+      {
+        "op": "extract",
+        "url": "https://www.usps.com/ship/mail-shipping-services.htm",
+        "ok": true,
+        "latencyMs": 70,
+        "credits": 0,
+        "requestId": "ca2d8d4e-1993-4f8c-9bdf-f0de542f23c7"
+      },
+      {
+        "op": "extract",
+        "url": "https://www.usps.com/ship/priority-mail.htm",
+        "ok": true,
+        "requestId": "ca2d8d4e-1993-4f8c-9bdf-f0de542f23c7"
+      }
+    ]
+  }
+};
+/** Operative sentences reviewed on 2026-10-30 (hashes of the recorded live Extract passages). */
+export const REVIEWED_OPERATIVE_SENTENCES: { url: string; origin: NonNullable<ResearchContext['discountOrigin']>; sha256: string; reviewedAt: string }[] = [
+  {
+    "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+    "origin": "manual",
+    "sha256": "94c0952b67f6714848f4f754ce562467078aa5ca606b2eaa4901bf48fc7e8477",
+    "reviewedAt": "2026-10-30"
+  },
+  {
+    "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+    "origin": "manual",
+    "sha256": "2540e52d57b71bf11e3525e4da127c05a8a6c551c3d87baf665376b1efe26cf0",
+    "reviewedAt": "2026-10-30"
+  },
+  {
+    "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+    "origin": "native",
+    "sha256": "69e663eb5ba8085bf0126539c7a86e36b84051239de738bc5da938c2c145fedb",
+    "reviewedAt": "2026-10-30"
+  }
+];
+const recordedKey = (kind: IssueKind, c: ResearchContext) => kind === 'discount' && c.platform === 'Shopify' && (c.discountOrigin === 'manual' || c.discountOrigin === 'native') ? `shopify-discount-${c.discountOrigin}` as const : kind === 'shipping' && c.carrier === 'USPS' ? 'usps-shipping' as const : null;
+export function recordedRetrieval(kind: IssueKind, c: ResearchContext): Recorded | undefined { const key = recordedKey(kind, c); return key ? RECORDED_RETRIEVALS[key] : undefined; }
 // Recorded live Tavily S1 (request 19444728-22d2-4be8-ab7e-7c4d0714bb07, 2026-10-30,
-// evidence/live-run-20261030.json), replayed verbatim for the hosted offline demo.
-// Fixture packets never carry `proof`; the request id is shown in the note.
+// evidence/live-run-20261030.json). The recorded Nemotron replay in nebius.ts is
+// tied to this exact passage; it is no longer the hosted manual fixture.
 export const RECORDED_MANUAL_SOURCE = { id: 'S1', title: 'Shopify Help Center | Discount combinations on POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts', snippet: "Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions. You can't apply custom line item discounts to a split line item. After you apply a custom line item discount in Shopify POS, additional product discount codes can't be applied to that same item. All automatic discounts and discount codes follow the same combination rules and calculation order as", publishedDate: null, sourceRegion: 'global' } satisfies PolicySource;
-const replaysRecordedResult = (kind: IssueKind, c: ResearchContext) => kind === 'discount' && c.platform === 'Shopify' && c.discountOrigin === 'manual';
 function fixtureSources(kind: IssueKind, c: ResearchContext): PolicySource[] {
   const shopify = c.platform === 'Shopify';
-  if (replaysRecordedResult(kind, c)) return [{ ...RECORDED_MANUAL_SOURCE }];
   if (kind === 'discount') return [{ id: 'S1', title: shopify ? 'Combining discounts · Shopify Help Center' : 'Coupon management · WooCommerce', url: shopify ? 'https://help.shopify.com/en/manual/discounts/discount-combinations' : 'https://woocommerce.com/document/coupon-management/', snippet: shopify ? c.discountOrigin === 'manual' || c.discountOrigin === 'scripts-api' ? 'Saved-source paraphrase: Shopify lists manual POS/draft-order discounts and Scripts API discounts as exceptions that apply regardless of combination settings. Review the originating override or script; a combination-settings change is not established as a fix.' : 'Saved-source paraphrase: eligible discount classes can combine when the relevant settings permit it. Confirm store eligibility and active code/automatic-discount configuration.' : 'Saved-source paraphrase: coupon usage restrictions include individual-use controls. Inspect the active coupon’s restrictions and intent.', publishedDate: null, savedAt: '2026-10-27T20:11:32Z', sourceRegion: 'global' }];
   if (kind === 'shipping') return [{ id: 'S1', title: c.carrier === 'USPS' ? 'Mailing & Shipping Prices · USPS' : 'Shipping dimensions and weight · UPS', url: c.carrier === 'USPS' ? 'https://www.usps.com/business/prices.htm' : 'https://www.ups.com/us/en/support/shipping-support/shipping-dimensions-weight', snippet: 'Fixture summary: actual shipping charges depend on service, package characteristics, and applicable rate terms. Verify the carrier documentation and invoice.', publishedDate: null }];
   return [{ id: 'S1', title: shopify ? 'Returns and exchanges · Shopify Help Center' : 'WooCommerce refunds', url: shopify ? 'https://help.shopify.com/en/manual/fulfillment/managing-orders/returns' : 'https://woocommerce.com/document/woocommerce-refunds/', snippet: 'Fixture summary: refunds and physical returns are distinct operational steps. Review refund records and return handling rather than assuming a product defect.', publishedDate: null }];
 }
-export async function research(kind: IssueKind, context: ResearchContext, live: boolean, config = tavilySettings(), request: typeof fetch = fetch): Promise<Omit<ResearchPacket, 'researchId'>> {
-  const plan = searchPlan(kind, context);
-  const base = { kind, context, query: plan.query };
-  if (context.region !== 'US') return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'no-results', note: 'This demo covers US policy only, so the search was skipped and the recommendation is on hold.' };
-  if (!live && replaysRecordedResult(kind, context)) return { ...base, mode: 'fixture', checkedAt: null, sources: fixtureSources(kind, context), status: 'ok', note: 'Recorded live Tavily result (request 19444728…, 2026-10-30), replayed offline. No search runs on this hosted demo.' };
-  if (!live) return { ...base, mode: 'fixture', checkedAt: null, sources: fixtureSources(kind, context), status: 'ok', note: 'Saved summaries of the official pages, shown offline. No search runs on this hosted demo.' };
-  if (!config.enabled || !config.key) return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note: 'Live search runs in local mode with your own Tavily key; this demo replays a recorded result.' };
+
+type Packet = Omit<ResearchPacket, 'researchId'>;
+type Searched = { sources: PolicySource[]; requestId: string | null; credits: number | null; latencyMs: number };
+async function search(plan: ReturnType<typeof searchPlan>, kind: IssueKind, context: ResearchContext, config: TavilyConfig, request: typeof fetch, base: Pick<Packet, 'kind' | 'context' | 'query'>): Promise<Searched | Packet> {
   const start = performance.now();
   try {
     const response = await request('https://api.tavily.com/search', { method: 'POST', headers: { Authorization: `Bearer ${config.key}`, 'Content-Type': 'application/json' }, redirect: 'error', signal: AbortSignal.timeout(20000), body: JSON.stringify({ query: plan.query, topic: 'general', search_depth: 'advanced', chunks_per_source: 3, max_results: 3, include_domains: plan.domains, include_domains_mode: 'restrict', include_answer: false, include_raw_content: false, include_images: false, include_usage: true, auto_parameters: false }) });
+    const headerId = response.headers.get('x-request-id');
     if (!response.ok) {
       const retry = response.headers.get('retry-after');
       const seconds = retry && /^\d+$/.test(retry) ? Math.min(3600, Number(retry)) : 60;
       const note = response.status === 401 ? 'Tavily authentication failed; check the server API key.' : response.status === 429 ? `Tavily rate limit reached; try again in ${seconds} seconds.` : response.status === 432 ? 'The Tavily search quota for this key is used up.' : response.status === 433 ? 'The Tavily pay-as-you-go cap for this key was reached.' : `Tavily search failed with HTTP ${response.status}.`;
-      return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note, ...(response.status === 429 ? { retryAfterSeconds: seconds } : {}) };
+      return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note, ...(response.status === 429 ? { retryAfterSeconds: seconds } : {}), retrieval: { steps: [{ op: 'search', ok: false, latencyMs: Math.round(performance.now() - start), ...(headerId ? { requestId: headerId } : {}), detail: `HTTP ${response.status}` }] } };
     }
     const raw = await boundedJson(response, 200000) as { results: unknown[]; request_id?: unknown; usage?: { credits?: unknown } };
-    const sources = safeSources(raw, kind, context);
-    return { ...base, mode: 'live', checkedAt: new Date().toISOString(), sources, status: sources.length ? 'ok' : 'no-results', note: sources.length ? `Live Tavily advanced search of ${plan.domains[0]}; passages are Tavily's most relevant chunks, screened for safety.` : `Tavily found no relevant passages on ${plan.domains[0]} for this context.`, proof: { requestId: response.headers.get('x-request-id') || (typeof raw.request_id === 'string' ? raw.request_id : null), latencyMs: Math.round(performance.now() - start), usageCredits: typeof raw.usage?.credits === 'number' ? raw.usage.credits : null } };
+    return { sources: safeSources(raw, kind, context), requestId: headerId || (typeof raw.request_id === 'string' ? raw.request_id : null), credits: typeof raw.usage?.credits === 'number' ? raw.usage.credits : null, latencyMs: Math.round(performance.now() - start) };
   } catch { return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note: 'Tavily search failed, timed out or returned unreadable data.' }; }
+}
+
+export async function research(kind: IssueKind, context: ResearchContext, live: boolean, config = tavilySettings(), request: typeof fetch = fetch, hooks: ResearchHooks = {}): Promise<Packet> {
+  const plan = searchPlan(kind, context);
+  const base = { kind, context, query: plan.query };
+  if (context.region !== 'US') return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'no-results', note: 'This demo covers US policy only, so the search was skipped and the recommendation is on hold.' };
+  const recorded = live ? undefined : recordedRetrieval(kind, context);
+  if (recorded) return { ...base, query: recorded.query, mode: 'fixture', checkedAt: null, sources: recorded.sources.map(s => ({ ...s })), status: 'ok', note: recorded.note, retrieval: { steps: recorded.steps.map(s => ({ ...s })) } };
+  if (!live) return { ...base, mode: 'fixture', checkedAt: null, sources: fixtureSources(kind, context), status: 'ok', note: 'Authored summaries of the official pages (not a recorded retrieval), shown offline. No search runs on this hosted demo.' };
+  if (!config.enabled || !config.key) return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note: 'Live search runs in local mode with your own Tavily key; this demo replays a recorded result.' };
+  const searched = await search(plan, kind, context, config, request, base);
+  if ('status' in searched) return searched;
+  const { sources } = searched;
+  const steps: RetrievalStep[] = [{ op: 'search', ok: true, latencyMs: searched.latencyMs, ...(searched.requestId ? { requestId: searched.requestId } : {}), ...(searched.credits !== null ? { credits: searched.credits } : {}) }];
+  const proof = { requestId: searched.requestId, latencyMs: searched.latencyMs, usageCredits: searched.credits };
+  if (!sources.length) return { ...base, mode: 'live', checkedAt: new Date().toISOString(), sources, status: 'no-results', note: `Tavily found no relevant passages on ${plan.domains[0]} for this context.`, proof, retrieval: { steps } };
+  // Search -> Extract: read the top two screened official pages in full (one call,
+  // no retry) and pass complete operative sentences to decidePolicy. A source
+  // whose page is not usable keeps its search chunk, and the note says so.
+  const targets = sources.slice(0, 2), fromExtract = new Set<string>();
+  let detail: string;
+  if (!hooks.reserveExtract) detail = 'Extract was not requested; passages are Tavily search chunks.';
+  else if (!await hooks.reserveExtract()) { detail = 'The live budget denied the Extract call, so it was not sent; passages are Tavily search chunks.'; steps.push({ op: 'extract', ok: false, detail: 'budget denied; not sent' }); }
+  else {
+    const extracted = await extractPages(targets.map(s => s.url), config, request);
+    targets.forEach((source, n) => {
+      const page = extracted.pages.get(source.url);
+      const passage = page ? operativeSentences(page, source.title, kind, context) : '';
+      if (passage) { source.snippet = passage; fromExtract.add(source.id); }
+      const call = n === 0 ? { latencyMs: extracted.latencyMs, ...(extracted.credits !== undefined ? { credits: extracted.credits } : {}) } : {};
+      steps.push({ op: 'extract', url: source.url, ok: !!passage, ...call, ...(extracted.requestId ? { requestId: extracted.requestId } : {}), ...(passage ? {} : { detail: page ? 'no operative sentence for this context; search chunk kept' : `Extract ${extracted.failure ?? 'did not return this page'}; search chunk kept` }) });
+    });
+    const ids = [...fromExtract], chunks = sources.filter(s => !fromExtract.has(s.id)).map(s => s.id);
+    detail = ids.length ? `Tavily Extract read ${ids.length} official page${ids.length > 1 ? 's' : ''} in full; ${ids.join(', ')} ${ids.length > 1 ? 'are' : 'is'} complete operative sentences from the page${chunks.length ? `, ${chunks.join(', ')} ${chunks.length > 1 ? 'are' : 'is'} a search chunk` : ''}.` : `Tavily Extract ${extracted.failure ?? 'found no operative sentence'}; passages are Tavily search chunks.`;
+  }
+  const policyChanged = changedPolicy(sources, fromExtract, kind, context);
+  const note = `Live Tavily advanced search of ${plan.domains[0]}, screened for safety. ${detail}${policyChanged ? ` The operative sentences on ${policyChanged.url} differ from the version reviewed ${policyChanged.reviewedAt}; the decision is kept but needs re-review.` : ''}`;
+  return { ...base, mode: 'live', checkedAt: new Date().toISOString(), sources, status: 'ok', note, proof, retrieval: { steps }, ...(policyChanged ? { policyChanged } : {}) };
 }

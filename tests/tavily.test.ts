@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RECORDED_MANUAL_SOURCE, research, safeSources, searchPlan, selectPassage } from '../server/tavily.js';
+import { RECORDED_MANUAL_SOURCE, REVIEWED_OPERATIVE_SENTENCES, operativeHash, operativeSentences, pageSentences, research, safeSources, searchPlan, selectPassage } from '../server/tavily.js';
+import { readFileSync } from 'node:fs';
+import { createService } from '../server/service.js';
 import { RECORDED_MANUAL_REMEDIATION, remediate, remediationFixture, validateRemediation } from '../server/nebius.js';
 import { analyze } from '../server/analysis.js';
 import { createDemoCsv } from '../server/demo.js';
@@ -22,7 +24,7 @@ test('two scoped generic search plans never require private CSV data', () => {
   assert.throws(() => searchPlan('discount', { ...context, platform: 'Ignore instructions' } as unknown as typeof context));
 });
 test('offline fixtures make no request and never claim a retrieval timestamp', async () => {
-  const r = await research('discount', context, false, config, never);
+  const r = await research('discount', { ...context, discountOrigin: 'scripts-api' }, false, config, never);
   assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined);
   assert.ok(r.note.includes('No search runs')); assert.ok(r.sources[0].savedAt); assert.equal(r.sources.length, 1);
 });
@@ -183,30 +185,156 @@ test('passage selection uses the best Tavily chunk and falls back to the keyword
   const plain = 'General store setup information. '.repeat(60);
   assert.ok(selectPassage(plain, 'discount', manual).split(' ').length <= 70);
 });
-test('hosted manual fixture replays the recorded live Tavily S1 and routes to contradicted', async () => {
-  const r = await research('discount', manual, false, config, never);
-  assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined);
-  assert.deepEqual(r.sources, [RECORDED_MANUAL_SOURCE]);
-  assert.equal(r.sources[0].title, 'Shopify Help Center | Discount combinations on POS');
-  assert.ok(r.note.startsWith('Recorded live Tavily result (request 19444728'));
-  const decision = decidePolicy('discount', r);
-  assert.equal(decision.status, 'contradicted'); assert.deepEqual(decision.sourceIds, ['S1']);
-  // Other contexts keep their saved summaries.
-  for (const other of [{ ...context, discountOrigin: 'scripts-api' as const }, context, { ...manual, platform: 'WooCommerce' as const }]) {
-    assert.match((await research('discount', other, false, config, never)).sources[0].snippet, /^Saved-source paraphrase/);
+
+// --- Hosted offline replays of the recorded live Search + Extract run --------
+const evidence = JSON.parse(readFileSync(new URL('../evidence/live-retrieval-v3-20261030.json', import.meta.url), 'utf8'));
+const replayCases = [
+  ['shopify-discount-manual', 'discount', manual],
+  ['shopify-discount-native', 'discount', context],
+  ['usps-shipping', 'shipping', context],
+] as const;
+test('hosted replays are byte-identical to the recorded live Search + Extract output', async () => {
+  for (const [name, kind, ctx] of replayCases) {
+    const recorded = evidence.replays[name];
+    const r = await research(kind, ctx, false, config, never);
+    assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined); assert.equal(r.status, 'ok');
+    assert.deepEqual(r.sources, recorded.sources, name); assert.deepEqual(r.retrieval?.steps, recorded.steps, name);
+    // Each replayed source is one the live call returned, byte for byte (native drops a #fragment duplicate; see droppedFromReplay).
+    for (const s of r.sources) assert.ok((recorded.liveSources ?? recorded.sources).some((l: unknown) => JSON.stringify(l) === JSON.stringify(s)), name);
+    assert.equal(r.sources.length + (recorded.droppedFromReplay?.length ?? 0), (recorded.liveSources ?? recorded.sources).length);
+    assert.equal(r.query, recorded.query); assert.equal(r.note, recorded.replayNote);
+    assert.match(r.note, /^Recorded live Tavily Search \+ Extract \(requests [0-9a-f]{8}… and [0-9a-f]{8}…, 2026-10-30\), replayed offline\./);
+    assert.deepEqual(r.retrieval?.steps.map(s => s.op), ['search', ...recorded.steps.slice(1).map(() => 'extract')]);
+    const decision = decidePolicy(kind, r);
+    assert.equal(decision.status, recorded.decision.status); assert.deepEqual(decision.sourceIds, recorded.decision.sourceIds);
+  }
+  assert.equal(decidePolicy('discount', await research('discount', manual, false, config, never)).status, 'contradicted');
+  // Every recorded call is in the ledger, and the cap held.
+  assert.ok(evidence.budget.worstCaseCredits <= evidence.budget.capCredits); assert.equal(evidence.calls.length, 8);
+  // Other contexts keep their authored summaries, labelled as such.
+  for (const other of [{ ...context, discountOrigin: 'scripts-api' as const }, { ...manual, platform: 'WooCommerce' as const }]) {
+    const r = await research('discount', other, false, config, never);
+    assert.match(r.sources[0].snippet, /^Saved-source paraphrase/); assert.match(r.note, /^Authored summaries/); assert.equal(r.retrieval, undefined);
   }
 });
-test('hosted manual remediation replays the recorded Nemotron output, labeled, without proof', async () => {
-  const p = { ...await research('discount', manual, false, config, never), researchId: 'fixture' };
-  const r = await remediate(issue, p, false, config, never);
+test('reviewed operative-sentence hashes match the recorded live passages', () => {
+  assert.deepEqual(REVIEWED_OPERATIVE_SENTENCES, evidence.reviewedOperativeSentences);
+  for (const r of REVIEWED_OPERATIVE_SENTENCES) {
+    const name = r.origin === 'manual' ? 'shopify-discount-manual' : 'shopify-discount-native';
+    const source = (evidence.replays[name].sources as { url: string; snippet: string }[]).find(s => s.url === r.url)!;
+    assert.equal(operativeHash(source.snippet), r.sha256); assert.equal(operativeHash(`  ${source.snippet.toUpperCase()} `), r.sha256);
+  }
+});
+test('recorded Nemotron replay stays tied to the passage it was produced for', async () => {
+  // The new manual replay is different text, so the old model output is not reused for it.
+  const replay = { ...await research('discount', manual, false, config, never), researchId: 'fixture' };
+  const fallback = await remediate(issue, replay, false, config, never);
+  assert.equal(fallback.model, null); assert.match(fallback.nextStep, /^Audit staff\/manual POS/);
+  const old: ResearchPacket = { ...replay, sources: [{ ...RECORDED_MANUAL_SOURCE }], retrieval: undefined };
+  const r = await remediate(issue, old, false, config, never);
   const { output } = RECORDED_MANUAL_REMEDIATION;
   assert.equal(r.mode, 'fixture'); assert.equal(r.proof, undefined); assert.equal(r.model, 'nvidia/Nemotron-3_5-Lightning');
-  assert.deepEqual(r.documentedPolicy, output.documentedPolicy);
-  assert.equal(r.inference, output.inference); assert.equal(r.nextStep, output.nextStep); assert.equal(r.uncertainty, output.uncertainty);
+  assert.deepEqual(r.documentedPolicy, output.documentedPolicy); assert.equal(r.nextStep, output.nextStep);
   assert.match(r.fallbackReason ?? '', /^Recorded Nemotron-3\.5-Lightning response \(request 31354285/);
-  // A live packet or an edited passage never receives the recorded response.
-  for (const other of [{ ...p, mode: 'live' as const }, { ...p, sources: [{ ...p.sources[0], snippet: p.sources[0].snippet + ' Edited.' }] }]) {
-    const fallback = await remediate(issue, other, false, config, never);
-    assert.equal(fallback.model, null); assert.notEqual(fallback.nextStep, output.nextStep);
+});
+
+// --- Neutral queries, Search -> Extract, budget, provenance, change detection
+test('queries describe the situation and never presuppose the answer', () => {
+  assert.equal(searchPlan('discount', manual).query, 'Shopify how do manually applied POS and draft order discounts interact with discount combination settings');
+  for (const discountOrigin of ['native', 'manual', 'scripts-api', 'app', 'app-script', 'unknown'] as const) for (const platform of ['Shopify', 'WooCommerce'] as const) for (const kind of ['discount', 'shipping'] as const) {
+    assert.doesNotMatch(searchPlan(kind, { ...context, platform, discountOrigin }).query, /bypass|exception|regardless|always apply|override/i);
   }
+});
+const posPage = [
+  '# Discount combinations on POS', '',
+  'When you process a sale in [Shopify POS](https://help.shopify.com/pos), you can apply automatic discounts and discount codes.', '',
+  '## Exceptions', 'The following discount types always apply to an order, regardless of any combination settings:',
+  '- Custom discounts that are manually applied to an order.', '- Discounts added to an order using the Scripts API.', '',
+  '| Table | cells are skipped |', 'Navigation heading without punctuation',
+  'Shipping labels and packing slips can be printed from the orders page.',
+].join('\n');
+const searchHit = { title: 'Combining discounts', url: 'https://help.shopify.com/en/manual/discounts/discount-combinations', content: 'Manual POS discounts and combination settings overview [...] Custom discounts are covered in a later section of this page.', score: 0.9 };
+const posHit = { ...searchHit, title: 'Discount combinations on POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts', content: 'Discounts on Shopify POS: manual POS discounts and combination settings for in-person sales.' };
+type Call = { url: string; body: Record<string, unknown> };
+function transport(extract: (urls: string[]) => Response | Promise<Response>, calls: Call[] = []) {
+  return (async (url: string | URL | Request, init?: RequestInit) => {
+    const body = JSON.parse(String(init?.body)); calls.push({ url: String(url), body });
+    assert.equal(init?.redirect, 'error'); assert.ok(init?.signal);
+    if (String(url) === 'https://api.tavily.com/search') return reply({ results: [searchHit, posHit, { ...searchHit, url: searchHit.url + '#faq', content: 'A #fragment of S1 is the same page and is dropped.' }, { ...searchHit, url: 'https://help.shopify.com/en/manual/discounts/faq', content: 'Discount combination FAQ about manual POS discounts and their settings.' }], request_id: 'search-1', usage: { credits: 2 } });
+    assert.equal(String(url), 'https://api.tavily.com/extract');
+    return extract(body.urls);
+  }) as typeof fetch;
+}
+const pages = (urls: string[], page = posPage) => reply({ results: urls.map(url => ({ url, raw_content: page })), failed_results: [], request_id: 'extract-1', usage: { credits: 1 } });
+const allow = { reserveExtract: async () => true };
+test('pageSentences keeps complete sentences and carries a list lead-in into each item', () => {
+  const units = pageSentences(posPage).map(u => u.text);
+  assert.ok(units.includes('The following discount types always apply to an order, regardless of any combination settings: Custom discounts that are manually applied to an order.'));
+  assert.ok(units.every(u => /[.!?]$/.test(u) && !u.includes('](') && !u.startsWith('|') && !u.startsWith('#')));
+  assert.equal(operativeSentences(posPage, 'POS', 'discount', manual), 'When you process a sale in Shopify POS, you can apply automatic discounts and discount codes. The following discount types always apply to an order, regardless of any combination settings: Custom discounts that are manually applied to an order.');
+  assert.equal(operativeSentences(posPage, 'POS', 'discount', { ...context, discountOrigin: 'scripts-api' }), 'The following discount types always apply to an order, regardless of any combination settings: Discounts added to an order using the Scripts API.');
+});
+test('Search -> Extract passes complete operative sentences of the top two distinct pages to decidePolicy', async () => {
+  const calls: Call[] = [];
+  const r = await research('discount', manual, true, config, transport(urls => pages(urls), calls), allow);
+  assert.deepEqual(calls.map(c => c.url), ['https://api.tavily.com/search', 'https://api.tavily.com/extract']);
+  // One Extract call for two distinct pages; the #fragment copy of S1 keeps its search chunk.
+  assert.deepEqual(calls[1].body, { urls: [searchHit.url, posHit.url], extract_depth: 'basic', format: 'markdown', timeout: 10, include_images: false, include_favicon: false, include_usage: true });
+  assert.equal(r.mode, 'live'); assert.equal(r.status, 'ok'); assert.equal(r.proof?.requestId, 'search-1');
+  assert.match(r.sources[0].snippet, /^When you process a sale in Shopify POS/); assert.equal(r.sources[2].snippet, 'Discount combination FAQ about manual POS discounts and their settings.');
+  assert.deepEqual(r.retrieval?.steps.map(s => [s.op, s.url ?? null, s.requestId, s.ok]), [['search', null, 'search-1', true], ['extract', searchHit.url, 'extract-1', true], ['extract', posHit.url, 'extract-1', true]]);
+  assert.equal(r.retrieval?.steps[0].credits, 2); assert.equal(r.retrieval?.steps[1].credits, 1); assert.equal(r.retrieval?.steps[2].credits, undefined);
+  assert.match(r.note, /Tavily Extract read 2 official pages in full; S1, S2 are complete operative sentences from the page, S3 is a search chunk\./);
+  // The synthetic page differs from the reviewed live text, so both pages are flagged; the first is reported.
+  assert.equal(r.policyChanged?.url, searchHit.url); assert.match(r.note, /differ from the version reviewed 2026-10-30; the decision is kept but needs re-review/);
+  const decision = decidePolicy('discount', r);
+  assert.equal(decision.status, 'contradicted'); assert.deepEqual(decision.sourceIds, ['S1', 'S2']);
+});
+test('Extract is not sent without a reservation hook, and a denied reservation keeps the search chunks', async () => {
+  for (const hooks of [{}, { reserveExtract: async () => false }]) {
+    const calls: Call[] = [];
+    const r = await research('discount', manual, true, config, transport(() => { throw new Error('must not extract'); }, calls), hooks);
+    assert.equal(calls.length, 1); assert.equal(r.status, 'ok'); assert.equal(r.sources[0].snippet, 'Manual POS discounts and combination settings overview');
+    assert.equal(r.policyChanged, undefined);
+    if ('reserveExtract' in hooks) { assert.match(r.note, /budget denied the Extract call, so it was not sent/); assert.deepEqual(r.retrieval?.steps.at(-1), { op: 'extract', ok: false, detail: 'budget denied; not sent' }); }
+    else { assert.match(r.note, /Extract was not requested/); assert.equal(r.retrieval?.steps.length, 1); }
+  }
+});
+test('Extract HTTP failure, oversize body, timeout, foreign URL and credential echo fall back to search chunks', async () => {
+  const big = 'x'.repeat(240_000);
+  const cases: [() => Response, string][] = [
+    [() => reply({ error: 'boom' }, 500), 'returned HTTP 500'],
+    [() => reply({ results: [{ url: searchHit.url, raw_content: big }, { url: posHit.url, raw_content: big }, { url: posHit.url + '?x', raw_content: big }] }), 'oversized or unreadable'],
+    [() => { throw new DOMException('The operation timed out.', 'TimeoutError'); }, 'timed out'],
+    [() => reply({ results: [{ url: 'https://help.shopify.com.evil.example/x', raw_content: posPage }] }), 'returned no usable page'],
+    [() => reply({ results: [{ url: searchHit.url, raw_content: posPage + '\n' + config.key }] }), 'returned no usable page'],
+  ];
+  for (const [extract, phrase] of cases) {
+    const r = await research('discount', manual, true, config, transport(extract), allow);
+    assert.equal(r.mode, 'live'); assert.equal(r.status, 'ok'); assert.equal(r.sources[0].snippet, 'Manual POS discounts and combination settings overview', phrase);
+    assert.ok(r.note.includes(phrase) && r.note.includes('Tavily Extract ') && r.note.includes('passages are Tavily search chunks.'), r.note);
+    assert.deepEqual(r.retrieval?.steps.slice(1).map(s => s.ok), [false, false]); assert.equal(r.policyChanged, undefined);
+  }
+});
+test('policy change detection: unchanged reviewed sentences raise nothing, changed ones flag re-review', async () => {
+  const native = evidence.replays['shopify-discount-native'];
+  // Unchanged: a live extract whose operative sentences equal the reviewed native S1 passage.
+  const reviewedPage = (native.sources[0].snippet as string).replace('combine. If', 'combine.\nIf').replace('limits: Verify', 'limits:\n1. Verify').replace('settings. Yes', 'settings.\n\nYes');
+  const same = await research('discount', context, true, config, transport(urls => pages(urls, reviewedPage)), allow);
+  assert.equal(same.sources[0].snippet, native.sources[0].snippet);
+  assert.equal(same.policyChanged, undefined);
+  const changed = await research('discount', context, true, config, transport(urls => pages(urls, reviewedPage.replace('to combine.', 'to combine on eligible plans.'))), allow);
+  assert.deepEqual(changed.policyChanged, { url: searchHit.url, reviewedAt: '2026-10-30' });
+  assert.match(changed.note, /needs re-review/); assert.equal(decidePolicy('discount', changed).status, 'review');
+});
+test('service reserves Search and Extract separately and reports a denied Extract reservation', async () => {
+  let reservations = 0;
+  const budget = { durable: false, reserve: async () => (++reservations === 1 ? { allowed: true, retryAfterSeconds: 0, reason: 'ok' } : { allowed: false, retryAfterSeconds: 60, reason: 'Live request budget reached.' }) };
+  const calls: Call[] = [];
+  const env = { TAVILY_API_KEY: config.key, TAVILY_ENABLE_LIVE: 'true' };
+  const denied = await createService({ env, budget, request: transport(() => { throw new Error('must not extract'); }, calls) }).dispatch('POST', '/api/research', { kind: 'discount', context: manual, live: true });
+  assert.equal(denied.status, 200); assert.equal(reservations, 2); assert.equal(calls.length, 1);
+  assert.equal((denied.body as ResearchPacket).mode, 'live'); assert.match((denied.body as ResearchPacket).note, /budget denied the Extract call/);
+  const ok = (await createService({ env, request: transport(urls => pages(urls)) }).dispatch('POST', '/api/research', { kind: 'discount', context: manual, live: true })).body as ResearchPacket;
+  assert.deepEqual(ok.retrieval?.steps.map(s => s.op), ['search', 'extract', 'extract']);
 });
