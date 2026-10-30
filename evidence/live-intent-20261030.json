@@ -1,0 +1,318 @@
+{
+  "schema": "marginguard-live-intent-ledger/1",
+  "recordedAt": "2026-10-30T03:04:14.200Z",
+  "branch": "fix/intent",
+  "commit": "a8283c4",
+  "redaction": "No keys, headers (other than provider request-id), request bodies or reasoning text recorded. Model JSON outputs reduced to the validated rules. Explain prose omitted.",
+  "totals": {
+    "tavilyCredits": 2,
+    "tavilyRequests": 3,
+    "nebiusCompletions": 5,
+    "nebiusModelListCalls": 5,
+    "retries": 0,
+    "budgetCaps": {
+      "tavilyCredits": 6,
+      "nebiusCompletions": 8
+    }
+  },
+  "catalog": {
+    "nvidia/nemotron-3-super-120b-a12b": true,
+    "nvidia/Nemotron-3-Ultra-550b-a55b": true,
+    "nvidia/Nemotron-3_5-Lightning": true
+  },
+  "steps": [
+    {
+      "step": 1,
+      "via": "POST /api/preflight/prepare (live:true, real server port 3300)",
+      "campaign": "20% off sitewide plus an extra $10 off orders over $75 for VIPs, stackable with free shipping",
+      "requests": [
+        {
+          "at": "2026-10-30T03:01:58.139Z",
+          "provider": "tavily",
+          "endpoint": "/search",
+          "model": null,
+          "status": 200,
+          "latencyMs": 2154,
+          "headerRequestId": null,
+          "requestId": "73bca470-2599-4ce7-9f87-2ef59b4377d2",
+          "credits": 1,
+          "results": 3,
+          "failedResults": null
+        },
+        {
+          "at": "2026-10-30T03:02:00.301Z",
+          "provider": "tavily",
+          "endpoint": "/extract",
+          "model": null,
+          "status": 200,
+          "latencyMs": 106,
+          "headerRequestId": null,
+          "requestId": "9cdee07d-026f-460b-8433-a9dc5f80ad85",
+          "credits": 0,
+          "results": 1,
+          "failedResults": 0
+        },
+        {
+          "at": "2026-10-30T03:02:00.438Z",
+          "provider": "nebius",
+          "endpoint": "/v1/models",
+          "model": null,
+          "status": 200,
+          "latencyMs": 307,
+          "headerRequestId": "287531e38638455a26ceaa3d5dbea7fc",
+          "catalogHas": {
+            "nvidia/nemotron-3-super-120b-a12b": true,
+            "nvidia/Nemotron-3-Ultra-550b-a55b": true,
+            "nvidia/Nemotron-3_5-Lightning": true
+          }
+        },
+        {
+          "at": "2026-10-30T03:02:00.747Z",
+          "provider": "nebius",
+          "endpoint": "/v1/chat/completions",
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "status": 200,
+          "latencyMs": 9824,
+          "headerRequestId": "0487fb28f9a485b105db78d9e09e9edf",
+          "requestId": "chatcmpl-8ae1c087d8a60974",
+          "usage": {
+            "prompt": 412,
+            "completion": 1018,
+            "reasoning": 899
+          },
+          "finishReason": "stop",
+          "contentChars": 292,
+          "reasoningContentChars": 3561
+        }
+      ],
+      "outcome": "NEEDS_CONFIRMATION",
+      "interpretation": "nemotron_interpreted",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "rules": [
+        {
+          "id": "R1",
+          "minSubtotalCents": 0,
+          "minItems": 0,
+          "type": "percent",
+          "scope": "product",
+          "basisPoints": 2000
+        },
+        {
+          "id": "R2",
+          "minSubtotalCents": 7500,
+          "minItems": 0,
+          "type": "fixed",
+          "amountCents": 1000
+        },
+        {
+          "id": "R3",
+          "minSubtotalCents": 0,
+          "minItems": 0,
+          "type": "free_shipping"
+        }
+      ],
+      "unmodeledConditions": [
+        "customer_segment"
+      ]
+    },
+    {
+      "step": 2,
+      "via": "POST /api/preflight/confirm (same proposal, synthetic 2-SKU fixture input)",
+      "requests": [],
+      "outcome": "simulation HOLD (fixture evidence), checkoutStatus HOLD, providerRequests 0",
+      "worstContributionCents": 200,
+      "searchSpace": {
+        "baskets": 8,
+        "ruleSequences": 16,
+        "scenarios": 128
+      }
+    },
+    {
+      "step": 3,
+      "via": "POST /api/preflight/prepare (live:true) 35 s after step 1",
+      "campaign": "15% product discount then 10% order discount then free shipping",
+      "requests": [
+        {
+          "at": "2026-10-30T03:02:33.803Z",
+          "provider": "tavily",
+          "endpoint": "/search",
+          "model": null,
+          "status": 200,
+          "latencyMs": 93,
+          "headerRequestId": null,
+          "requestId": "f9e419e5-ab0c-402f-aa33-c770bf964c32",
+          "credits": 1,
+          "results": 3,
+          "failedResults": null
+        }
+      ],
+      "outcome": "FAILURE: HTTP 429 HOLD. Search spent 1 Tavily credit, then the per-minute LiveBudget (minute=2 per provider) denied Extract before it was sent. No Nebius request."
+    },
+    {
+      "step": 4,
+      "via": "parsePreflightIntent direct (Nebius only), reasoning model override to Ultra",
+      "campaign": "20% off sitewide plus an extra $10 off orders over $75 for VIPs, stackable with free shipping",
+      "requests": [
+        {
+          "at": "2026-10-30T03:02:55.204Z",
+          "provider": "nebius",
+          "endpoint": "/v1/models",
+          "model": null,
+          "status": 200,
+          "latencyMs": 354,
+          "headerRequestId": "2c794905d8203e0a354c24d92c6dad0c",
+          "catalogHas": {
+            "nvidia/nemotron-3-super-120b-a12b": true,
+            "nvidia/Nemotron-3-Ultra-550b-a55b": true,
+            "nvidia/Nemotron-3_5-Lightning": true
+          }
+        },
+        {
+          "at": "2026-10-30T03:02:55.563Z",
+          "provider": "nebius",
+          "endpoint": "/v1/chat/completions",
+          "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+          "status": 200,
+          "latencyMs": 5214,
+          "headerRequestId": "8bc47de289c3caf2ffb388b6414cba0c",
+          "requestId": "chatcmpl-b4b57cd3a281f572",
+          "usage": {
+            "prompt": 412,
+            "completion": 1209,
+            "reasoning": 1112
+          },
+          "finishReason": "stop",
+          "contentChars": 266,
+          "reasoningContentChars": 4218
+        }
+      ],
+      "outcome": "NEEDS_CONFIRMATION",
+      "interpretation": "nemotron_interpreted",
+      "model": "nvidia/Nemotron-3-Ultra-550b-a55b",
+      "result": "identical rules to Super (R1 percent product 2000 bp; R2 fixed 1000 c, min subtotal 7500 c; R3 free shipping), unmodeled customer_segment"
+    },
+    {
+      "step": 5,
+      "via": "parsePreflightIntent direct, Super, grammar campaign (cross-check)",
+      "campaign": "15% product discount then 10% order discount then free shipping",
+      "requests": [
+        {
+          "at": "2026-10-30T03:03:08.119Z",
+          "provider": "nebius",
+          "endpoint": "/v1/models",
+          "model": null,
+          "status": 200,
+          "latencyMs": 331,
+          "headerRequestId": "4af1620ebab7bc824e55a1e00ab2d92b",
+          "catalogHas": {
+            "nvidia/nemotron-3-super-120b-a12b": true,
+            "nvidia/Nemotron-3-Ultra-550b-a55b": true,
+            "nvidia/Nemotron-3_5-Lightning": true
+          }
+        },
+        {
+          "at": "2026-10-30T03:03:08.455Z",
+          "provider": "nebius",
+          "endpoint": "/v1/chat/completions",
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "status": 200,
+          "latencyMs": 3295,
+          "headerRequestId": "f29f62ce55364a7b150b186af1111441",
+          "requestId": "chatcmpl-8dc2b7cdcefd5063",
+          "usage": {
+            "prompt": 400,
+            "completion": 410,
+            "reasoning": 291
+          },
+          "finishReason": "stop",
+          "contentChars": 291,
+          "reasoningContentChars": 1064
+        }
+      ],
+      "outcome": "NEEDS_CONFIRMATION",
+      "interpretation": "grammar_confirmed",
+      "result": "percent product 1500 bp, percent order 1000 bp, free shipping; equals local grammar"
+    },
+    {
+      "step": 6,
+      "via": "parsePreflightIntent direct, Super, thresholds + date window",
+      "campaign": "Buy 2 or more items and get 15% off your order, plus free shipping on orders over $50 during Black Friday weekend",
+      "requests": [
+        {
+          "at": "2026-10-30T03:03:11.950Z",
+          "provider": "nebius",
+          "endpoint": "/v1/models",
+          "model": null,
+          "status": 200,
+          "latencyMs": 331,
+          "headerRequestId": "8ef5645bc493c5a6505dfd6e2212d965",
+          "catalogHas": {
+            "nvidia/nemotron-3-super-120b-a12b": true,
+            "nvidia/Nemotron-3-Ultra-550b-a55b": true,
+            "nvidia/Nemotron-3_5-Lightning": true
+          }
+        },
+        {
+          "at": "2026-10-30T03:03:12.286Z",
+          "provider": "nebius",
+          "endpoint": "/v1/chat/completions",
+          "model": "nvidia/nemotron-3-super-120b-a12b",
+          "status": 200,
+          "latencyMs": 7328,
+          "headerRequestId": "19d88779fbc95f629cc2ef108da79ee6",
+          "requestId": "chatcmpl-b9b64ad33e35bef2",
+          "usage": {
+            "prompt": 414,
+            "completion": 661,
+            "reasoning": 576
+          },
+          "finishReason": "stop",
+          "contentChars": 207,
+          "reasoningContentChars": 2197
+        }
+      ],
+      "outcome": "NEEDS_CONFIRMATION",
+      "interpretation": "nemotron_interpreted",
+      "result": "percent order 1500 bp minItems 2; free shipping minSubtotal 5000 c; unmodeled date_window"
+    },
+    {
+      "step": 7,
+      "via": "POST /api/explain (live:true, real server) — fast-model routing check",
+      "requests": [
+        {
+          "at": "2026-10-30T03:03:28.786Z",
+          "provider": "nebius",
+          "endpoint": "/v1/models",
+          "model": null,
+          "status": 200,
+          "latencyMs": 305,
+          "headerRequestId": "8d97931967be09484a581797d2801fd4",
+          "catalogHas": {
+            "nvidia/nemotron-3-super-120b-a12b": true,
+            "nvidia/Nemotron-3-Ultra-550b-a55b": true,
+            "nvidia/Nemotron-3_5-Lightning": true
+          }
+        },
+        {
+          "at": "2026-10-30T03:03:29.092Z",
+          "provider": "nebius",
+          "endpoint": "/v1/chat/completions",
+          "model": "nvidia/Nemotron-3_5-Lightning",
+          "status": 200,
+          "latencyMs": 1435,
+          "headerRequestId": "df67f339589827e689d64b7d86fb2e7f",
+          "requestId": "chatcmpl-3178d647",
+          "usage": {
+            "prompt": 318,
+            "completion": 310,
+            "reasoning": 0
+          },
+          "finishReason": "stop",
+          "contentChars": 1436,
+          "reasoningContentChars": null
+        }
+      ],
+      "outcome": "FAILURE (validator fallback): Lightning HTTP 200 stop, but its prose contained digits and $ amounts, which the existing explain validator rejects; offline fixture shown. Routing to the fast model confirmed."
+    }
+  ]
+}
