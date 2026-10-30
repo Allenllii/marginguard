@@ -7,7 +7,7 @@
       "minute": 4,
       "daily": 20,
       "total": 100,
-      "note": "Limits at the time of these calls. Raised later the same day to 8/minute, 60/day, 300 total (wrangler.toml) for the judging period."
+      "note": "Limits at the time of these calls. Raised later the same day to 6/minute, 60/day, 300 total (wrangler.toml) for the judging period."
     },
     "enabledUntil": "2026-12-24T00:00:00Z"
   },
