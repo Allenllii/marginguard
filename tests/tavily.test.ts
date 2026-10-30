@@ -188,14 +188,26 @@ test('passage selection uses the best Tavily chunk and falls back to the keyword
 
 // --- Hosted offline replays of the recorded live Search + Extract run --------
 const evidence = JSON.parse(readFileSync(new URL('../evidence/live-retrieval-v3-20261030.json', import.meta.url), 'utf8'));
+// The manual replay comes from the end-to-end app run (evidence/live-e2e-20261030.json).
+const e2e = JSON.parse(readFileSync(new URL('../evidence/live-e2e-20261030.json', import.meta.url), 'utf8'));
 const replayCases = [
   ['shopify-discount-manual', 'discount', manual],
   ['shopify-discount-native', 'discount', context],
   ['usps-shipping', 'shipping', context],
 ] as const;
+test('the manual replay is the packet the live app returned in the end-to-end run', () => {
+  const live = e2e.attempts[1].research.packet;
+  assert.equal(live.mode, 'live'); assert.equal(live.status, 'ok');
+  assert.deepEqual(e2e.replay.sources, live.sources); assert.deepEqual(e2e.replay.steps, live.retrieval.steps); assert.equal(e2e.replay.liveNote, live.note);
+  // Both attempts retrieved identical sources; neither Nemotron draft passed validation.
+  assert.deepEqual(e2e.attempts[0].research.packet.sources, live.sources);
+  for (const a of e2e.attempts) { assert.equal(a.remediate.response.mode, 'fixture'); assert.equal(a.remediate.response.proof, undefined); }
+  assert.equal(e2e.replay.recordedRemediation, null);
+  assert.ok(e2e.budget.tavilyReportedCredits <= e2e.budget.capTavilyCredits && e2e.budget.nebiusCompletions <= e2e.budget.capNebiusCompletions);
+});
 test('hosted replays are byte-identical to the recorded live Search + Extract output', async () => {
   for (const [name, kind, ctx] of replayCases) {
-    const recorded = evidence.replays[name];
+    const recorded = name === 'shopify-discount-manual' ? e2e.replay : evidence.replays[name];
     const r = await research(kind, ctx, false, config, never);
     assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined); assert.equal(r.status, 'ok');
     assert.deepEqual(r.sources, recorded.sources, name); assert.deepEqual(r.retrieval?.steps, recorded.steps, name);
