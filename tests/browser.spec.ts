@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
+import type { ResearchPacket } from '../shared/types';
 
 // Measure rendered text, compositing translucent ancestors and checking gradient endpoints.
 // This is a bounded regression for these synthetic pages, not a full WCAG certification.
@@ -174,10 +175,10 @@ test('judge entry: one click shows the manual-discount action change, honest mod
   await expect(page.getByLabel('Discount origin')).toHaveValue('unknown');
 });
 
-test('review: ordinary apps hold, confirmed Scripts API uses its own exception, and privacy names the server', async ({ page }) => {
+test('review: ordinary apps hold, confirmed Scripts API uses its own exception, and privacy says where CSVs are processed', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /^Findings/ }).click();
-  await expect(page.locator('.analyst-card')).toContainText("CSV uploads are sent to this app's server");
+  await expect(page.locator('.analyst-card')).toContainText('raw rows and product names never reach a prompt');
   await expect(page.locator('.analyst-card')).not.toContainText('stay local');
   await page.getByLabel('Discount origin').selectOption('app');
   await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
@@ -191,14 +192,15 @@ test('review: ordinary apps hold, confirmed Scripts API uses its own exception, 
   await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
   await expect(page.locator('.remediation')).toContainText('Scripts API exception');
   await page.getByRole('button', { name: 'Data & method', exact: true }).click();
-  await expect(page.locator('.method-card')).toContainText("CSV content is sent to this app's server");
+  await expect(page.locator('.method-card')).toContainText('on its server when you run it yourself, inside your browser on the hosted demo');
+  await expect(page.locator('.method-card')).toContainText('never written to a database or analytics');
   await expect(page.locator('.method-card')).toContainText('use synthetic or non-sensitive data');
   await expect(page.locator('.method-card')).not.toContainText('local server memory');
 });
 
 test('journey: policy evidence survives scenario navigation but a different dataset clears it', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByText("CSV uploads are sent to this app's server for validation and calculation only. They are not stored, and raw rows are never sent to Tavily or Nebius. Use synthetic or non-sensitive data.", { exact: true })).toBeVisible();
+  await expect(page.getByText('CSV files are processed by this app (in your browser on the hosted demo), not stored, and never sent to Tavily or Nebius. Use synthetic or non-sensitive data.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: /^Findings/ }).click();
   await page.getByLabel('Discount origin').selectOption('manual');
   await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
@@ -219,7 +221,7 @@ test('journey: policy evidence survives scenario navigation but a different data
   expect(await readFile('evidence/navigation-policy-export.md', 'utf8')).toContain('discount origin manual');
   await page.getByLabel('Import order CSV').setInputFiles(path.resolve('data/template.csv'));
   await expect(page.locator('.dataset-strip')).toContainText('1 validated order');
-  await expect(page.getByRole('status')).toContainText("the app server's transient memory");
+  await expect(page.getByRole('status')).toContainText('Imported 1 validated order');
   await page.getByRole('button', { name: /^Findings/ }).click();
   await expect(page.locator('.remediation')).toHaveCount(0);
 });
@@ -236,8 +238,10 @@ test('clarity: the evidence decision leads the draft and keeps assumptions, cita
   await expect(decision.locator('.source-citation')).toHaveAttribute('href', 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts');
   expect(await decision.evaluate(node => Boolean(node.compareDocumentPosition(document.querySelector('.policy-source')!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
   await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
-  await expect(page.locator('.remediation')).toContainText('Policy scope is limited to the cited passage.');
-  await expect(page.locator('.remediation')).toContainText('Rule-based rationale');
+  // The manual case replays a recorded Nemotron response, so it is labelled as model text, not rules.
+  await expect(page.locator('.remediation').getByText('Recorded Nemotron draft', { exact: true })).toBeVisible();
+  await expect(page.locator('.remediation')).toContainText('Model hypothesis — unverified');
+  await expect(page.locator('.remediation')).not.toContainText('Rule-based rationale');
   await expect(page.locator('.remediation')).toContainText('A draft cannot approve a remedy or estimate recovery.');
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export policy evidence', exact: true }).click();
@@ -360,7 +364,7 @@ test('cancel, repeat evidence visits and navigation preserve the current dataset
   await expect(page.getByText('Live Tavily search runs locally with your keys.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Show saved policy result' }).click();
   await page.getByLabel('Policy finding').selectOption('shipping-overrun');
-  await expect(page.getByText('SEARCH QUERY · NO STORE DATA')).not.toBeVisible();
+  await expect(page.getByRole('link', { name: 'Open official source' })).toHaveAttribute('href', /usps\.com/);
   await page.getByLabel('Shipping carrier').selectOption('UPS');
   await page.getByRole('button', { name: 'Show saved policy result' }).click();
   await expect(page.getByRole('link', { name: 'Open official source' })).toHaveAttribute('href', /www.ups.com/);
@@ -486,4 +490,84 @@ test('mode badge reports /api/health and live controls appear only when configur
   }
   // Rendering live controls never sends a provider request on its own.
   expect(posts).toEqual([]);
+});
+
+test('skip link: first Tab stop moves focus to the main content without changing the route', async ({ page }) => {
+  await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
+  await page.keyboard.press('Tab');
+  const skip = page.getByRole('link', { name: 'Skip to main content', exact: true });
+  await expect(skip).toBeFocused(); await expect(skip).toBeInViewport();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#main-content')).toBeFocused();
+  expect(await page.evaluate(() => location.hash)).toBe('');
+});
+
+test('saved mode: changing discount origin, region or platform re-runs the saved decision in one action, with no live call', async ({ page }) => {
+  const bodies: { live?: boolean }[] = [];
+  page.on('request', request => { if (request.method() === 'POST') { expect(new URL(request.url()).pathname).toBe('/api/research'); bodies.push(request.postDataJSON()); } });
+  await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
+  await page.getByRole('button', { name: /^Findings/ }).click();
+  const status = page.locator('.decision-status'), next = page.getByTestId('decision-next-check');
+  await page.getByLabel('Discount origin').selectOption('manual');
+  await expect(status).toHaveText('Policy says the suggested fix won’t work'); await expect(next).toContainText('Audit staff/manual POS');
+  await page.getByLabel('Discount origin').selectOption('unknown');
+  await expect(status).toHaveText('On hold — needs more evidence');
+  await page.getByLabel('Discount origin').selectOption('manual'); await expect(next).toContainText('Audit staff/manual POS');
+  await page.getByLabel('Operating region').selectOption('UK');
+  await expect(next).toContainText('Confirm the operating region');
+  await page.getByLabel('Operating region').selectOption('US'); await expect(next).toContainText('Audit staff/manual POS');
+  await page.getByLabel('Store platform').selectOption('WooCommerce');
+  await expect(page.locator('.policy-source a').first()).toHaveAttribute('href', /woocommerce\.com/);
+  await expect(next).not.toContainText('Audit staff/manual POS');
+  expect(bodies.length).toBeGreaterThanOrEqual(6);
+  expect(bodies.every(body => body.live === false)).toBe(true);
+});
+
+test('live mode: a context change clears a live result and waits for an explicit search', async ({ page, baseURL }) => {
+  const saved = await (await page.request.post('/api/research', { headers: { Origin: baseURL! }, data: { kind: 'discount', live: false, context: { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'manual' } } })).json() as ResearchPacket;
+  await page.route('**/api/health', route => route.fulfill({ json: { ok: true, provider: { mode: 'fixture', model: null, endpoint: 'mock' }, tavily: { mode: 'configured', endpoint: 'mock' } } }));
+  const posts: unknown[] = [];
+  await page.route('**/api/research', route => { posts.push(route.request().postDataJSON()); return route.fulfill({ json: { ...saved, mode: 'live', checkedAt: '2026-10-30T00:00:00.000Z' } }); });
+  await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
+  await page.getByRole('button', { name: /^Findings/ }).click();
+  await page.getByLabel('Discount origin').selectOption('manual');
+  await expect(page.getByText('SEARCH QUERY · NO STORE DATA')).toHaveCount(0);
+  expect(posts).toEqual([]);
+  await page.getByRole('checkbox').first().check();
+  await page.getByRole('button', { name: 'Search official policies', exact: true }).click();
+  await expect(page.getByText('Live Tavily result', { exact: true })).toBeVisible();
+  await page.getByLabel('Discount origin').selectOption('unknown');
+  await expect(page.getByText('SEARCH QUERY · NO STORE DATA')).toHaveCount(0);
+  expect(posts).toHaveLength(1);
+});
+
+test('provenance: Tavily Search → Extract steps and a changed-page notice render only when the packet carries them', async ({ page, baseURL }) => {
+  const saved = await (await page.request.post('/api/research', { headers: { Origin: baseURL! }, data: { kind: 'discount', live: false, context: { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'manual' } } })).json() as ResearchPacket;
+  let extra: object = {};
+  await page.route('**/api/research', route => route.fulfill({ json: { ...saved, ...extra } }));
+  await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
+  await page.getByRole('button', { name: /^Findings/ }).click();
+  await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
+  await expect(page.getByTestId('decision-next-check')).toBeVisible();
+  await expect(page.locator('.retrieval-steps')).toHaveCount(0); await expect(page.locator('.policy-changed')).toHaveCount(0);
+  extra = {
+    retrieval: { steps: [
+      { op: 'search', url: 'https://help.shopify.com/en/manual/discounts', requestId: '19444728-22d2-4be8-ab7e-7c4d0714bb07', credits: 2, latencyMs: 4970, ok: true },
+      { op: 'extract', url: 'https://help.shopify.com/en/manual/discounts/discount-combinations', requestId: '9cdee07d-026f-460b-8433-a9dc5f80ad85', credits: 1, latencyMs: 106, ok: false },
+    ] },
+    policyChanged: { url: 'https://help.shopify.com/en/manual/discounts/discount-combinations', reviewedAt: '2026-10-27' },
+  };
+  await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
+  const steps = page.locator('.retrieval-steps');
+  await expect(steps).toContainText('TAVILY SEARCH → EXTRACT');
+  await expect(steps.locator('li')).toHaveCount(2);
+  await expect(steps.locator('li').first()).toContainText('request 19444728…');
+  await expect(steps.locator('li').first()).toContainText('2 credits');
+  await expect(steps.locator('li').first()).toContainText('4970 ms');
+  await expect(steps.locator('li').first()).toContainText('ok');
+  await expect(steps.locator('li').nth(1)).toContainText('failed');
+  const notice = page.locator('.policy-changed');
+  await expect(notice).toContainText('Official page changed since our review'); await expect(notice).toContainText('2026-10-27');
+  await expect(notice.getByRole('link')).toHaveAttribute('href', 'https://help.shopify.com/en/manual/discounts/discount-combinations');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
