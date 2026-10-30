@@ -3,22 +3,23 @@ import { ArrowDownToLine, ArrowRight, LockKeyhole, Plus, Trash2 } from 'lucide-r
 import { validatePreflightInput, type PreflightInput, type PreflightRule, type PreflightScenario } from '../shared/preflight';
 import { runPreflightComparison, type PreflightComparisonResult } from '../shared/preflight-comparison';
 import './preflight-comparison.css';
+import { amount, applied, dollarsText, percentText } from './preflight-units';
 
 type RuleDraft = { id: string; type: PreflightRule['type']; scope: 'product' | 'order'; value: string; minSubtotalCents: string; minItems: string };
 const money = (cents: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 const signedMoney = (cents: number) => `${cents > 0 ? '+' : ''}${money(cents)}`;
 /** Plain-language pill text for engine statuses; the engine's codes stay in exports. */
 export const statusLabel = (status: string) => ({ HOLD: 'On hold', REVIEW: 'Review risk', MODEL_CLEAR: 'Clear in model' } as Record<string, string>)[status] ?? status;
-const ruleDraft = (rule: PreflightRule): RuleDraft => ({ id: rule.id, type: rule.type, scope: rule.type === 'percent' ? rule.scope : 'order', value: String(rule.type === 'percent' ? rule.basisPoints : rule.type === 'fixed' ? rule.amountCents : 0), minSubtotalCents: String(rule.minSubtotalCents), minItems: String(rule.minItems) });
+const ruleDraft = (rule: PreflightRule): RuleDraft => ({ id: rule.id, type: rule.type, scope: rule.type === 'percent' ? rule.scope : 'order', value: rule.type === 'percent' ? percentText(rule.basisPoints) : rule.type === 'fixed' ? dollarsText(rule.amountCents) : '0', minSubtotalCents: dollarsText(rule.minSubtotalCents), minItems: String(rule.minItems) });
 function integer(value: string, label: string) {
   if (!/^(0|[1-9]\d*)$/.test(value) || !Number.isSafeInteger(Number(value))) throw new Error(`${label}: enter a safe whole number, with no decimal, comma or exponent.`);
   return Number(value);
 }
 function rulesFromDraft(rules: RuleDraft[]): PreflightRule[] {
   return rules.map((rule, index) => {
-    const base = { id: rule.id, minSubtotalCents: integer(rule.minSubtotalCents, `Adjusted rule ${index + 1} subtotal`), minItems: integer(rule.minItems, `Adjusted rule ${index + 1} item threshold`) };
-    if (rule.type === 'percent') return { ...base, type: rule.type, scope: rule.scope, basisPoints: integer(rule.value, `Adjusted rule ${index + 1} value`) };
-    if (rule.type === 'fixed') return { ...base, type: rule.type, amountCents: integer(rule.value, `Adjusted rule ${index + 1} value`) };
+    const base = { id: rule.id, minSubtotalCents: amount(rule.minSubtotalCents, `Adjusted rule ${index + 1} subtotal`, 'dollars'), minItems: integer(rule.minItems, `Adjusted rule ${index + 1} item threshold`) };
+    if (rule.type === 'percent') return { ...base, type: rule.type, scope: rule.scope, basisPoints: amount(rule.value, `Adjusted rule ${index + 1} value`, 'percent') };
+    if (rule.type === 'fixed') return { ...base, type: rule.type, amountCents: amount(rule.value, `Adjusted rule ${index + 1} value`, 'dollars') };
     return { ...base, type: rule.type };
   });
 }
@@ -125,10 +126,10 @@ export default function PreflightComparison({ getInput }: { getInput: () => Pref
         {rules.map((rule, index) => <fieldset key={index} className="pf-rule"><legend>Adjusted rule {index + 1}</legend>
           <div className="pf-rule-heading"><label className="pf-field"><span>Adjusted rule {index + 1} ID</span><input value={rule.id} maxLength={40} onChange={event => changeRule(index, 'id', event.target.value)} /></label><button type="button" className="pf-icon-action" aria-label={`Remove adjusted rule ${index + 1}`} onClick={() => { invalidate(); setRules(previous => previous.filter((_, position) => position !== index)); }}><Trash2 size={16} aria-hidden="true" /></button></div>
           <div className="pc-rule-fields"><label className="pf-field"><span>Adjusted rule {index + 1} type</span><select value={rule.type} onChange={event => changeRule(index, 'type', event.target.value)}><option value="percent">Percentage</option><option value="fixed">Fixed discount</option><option value="free_shipping">Free shipping</option></select></label>
-            {rule.type !== 'free_shipping' ? <label className="pf-field"><span>Adjusted rule {index + 1} value</span><input aria-label={`Adjusted rule ${index + 1} value`} type="text" inputMode="numeric" maxLength={15} value={rule.value} onChange={event => changeRule(index, 'value', event.target.value)} /><small>{rule.type === 'percent' ? 'Basis points: 2000 = 20%; max 10000.' : 'Integer cents; max 1000000.'}</small></label> : null}
+            {rule.type !== 'free_shipping' ? <label className="pf-field"><span>Adjusted rule {index + 1} value</span><input aria-label={`Adjusted rule ${index + 1} value`} type="text" inputMode="decimal" maxLength={15} value={rule.value} onChange={event => changeRule(index, 'value', event.target.value)} /><small>{rule.type === 'percent' ? 'Percent, e.g. 20 or 2.5; max 100.' : 'Dollars, e.g. 10 or 9.99; max 10000.'}</small>{applied(rule.value, rule.type === 'percent' ? 'percent' : 'dollars', false) ? <small className="pf-applied">{applied(rule.value, rule.type === 'percent' ? 'percent' : 'dollars', false)}</small> : null}</label> : null}
             {rule.type === 'percent' ? <label className="pf-field"><span>Adjusted rule {index + 1} scope</span><select value={rule.scope} onChange={event => changeRule(index, 'scope', event.target.value)}><option value="product">Product stage</option><option value="order">Order stage</option></select></label> : null}
           </div>
-          <div className="pf-thresholds"><label className="pf-field"><span>Adjusted rule {index + 1} minimum subtotal</span><input type="text" inputMode="numeric" maxLength={15} value={rule.minSubtotalCents} onChange={event => changeRule(index, 'minSubtotalCents', event.target.value)} /><small>Original merchandise cents</small></label><label className="pf-field"><span>Adjusted rule {index + 1} minimum items</span><input type="text" inputMode="numeric" maxLength={2} value={rule.minItems} onChange={event => changeRule(index, 'minItems', event.target.value)} /></label></div>
+          <div className="pf-thresholds"><label className="pf-field"><span>Adjusted rule {index + 1} minimum subtotal</span><input type="text" inputMode="decimal" maxLength={15} value={rule.minSubtotalCents} onChange={event => changeRule(index, 'minSubtotalCents', event.target.value)} /><small>Original merchandise, in dollars</small>{applied(rule.minSubtotalCents, 'dollars', false) ? <small className="pf-applied">{applied(rule.minSubtotalCents, 'dollars', false)}</small> : null}</label><label className="pf-field"><span>Adjusted rule {index + 1} minimum items</span><input type="text" inputMode="numeric" maxLength={2} value={rule.minItems} onChange={event => changeRule(index, 'minItems', event.target.value)} /></label></div>
         </fieldset>)}
         {!rules.length ? <p className="pf-note">B has no promotion rules.</p> : null}
         <button type="button" className="pf-text-action" disabled={rules.length >= 3} onClick={() => { invalidate(); let index = 1; while (rules.some(rule => rule.id.toLowerCase() === `adjusted-${index}`)) index++; setRules(previous => [...previous, { id: `ADJUSTED-${index}`, type: 'percent', scope: 'order', value: '0', minSubtotalCents: '0', minItems: '0' }]); }}><Plus size={15} aria-hidden="true" /> Add adjusted rule</button>

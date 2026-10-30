@@ -73,13 +73,13 @@ test('rule and evidence edits immediately clear amounts and confirmation, even a
   await openComparison(page); await prepareGolden(page); await compare(page).click();
   await expect(delta(page)).toContainText('$8.00');
   const value = page.getByLabel('Adjusted rule 1 value', { exact: true });
-  await value.fill('1000');
+  await value.fill('10');
   await expect(original(page)).toHaveCount(0);
   await expect(adjusted(page)).toHaveCount(0);
   await expect(delta(page)).toHaveCount(0);
   await expect(confirmation(page)).not.toBeChecked();
   await expect(page.getByRole('button', { name: 'Download comparison JSON', exact: true })).toHaveCount(0);
-  await value.fill('2000');
+  await value.fill('20');
   await expect(delta(page)).toHaveCount(0);
   await confirmation(page).check(); await compare(page).click();
   await expect(delta(page)).toContainText('$8.00');
@@ -113,13 +113,13 @@ test('identical reviewed rules have an exact zero delta and preserve both origin
 test('editing the source costs invalidates the entire lock and both comparison sides', async ({ page }) => {
   await openComparison(page); await prepareGolden(page); await compare(page).click();
   await expect(delta(page)).toContainText('$8.00');
-  await page.getByLabel('SKU 1 unit cost (cents)', { exact: true }).fill('3100');
+  await page.getByLabel('SKU 1 unit cost ($)', { exact: true }).fill('31.00');
   await expect(original(page)).toHaveCount(0);
   await expect(adjusted(page)).toHaveCount(0);
   await expect(delta(page)).toHaveCount(0);
   await expect(lock(page)).toBeEnabled();
   await expect(page.getByLabel('Comparison quantity for DEMO-SKU', { exact: true })).toBeEnabled();
-  await page.getByLabel('SKU 1 unit cost (cents)', { exact: true }).fill('3000');
+  await page.getByLabel('SKU 1 unit cost ($)', { exact: true }).fill('30.00');
   await expect(delta(page)).toHaveCount(0);
 });
 
@@ -174,12 +174,12 @@ test('seller evidence and confirmed semantics gate REVIEW and MODEL_CLEAR for th
 
 test('invalid source money fails before locking, and malformed adjusted percentages clear the report', async ({ page }) => {
   await openComparison(page);
-  await page.getByLabel('SKU 1 price (cents)', { exact: true }).fill('1e3');
+  await page.getByLabel('SKU 1 price ($)', { exact: true }).fill('1e3');
   await lock(page).click();
   await expect(page.getByRole('alert')).toBeVisible();
-  await expect(page.getByRole('alert')).toContainText(/whole number|integer/i);
+  await expect(page.getByRole('alert')).toContainText(/dollar amount/i);
   await expect(original(page)).toHaveCount(0);
-  await page.getByLabel('SKU 1 price (cents)', { exact: true }).fill('5000');
+  await page.getByLabel('SKU 1 price ($)', { exact: true }).fill('50.00');
   await lock(page).click();
   await page.getByLabel('Adjusted rule 1 value', { exact: true }).fill('10001');
   await reference(page).fill('Synthetic invalid rule experiment');
@@ -193,12 +193,12 @@ test('percentage rounding uses one shared three-unit basket and integer half-up 
   await openComparison(page);
   await page.getByRole('button', { name: 'Remove rule 3', exact: true }).click();
   await page.getByRole('button', { name: 'Remove rule 2', exact: true }).click();
-  await page.getByLabel('SKU 1 price (cents)', { exact: true }).fill('105');
-  await page.getByLabel('SKU 1 unit cost (cents)', { exact: true }).fill('0');
-  await page.getByLabel(/^Customer shipping charge \(cents\)/).fill('0');
-  await page.getByLabel(/^Your shipping cost \(cents\)/).fill('0');
-  await page.getByLabel(/^Payment fee \(bps\)/).fill('0');
-  await page.getByLabel('Rule 1 discount (bps)', { exact: true }).fill('1000');
+  await page.getByLabel('SKU 1 price ($)', { exact: true }).fill('1.05');
+  await page.getByLabel('SKU 1 unit cost ($)', { exact: true }).fill('0');
+  await page.getByLabel(/^Customer shipping charge \(\$\)/).fill('0');
+  await page.getByLabel(/^Your shipping cost \(\$\)/).fill('0');
+  await page.getByLabel(/^Payment fee \(%\)/).fill('0');
+  await page.getByLabel('Rule 1 discount (%)', { exact: true }).fill('10');
   await page.getByRole('combobox', { name: 'Quantity limit per SKU', exact: true }).selectOption('3');
   await expect(page.getByLabel('Comparison quantity for DEMO-SKU', { exact: true })).toHaveValue('3');
   await lock(page).click();
@@ -279,11 +279,11 @@ test('maximum supported amounts and long supplied identifiers and references wra
   await page.setViewportSize({ width: 320, height: 900 });
   await openComparison(page);
   await page.getByLabel('SKU 1 ID', { exact: true }).fill('A'.repeat(40));
-  await page.getByLabel('SKU 1 price (cents)', { exact: true }).fill('1000000');
-  await page.getByLabel('SKU 1 unit cost (cents)', { exact: true }).fill('1000000');
-  await page.getByLabel(/^Customer shipping charge \(cents\)/).fill('1000000');
-  await page.getByLabel(/^Your shipping cost \(cents\)/).fill('1000000');
-  await page.getByLabel(/^Payment fee \(bps\)/).fill('10000');
+  await page.getByLabel('SKU 1 price ($)', { exact: true }).fill('10000.00');
+  await page.getByLabel('SKU 1 unit cost ($)', { exact: true }).fill('10000.00');
+  await page.getByLabel(/^Customer shipping charge \(\$\)/).fill('10000.00');
+  await page.getByLabel(/^Your shipping cost \(\$\)/).fill('10000.00');
+  await page.getByLabel(/^Payment fee \(%\)/).fill('100');
   await page.getByRole('combobox', { name: 'Quantity limit per SKU', exact: true }).selectOption('3');
   await lock(page).click();
   await page.getByLabel('Adjusted rule 1 ID', { exact: true }).fill('B'.repeat(40));

@@ -23,14 +23,20 @@ export interface PreflightBridgeOptions {
   tavily: { enabled?: boolean; key?: string };
   /** `reasoningModel` interprets the campaign; `model` (fast drafts) is not used here. */
   nebius: { enabled?: boolean; key?: string; model?: string; reasoningModel?: string };
-  /** Existing service guard: durable/public caps, expiry and provider attempt budget. */
-  reserve: (service: LiveService) => Promise<boolean>;
+  /**
+   * Existing service guard: durable/public caps, expiry and provider attempt budget.
+   * Called once with every attempt the pipeline may make, before the first request.
+   */
+  reserve: (services: readonly LiveService[]) => Promise<boolean>;
   request: typeof fetch;
   now?: () => number;
   /** Trusted test-fixture review dependency; never supplied by HTTP or env. */
   reviewPreflightSource?: (text: string) => boolean;
   onRateLimit?: (service: LiveService, retryAfterSeconds: number) => void;
 }
+
+/** The fixed pipeline: Tavily Search + Extract, then the Nebius catalogue + one Nemotron completion. */
+export const PREFLIGHT_ATTEMPTS: readonly LiveService[] = ['tavily', 'tavily', 'nebius', 'nebius'];
 
 /** One fixed pipeline, at most four physical attempts; no retries or raw-data logging. */
 export async function preparePreflightBridge(activity: unknown, options: PreflightBridgeOptions): Promise<PreflightBridgeResult> {
@@ -49,6 +55,15 @@ export async function preparePreflightBridge(activity: unknown, options: Preflig
   const nebius = { ...options.nebius, model: options.nebius.reasoningModel ?? DEFAULT_REASONING_MODEL };
   if (!options.tavily.enabled || !options.tavily.key || !nebius.enabled || !nebius.key || !/^nvidia\/[a-zA-Z0-9._/-]+$/u.test(nebius.model)) return result('An explicitly enabled Tavily and NVIDIA/Nebius configuration is required. No provider was called.');
 
+  // Reserve the whole pipeline up front: a prepare that cannot finish inside the
+  // minute/day/total budget is denied before Search, never halfway through.
+  let reserved: boolean;
+  try { reserved = await options.reserve(PREFLIGHT_ATTEMPTS); }
+  catch { reserved = false; }
+  if (!reserved) { blocked = true; return result('The request budget cannot cover the full Search, Extract and Nemotron pipeline. No provider was called and no automatic retry was made.'); }
+  const remaining: Record<LiveService, number> = { tavily: 0, nebius: 0 };
+  for (const service of PREFLIGHT_ATTEMPTS) remaining[service]++;
+
   const request: typeof fetch = async (input, init) => {
     const url = input instanceof Request ? input.url : String(input);
     const method = (init?.method ?? 'GET').toUpperCase();
@@ -58,11 +73,9 @@ export async function preparePreflightBridge(activity: unknown, options: Preflig
           : url === 'https://api.tokenfactory.nebius.com/v1/chat/completions' && method === 'POST' ? 'completion' : null;
     if (!endpoint || traces.length >= 4) { blocked = true; throw new Error('Preflight transport boundary'); }
     const provider = endpoint === 'search' || endpoint === 'extract' ? 'tavily' : 'nebius';
-    // The pipeline is sequential; reserve immediately before every physical request.
-    let allowed: boolean;
-    try { allowed = await options.reserve(provider); }
-    catch { blocked = true; throw new Error('Preflight budget unavailable'); }
-    if (!allowed) { blocked = true; throw new Error('Preflight budget denied'); }
+    // Every physical request draws on the up-front reservation; nothing beyond it is sent.
+    if (remaining[provider] < 1) { blocked = true; throw new Error('Preflight budget denied'); }
+    remaining[provider]--;
     const trace: PreflightHttpTrace = { endpoint, provider, outcome: 'in-flight', status: null };
     traces.push(trace);
     try {

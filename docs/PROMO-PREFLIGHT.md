@@ -27,6 +27,15 @@ The page calculates in browser memory. Its optional JSON download includes the
 input snapshot, formula, assumptions, evidence gaps, search bounds and traces.
 Editing any input clears the old result and removes its export button.
 
+Sellers enter dollars (`49.99`) and percentages (`20`, `2.9`). The page converts
+them with string arithmetic to integer cents and basis points before the engine;
+a third decimal rounds half up, and each field shows the exact value used
+(`Uses 5000 cents`, `Rounded to $50.01 = 5001 cents`). The engine, its contract
+below and the JSON export stay in integer cents and basis points. The hero card
+is a sample walkthrough of the golden example; the campaign panel above the form
+replays a recorded Nemotron interpretation offline (see
+[PREFLIGHT-SPONSOR-BRIDGE.md](PREFLIGHT-SPONSOR-BRIDGE.md)).
+
 Run the small, reproducible synthetic example in a terminal:
 
 ```sh

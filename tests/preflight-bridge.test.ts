@@ -35,10 +35,10 @@ function harness(options: { budget?: LiveBudget; env?: Record<string, string | u
   const calls: { url: string; init?: RequestInit }[] = [], reserved: LiveService[] = [];
   const queue = options.responses ?? replies();
   let clock = Date.parse('2026-10-29T23:00:00Z');
-  const budget: LiveBudget = options.budget ?? { durable: true, async reserve(service) { reserved.push(service); return { allowed: true, reason: 'mock approved', retryAfterSeconds: 0 }; } };
+  const budget: LiveBudget = options.budget ?? { durable: true, async reserve(service) { reserved.push(...(typeof service === 'string' ? [service] : service)); return { allowed: true, reason: 'mock approved', retryAfterSeconds: 0 }; } };
   const service = createService({ reviewPreflightSource: value => value === content, env: { ...env, ...options.env }, budget, now: () => clock, request: (async (url, init) => {
     calls.push({ url: String(url), init });
-    if (!options.budget) assert.equal(reserved.length, calls.length, 'reserve before each physical attempt');
+    if (!options.budget) assert.ok(calls.length === 1 ? reserved.length === 4 : reserved.length >= calls.length, 'the whole pipeline is reserved before the first physical attempt');
     return options.transport ? options.transport(url, init) : queue.shift()!;
   }) as typeof fetch });
   const prepare = async (body: unknown = payload) => {
@@ -120,14 +120,31 @@ test('offline and missing/wrong configuration are explicitly held without provid
   assert.equal(result.body.mode, 'fixture'); assert.equal(result.body.status, 'HOLD'); assert.equal(result.body.http.attempted, 0);
 });
 
-test('every per-attempt budget exhaustion stops immediately without candidate or retry', async () => {
-  for (let limit = 0; limit < 4; limit++) {
-    let reserved = 0;
-    const budget: LiveBudget = { durable: true, async reserve() { return { allowed: reserved++ < limit, retryAfterSeconds: 60, reason: 'mock budget exhausted' }; } };
-    const h = harness({ budget }); const reply = await h.prepare();
-    assert.equal(reply.status, 429); assert.equal(reply.body.status, 'HOLD'); assert.equal(reply.body.proposalId, null);
-    assert.equal(h.calls.length, limit); assert.equal(reply.body.http.attempted, limit); assert.equal(reply.body.http.blocked, true); assert.deepEqual(reply.body.rules, []);
+test('a budget that cannot cover the whole pipeline denies before Search, without candidate or retry', async () => {
+  const asked: (LiveService | readonly LiveService[])[] = [];
+  const budget: LiveBudget = { durable: true, async reserve(service) { asked.push(service); return { allowed: false, retryAfterSeconds: 60, reason: 'mock budget exhausted' }; } };
+  const h = harness({ budget }); const reply = await h.prepare();
+  assert.equal(reply.status, 429); assert.equal(reply.body.status, 'HOLD'); assert.equal(reply.body.proposalId, null);
+  assert.equal(h.calls.length, 0); assert.equal(reply.body.http.attempted, 0); assert.equal(reply.body.http.blocked, true); assert.deepEqual(reply.body.rules, []);
+  assert.deepEqual(asked, [['tavily', 'tavily', 'nebius', 'nebius']]);
+  for (const limits of [{ minute: 1, daily: 20, total: 100 }, { minute: 2, daily: 1, total: 100 }, { minute: 2, daily: 20, total: 1 }]) {
+    const tight = harness({ budget: new MemoryBudget(limits) }); const denied = await tight.prepare();
+    assert.equal(denied.status, 429); assert.equal(tight.calls.length, 0, JSON.stringify(limits));
   }
+});
+
+test('regression: a second prepare in the same minute is denied before Search instead of 429 at Extract', async () => {
+  // minute: 3 used to let the second Search through (3rd Tavily credit) and then deny Extract.
+  const budget = new MemoryBudget({ minute: 3, daily: 20, total: 100 });
+  const h = harness({ budget, responses: [...replies(), ...replies()] });
+  assert.equal((await h.prepare()).body.status, 'NEEDS_CONFIRMATION'); h.advance(11000);
+  const second = await h.prepare();
+  assert.equal(second.status, 429); assert.equal(second.body.status, 'HOLD'); assert.equal(second.body.http.attempted, 0);
+  assert.equal(h.calls.length, 4, 'no Search credit spent by the denied prepare');
+  // Nothing was counted for the denied set: one Tavily attempt still fits in this minute.
+  assert.equal((await budget.reserve('tavily', Date.parse('2026-10-29T23:00:11Z'))).allowed, true);
+  h.advance(60000);
+  assert.equal((await h.prepare()).body.status, 'NEEDS_CONFIRMATION'); assert.equal(h.calls.length, 8);
 });
 
 test('existing MemoryBudget counts Search plus Extract separately and caps the next pipeline', async () => {
