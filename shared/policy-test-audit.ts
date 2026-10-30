@@ -4,8 +4,9 @@ import { z } from 'zod';
 import { buildPolicyTestSuite, type PolicyTestAction } from './policy-to-test.js';
 import type { Analysis, Issue, ResearchPacket } from './types.js';
 
-// Bump when policy-to-test clause matching, applicability or verdict semantics change.
-export const POLICY_TEST_RULESET_VERSION = 'policy-to-test/v1';
+// Bump when policy-to-test screening, applicability or verdict semantics change.
+// v2: verdicts come from decidePolicy instead of a separate sentence matcher.
+export const POLICY_TEST_RULESET_VERSION = 'policy-to-test/v2';
 
 /** Metadata only. Raw CSV, order IDs, product labels and filenames are excluded. */
 export interface PolicyTestAuditDataset {
@@ -52,7 +53,7 @@ function digest(value: unknown): string {
 
 /** Local snapshot of the existing packet, never a retrieval or authentication.
  * Recomputes decisions with the code evaluator; callers cannot supply verdicts.
- * Source records remain plain JSON data, including records that failed matching.
+ * Source records remain plain JSON data, including records that were not cited.
  */
 export function buildPolicyTestAudit({ packet, action, dataset, exportedAt = new Date().toISOString() }: {
   packet: ResearchPacket; action: PolicyTestAction; dataset?: PolicyTestAuditDataset; exportedAt?: string;
@@ -93,7 +94,7 @@ export function buildPolicyTestAudit({ packet, action, dataset, exportedAt = new
     'Export is local and performs no new provider call or retrieval. ExportedAt is the export clock, not a retrieval date.',
     'A fixture is an authored summary with no current retrieval; savedAt is a recorded source-review date, not retrieval or policy effective date.',
     'A live-mode label, request metadata, URL match or content fingerprint does not authenticate a packet or certify semantic fidelity.',
-    'Received source records are retained for inspection; only scenario evidence arrays identify matched clauses. Source inclusion does not establish applicability.',
+    'Received source records are retained for inspection; only scenario evidence arrays identify the sources decidePolicy cited. Source inclusion does not establish applicability.',
     'Store eligibility, actual discount mechanism, promotion intent and policy effective date remain unverified. Published dates do not establish effective dates.',
     'Exposure is an assumption-based review amount in integer USD cents, not realized savings, profit, guaranteed recovery or customer impact.',
     'Dataset fingerprint is the original CSV SHA-256 prefix (16 hex characters), not a full hash. Raw CSV, order records, product labels and filenames are outside the export schema. Received policy-source text is preserved as text, not redacted.',
