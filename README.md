@@ -23,7 +23,6 @@ Generic AI advice fails here because it never checks the platform's own rules ag
 
 ## How the sponsor technology is used
 
-<!-- verify-after-merge: diagram shows Search -> Extract in the policy check -->
 ```mermaid
 flowchart LR
   CSV[Order CSV] --> A[Deterministic engine<br/>integer cents, findings]
