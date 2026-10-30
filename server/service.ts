@@ -9,7 +9,9 @@ import type { ResearchPacket } from '../shared/types.js';
 import { fixtureReference, parseFixtureReference, ResearchIdSchema } from './fixture-reference.js';
 import { preparePreflightBridge } from './preflight-bridge.js';
 import { DEFAULT_REASONING_MODEL } from './preflight-intent.js';
+import { WATCHED_PAGES, checkPolicyWatch, recordedPolicyWatch } from './policy-watch.js';
 import { PreflightValidationError, runPreflight, validatePreflightInput, type PreflightRule } from '../shared/preflight.js';
+import { CHECK_FIX_EXAMPLES, CheckFixRequestSchema, checkFixLive, checkFixOffline, screenCheckFix } from './check-fix.js';
 
 export const AssumptionsSchema = z.object({ discountCeilingPercent: z.number().int().min(0).max(60), shippingSubsidyCents: z.number().int().min(0).max(2000) }).strict();
 const Payload = z.object({ csv: z.string().min(1).max(MAX_BYTES), live: z.boolean().optional(), assumptions: AssumptionsSchema.optional() }).strict();
@@ -89,6 +91,38 @@ export function createService(options: { env?: Record<string, string | undefined
         proposals.delete(confirmation.proposalId);
         return { status: 200, body: { mode: 'offline', status: simulation.status, simulation, sellerConfirmed: true, providerRequests: 0, checkoutStatus: 'HOLD', checkoutVerified: false, note: 'Seller confirmation authorizes this bounded simulation only. Policy references do not verify store eligibility or checkout execution.' } };
       }
+      // --- Check any fix (server/check-fix.ts) ---
+      if (method === 'GET' && path === '/api/check-fix/examples') return { status: 200, body: CHECK_FIX_EXAMPLES };
+      if (method === 'POST' && path === '/api/check-fix') {
+        const { fix, context, live } = CheckFixRequestSchema.parse(body);
+        const screened = screenCheckFix(fix, context);
+        if (screened) return { status: 200, body: screened };
+        const upstream = live && tavily.enabled && !!tavily.key && nvidia.enabled && !!nvidia.key;
+        if (!upstream) return { status: 200, body: checkFixOffline(fix, context) };
+        if (modelInFlight || searchInFlight || now() < Math.max(nextModel, nextSearch)) return { status: 429, body: { error: 'Wait before another live provider request.' }, headers: { 'Retry-After': String(Math.max(1, Math.ceil((Math.max(nextModel, nextSearch) - now()) / 1000))) } };
+        modelInFlight = true; searchInFlight = true;
+        let denial: Reply | null = null;
+        try {
+          const result = await checkFixLive(fix, context, { tavilyKey: tavily.key!, nebius: { key: nvidia.key!, planModel: nvidia.model, judgeModel: nvidia.reasoningModel }, request,
+            reserve: async services => { denial = await reserve(services); if (denial) return false; nextSearch = Math.max(nextSearch, now() + 10000); nextModel = Math.max(nextModel, now() + 10000); return true; },
+            onRateLimit: (service, seconds) => { if (service === 'tavily') nextSearch = Math.max(nextSearch, now() + seconds * 1000); else nextModel = Math.max(nextModel, now() + seconds * 1000); } });
+          return denial ?? { status: 200, body: result };
+        } finally { modelInFlight = false; searchInFlight = false; }
+      }
+      // --- Policy watch: one batched Tavily Extract, budget reserved before dispatch ---
+      if (method === 'GET' && path === '/api/policy-watch') return { status: 200, body: { pages: WATCHED_PAGES, lastCheck: recordedPolicyWatch() } };
+      if (method === 'POST' && path === '/api/policy-watch/check') {
+        z.object({ live: z.literal(true) }).strict().parse(body);
+        if (!tavily.enabled || !tavily.key) return { status: 503, body: { error: 'Live policy watch runs locally with your own Tavily key. The recorded check is shown instead.' } };
+        if (searchInFlight || now() < nextSearch) return { status: 429, body: { error: 'Wait before another live Tavily request.' }, headers: { 'Retry-After': String(Math.max(1, Math.ceil((nextSearch - now()) / 1000))) } };
+        searchInFlight = true;
+        try {
+          const denial = await reserve('tavily'); if (denial) return denial;
+          nextSearch = now() + 10000;
+          return { status: 200, body: { pages: WATCHED_PAGES, lastCheck: await checkPolicyWatch(tavily, request) } };
+        } finally { searchInFlight = false; }
+      }
+      // --- end policy watch ---
       if (method === 'GET' && path === '/api/demo') { const csv = createDemoCsv(); return { status: 200, body: { csv, analysis: analyze(csv, 'Northstar Supply · synthetic demo', true) } }; }
       if (method === 'POST' && path === '/api/analyze') { const { csv, assumptions } = Payload.parse(body); const synthetic = csv === createDemoCsv(); return { status: 200, body: analyze(csv, synthetic ? 'Northstar Supply · synthetic demo' : 'Imported CSV', synthetic, assumptions) }; }
       if (method === 'POST' && path === '/api/research') {

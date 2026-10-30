@@ -1,0 +1,21 @@
+.pw-card{--pw-ok:#2c6b40;--pw-ok-bg:#e5f1e5;--pw-warn:#8a5a12;--pw-warn-bg:#f8ecd2;--pw-off:#6b5f5a;--pw-off-bg:#efebe8;--pw-none:#5f6d62;--pw-none-bg:#eef1e8;margin-top:24px}
+.pw-list{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px}
+.pw-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto;gap:8px 18px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--pw-none-bg);border-radius:8px;background:#fcfdf9}
+.pw-row.pw-unchanged{border-left-color:#8cc29a}.pw-row.pw-changed{border-left-color:#e0a845;background:#fffaf0}.pw-row.pw-unavailable{border-left-color:#c7bdb7}
+.pw-page{display:grid;gap:3px;min-width:0}
+.pw-page a{display:inline-flex;align-items:center;gap:5px;color:var(--ink);font-size:13px;overflow-wrap:anywhere}
+.pw-page a:hover strong{text-decoration:underline;text-underline-offset:3px}
+.pw-host{font-size:11px;color:#5f6d62}
+.pw-depends{font-size:12px;color:#405963;line-height:1.5}
+.pw-meta{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0;font-size:11px}
+.pw-meta div{display:grid;gap:1px}.pw-meta dt{color:#6b7768;font-size:10px;letter-spacing:.4px;text-transform:uppercase}.pw-meta dd{margin:0;color:var(--ink)}
+.pw-meta code,.pw-last code{font-family:ui-monospace,Consolas,monospace;font-size:11px;background:#eef1e8;padding:1px 5px;border-radius:4px}
+.pw-status{display:inline-flex;align-items:center;gap:6px;justify-self:end;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;background:var(--pw-none-bg);color:var(--pw-none)}
+.pw-unchanged .pw-status{background:var(--pw-ok-bg);color:var(--pw-ok)}.pw-changed .pw-status{background:var(--pw-warn-bg);color:var(--pw-warn)}.pw-unavailable .pw-status{background:var(--pw-off-bg);color:var(--pw-off)}
+.pw-detail{grid-column:1/-1;font-size:12px;line-height:1.6;color:#405963;overflow-wrap:anywhere}
+.pw-changed .pw-detail{color:#6b4a12}
+.pw-last{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:14px;padding:10px 12px;border-radius:7px;background:#f3f6ee;font-size:11px;color:#405963;line-height:1.7}
+.pw-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:6px}
+.pw-actions .consent{flex:1 1 320px;font-size:11px}
+.pw-actions .button{width:auto;margin-top:12px}
+@media (max-width:760px){.pw-row{grid-template-columns:minmax(0,1fr) auto}.pw-meta{grid-column:1/-1;grid-row:2}.pw-status{grid-column:2;grid-row:1;align-self:start}.pw-actions .button{width:100%}}
