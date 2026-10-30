@@ -9,6 +9,9 @@ async function openMapper(page: Page) {
     await page.getByRole('button', { name: 'Toggle navigation', exact: true }).click();
   }
   await page.getByRole('button', { name: 'Data & method', exact: true }).click();
+  // The mapper lives in an Advanced disclosure; open it from the keyboard.
+  const advanced = page.getByText('Advanced: map different column names', { exact: false });
+  await advanced.focus(); await page.keyboard.press('Enter');
   return page.getByRole('region', { name: 'Different column names? Map your CSV.', exact: true });
 }
 
