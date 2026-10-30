@@ -13,26 +13,29 @@ Small online sellers get margin alerts and generic advice ("tighten your discoun
 ## What it does
 
 1. **Finds the leak with exact math.** Import an order CSV. Deterministic code computes contribution in integer cents and flags discount stacking, shipping overruns and return spikes. Every finding shows its formula and source rows; seller assumptions (discount ceiling, shipping allowance) are editable.
-2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard asks Tavily for official documentation scoped to the seller's platform and context (domain-restricted to help.shopify.com, woocommerce.com, usps.com or ups.com). A rule engine checks whether the retrieved passage applies. In the demo case, the passage "custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions" rebuts the settings fix and redirects the next check to auditing staff/manual overrides — same 28 rows, same $658.08 modeled exposure, different action.
-3. **Holds when evidence is missing.** Unknown discount origin, the wrong region, an ordinary app mistaken for the Scripts API, or conflicting passages put the recommendation on HOLD instead of guessing.
-4. **Drafts a cited check with NVIDIA Nemotron on Nebius Token Factory.** Nemotron writes the policy constraint, hypothesis, validation step and uncertainty from aggregate metrics and the retrieved passages. Code validates every citation and refuses drafts that change money or upgrade a HOLD.
-5. **Tests a promotion before launch.** Promo Preflight exhaustively evaluates seller-authored promotion rules in integer cents, shows the worst-case cart, and compares the same cart under the original and a reviewed alternative rule.
+2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard sends Tavily Search a neutral query for the seller's platform and context, domain-restricted to help.shopify.com, woocommerce.com, usps.com or ups.com, then Tavily Extract pulls the official page so the rule engine reads full sentences. <!-- verify-after-merge --> If the page has changed since our review, the result says so. <!-- verify-after-merge --> The rule engine checks whether the text applies. In the demo case, the passage "custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions" rebuts the settings fix and redirects the next check to auditing staff/manual overrides — same 28 rows, same $658.08 modeled exposure, different action.
+3. **Holds when context is missing.** An unknown discount origin, a non-US region or an ordinary app mistaken for the Scripts API puts the recommendation on HOLD whatever the sources say. A retracted or contrary passage also holds; no passage, or conflicting passages, return "not enough evidence".
+4. **Drafts a cited check with NVIDIA Nemotron on Nebius Token Factory.** Code supplies the policy statement behind each citation; Nemotron-3.5-Lightning writes the hypothesis, the validation step and the uncertainty from aggregate figures and the retrieved passages. Code checks every citation and rejects numbers in the prose; a held case never reaches the model.
+5. **Tests a promotion before launch.** In Promo Preflight the seller describes a campaign in plain English; Nemotron 3 Super turns it into rules, code checks them, the seller confirms, and an integer-cent simulator evaluates every basket, shows the worst-case cart and compares it under the original and a reviewed alternative rule.
 6. **Exports an audit.** Findings, assumptions, sources, decision status and what would disprove the hypothesis export as a report.
 
 ## How we built it
 
-- **Tavily Search** retrieves official policy with fixed, generic queries (never order data), `include_domains` restricted to the platform's official domain, and up to three sources. Results are screened for domain, relevance, prompt-injection text, retractions and regional scope before a passage is selected. In Promo Preflight, **Tavily Extract** pulls the full reviewed source page before rules are proposed.
-- **Nebius Token Factory** serves `nvidia/Nemotron-3_5-Lightning` through its OpenAI-compatible API, with model discovery (`GET /v1/models`) before each draft. Inputs are bounded to aggregate metrics and short cited passages; output is schema-validated.
+- **Tavily Search** retrieves official policy with fixed, neutral queries (never order data), `include_domains` restricted to the platform's official domain, and up to three sources. Results are screened for domain, relevance, prompt-injection text, retractions and regional scope.
+- **Tavily Extract** then pulls the top official page, so the decision reads full sentences, and a changed page is flagged against our reviewed copy. <!-- verify-after-merge --> The hosted demo replays recorded Search + Extract responses for the manual, automatic/code and USPS cases. <!-- verify-after-merge --> In Promo Preflight, Extract pulls the reviewed policy page before rules are proposed.
+- **Nebius Token Factory** serves two NVIDIA models through its OpenAI-compatible API, each checked with `GET /v1/models` before the call:
+  - **Nemotron 3 Super** (`nvidia/nemotron-3-super-120b-a12b`) turns free-form campaign text into promotion rules. Code then grounds every value in a number the seller wrote, cross-checks the rules against a local grammar parser where it can read the text, and holds on any disagreement; the seller confirms before simulation.
+  - **Nemotron-3.5-Lightning** (`nvidia/Nemotron-3_5-Lightning`) drafts the cited policy check and the analyst brief in about a second. Inputs are bounded to aggregate figures and short cited passages; output is schema-validated and may not contain numbers.
 - **Deterministic core** (TypeScript, shared by an Express server and a Cloudflare-style Worker build): integer-cent arithmetic, policy applicability rules, request budgets (per-minute, daily and lifetime caps per provider), and same-origin JSON APIs. The model never computes money or decides eligibility.
 - React + Vite front end with keyboard support, 320px layouts and reduced-motion handling.
 
 ## Challenges we ran into
 
-Real retrieval is messier than fixtures: snippets truncate mid-sentence, two URLs return the same passage, and an early structured-output contract truncated model JSON. We bounded output, simplified the draft schema, de-duplicated sources and made every failure visible instead of silently falling back.
+Real retrieval is messier than fixtures: snippets truncate mid-sentence, two URLs return the same passage, and an early structured-output contract truncated model JSON. We bounded output, simplified the draft schema, de-duplicated sources and made every failure visible instead of silently falling back. Our own benchmark was a negative result: on 24 holdout cases the Tavily package did not improve Nemotron's decisions, mostly because the fixed query found the page the answer depends on in only 4 cases. That is why the policy check now uses neutral queries and Extract. <!-- verify-after-merge -->
 
 ## Accomplishments we're proud of
 
-Retrieval changes the decision, not just the citations list. The same live Tavily passage that redirects the manual-discount case leaves an unknown-origin case on HOLD.
+Retrieval changes the decision, not just the citations list. On the same recorded live Shopify passage, the settings fix stays a review candidate for code discounts and is rebutted for manual/POS discounts, where the next check becomes an override audit. A missing discount origin holds regardless of the sources.
 
 ## What we learned
 
@@ -40,7 +43,7 @@ The valuable part of an AI margin assistant is knowing when the recommended fix 
 
 ## What's next
 
-Read discount origin directly from a connected store instead of asking the seller, cover more platform policies, and run the pre-registered retrieval benchmark with human blind review.
+Read discount origin directly from a connected store instead of asking the seller, cover more platform policies, and re-run the pre-registered benchmark on the Search → Extract design with human blind review.
 
 ## Built with
 
@@ -62,7 +65,16 @@ All demo orders are synthetic. Modeled exposure is a review candidate, not reali
 - Model IDs mix conventions (`Nemotron-3_5-Lightning`, `nemotron-3-super-120b-a12b`, `NVIDIA-Nemotron-3-Nano-30B-A3B`); a stable alias per family would reduce configuration errors.
 - Early on, long JSON outputs truncated at the token limit without a clear finish-reason signal in our parsing path; documenting recommended max-token settings for structured output per model would help.
 - Per-request cost is not returned in the response; returning usage cost (or a link to it) would make budget enforcement in apps easier.
+- The last live analyst brief from Lightning (2026-10-30) put dollar amounts in its prose despite a "no digits" instruction, so our validator rejected it. We now send the brief prompt no numbers at all; that fix has not been re-run live.
+
+## Feedback on Tavily
+
+- **Fragment URLs return duplicate results.** For one Shopify query, advanced search returned `…/discount-combinations`, `…#eligibility-requirements` and `…#manage-combinations` with identical content (request `ef540bad…`). With `max_results: 3`, that left one distinct page. Collapsing `#fragment` variants, or a "distinct pages" option, would help.
+- **Different URLs can share one passage.** In two searches (`19444728…` basic, `8f7b9603…` advanced), two different Shopify URLs returned the same snippet; we de-duplicate by text.
+- **`chunks_per_source` needs advanced depth.** Getting the operative sentence took `search_depth: advanced` with `chunks_per_source: 3`: 2 credits and 2.2–5.5 s per query, against 1 credit and 1.5 s for basic. A cheaper way to ask for the best chunk of each domain-restricted result would suit policy lookups.
+- **Extract credits were hard to account for.** A one-URL Extract (`9cdee07d…`) reported 0 credits. Since Extract is billed per batch of successful URLs, per-call usage that shows the fractional charge would let apps enforce budgets exactly.
+- **What worked well:** `include_domains` in restrict mode kept every result on the official domain, and the request ID and credit usage in each response made our provenance ledger straightforward.
 
 ## Project timing
 
-MarginGuard was created during the Submission Period (repository started 2026-10-29).
+The repository was created on 2026-10-27 (first commit `64ea74e`, LICENSE only), and the first project code was committed on 2026-10-29. The Submission Period began on 2026-08-26, so MarginGuard was created entirely within it.
