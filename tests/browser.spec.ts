@@ -205,16 +205,16 @@ test('journey: policy evidence survives scenario navigation but a different data
   await page.getByLabel('Discount origin').selectOption('manual');
   await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
   await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
-  await expect(page.locator('.remediation')).toContainText('Audit store/plan eligibility');
+  await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
   await page.getByRole('button', { name: 'Scenario lab', exact: true }).click();
   await page.getByRole('button', { name: 'Set all to zero', exact: true }).click();
   await expect(page.locator('.scenario-big')).toHaveText('+$0');
   await page.getByRole('button', { name: /^Findings/ }).click();
   await expect(page.getByLabel('Discount origin')).toHaveValue('manual');
-  await expect(page.locator('.remediation')).toContainText('Audit store/plan eligibility');
+  await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
   await page.getByLabel('Import order CSV').setInputFiles(path.resolve('data/invalid-example.csv'));
   await expect(page.getByRole('alert')).toBeVisible();
-  await expect(page.locator('.remediation')).toContainText('Audit store/plan eligibility');
+  await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export policy evidence', exact: true }).click();
   await (await download).saveAs('evidence/navigation-policy-export.md');
@@ -417,7 +417,7 @@ test('policy exception redirects a manual-discount check and missing/wrong-regio
   await expect(page.locator('.assumption-bar>small')).toContainText('Applied: 30%');
   await page.getByRole('button', { name: /^Findings/ }).click(); await page.getByLabel('Discount origin').selectOption('manual'); await page.getByRole('button', { name: 'Show saved policy result' }).click();
   await expect(page.locator('.decision-status')).toHaveText('Policy says the suggested fix won’t work'); await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
-  await page.getByRole('button', { name: 'Draft offline checks' }).click(); await expect(page.locator('.remediation')).toContainText('Audit store/plan eligibility');
+  await page.getByRole('button', { name: 'Draft offline checks' }).click(); await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
   await page.locator('.policy-card').screenshot({ path: 'evidence/policy-manual-exception.png' });
   await page.getByLabel('Discount origin').selectOption('unknown'); await page.getByRole('button', { name: 'Show saved policy result' }).click(); await expect(page.locator('.decision-status')).toHaveText('On hold — needs more evidence');
   await page.getByLabel('Operating region').selectOption('UK'); await page.getByRole('button', { name: 'Show saved policy result' }).click(); await expect(page.getByTestId('decision-next-check')).toContainText('Confirm the operating region');
