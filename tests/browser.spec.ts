@@ -243,6 +243,16 @@ test('clarity: the evidence decision leads the draft and keeps assumptions, cita
   await expect(page.locator('.remediation').getByText('Recorded Nemotron draft', { exact: true })).toBeVisible();
   await expect(page.locator('.remediation')).toContainText('replayed offline');
   await expect(page.locator('.remediation')).not.toContainText('Rule-based rationale');
+  // Code's decided check and Nemotron's own procedure sit side by side.
+  const draft = page.locator('.remediation');
+  await expect(draft.getByRole('heading', { name: 'Decided by code', exact: true })).toBeVisible();
+  await expect(draft.getByRole('heading', { name: 'Nemotron’s procedure', exact: true })).toBeVisible();
+  await expect(draft.locator('.step-compare>div').first()).toContainText('Audit staff/manual POS');
+  await expect(draft.locator('.step-compare>div').last()).toContainText('filter for flagged orders');
+  await expect(draft.locator('.step-compare>div').last()).not.toContainText('Audit staff/manual POS');
+  // S1 and S2 share one code-owned statement: one line citing both.
+  const cited = draft.locator('p', { hasText: 'manual-discount exception to combination settings' });
+  await expect(cited).toHaveCount(1); await expect(cited.getByRole('link')).toHaveText(['[S1]', '[S2]']);
   await expect(page.locator('.remediation')).toContainText('A draft cannot approve a remedy or estimate recovery.');
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export policy evidence', exact: true }).click();
