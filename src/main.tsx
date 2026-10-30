@@ -29,7 +29,7 @@ function Workspace() {
   // Direct sandbox entry still mounts no analysis app and makes no API request.
   return <>
     {analysisVisited ? <div ref={analysisPanel} hidden={preflight} tabIndex={-1} aria-label="Analysis workspace"><App workspaceActive={!preflight} /></div> : null}
-    {sandboxVisited ? <div ref={sandboxPanel} hidden={!preflight} tabIndex={-1} aria-label="Promo Preflight workspace"><React.Suspense fallback={<p role="status">Loading Promo Preflight sandbox…</p>}><PromoPreflight /></React.Suspense></div> : null}
+    {sandboxVisited ? <div ref={sandboxPanel} hidden={!preflight} tabIndex={-1} aria-label="Promo Preflight workspace"><React.Suspense fallback={<p role="status">Loading Promo Preflight sandbox…</p>}><PromoPreflight workspaceActive={preflight} /></React.Suspense></div> : null}
   </>;
 }
 

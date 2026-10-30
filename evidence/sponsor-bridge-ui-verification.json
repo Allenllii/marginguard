@@ -1,0 +1,51 @@
+{
+  "baseMain": "9bade621874e08359b901b1fe03729619176334c",
+  "applicationCommit": "9b5e34e98eeefbad14c5a0e1c3afbfe4ef8f5fc6",
+  "verifiedAtUtc": "2026-10-30T00:08:00Z",
+  "scope": "Local synthetic regression and one bounded actual preparation probe; no deployment or final benchmark",
+  "checks": {
+    "lint": "PASS",
+    "strictTypecheck": "PASS",
+    "frontendAndWorkerBuild": "PASS",
+    "unitAndApi": { "passed": 256, "failed": 0 },
+    "evaluationHarnessSelfTests": { "passed": 65, "failed": 0 },
+    "syntheticRoutingCases": { "passed": 12, "failed": 0 },
+    "forcedOfflineArtifactRoutes": { "passed": 13, "failed": 0, "outboundAttempts": 0 },
+    "browserNode": { "passed": 54, "failed": 0, "providerResponses": "mocked or disabled" },
+    "browserOfflineWorker": { "passed": 54, "failed": 0, "providerResponses": "mocked or disabled" },
+    "redactingProbeSelfTests": { "passed": 7, "failed": 0 }
+  },
+  "uiCoverage": [
+    "Synthetic preview and confirmed integer simulation send zero API requests",
+    "Prepare and confirmation require separate explicit actions and minimal request envelopes",
+    "Fixture JSON audit preserves mode, zero provider attempts and exact contribution",
+    "Missing credentials, no evidence and budget rejection hold without retry or fixture substitution",
+    "Unsafe source URLs cannot become confirmable links",
+    "Cancellation, cost edits and workspace navigation reject delayed preparation or confirmation",
+    "320 CSS pixel keyboard confirmation, bounded layout and reduced motion"
+  ],
+  "actualProbe": {
+    "startedAtUtc": "2026-10-29T23:58:25.464Z",
+    "finishedAtUtc": "2026-10-29T23:58:28.833Z",
+    "status": "HOLD_OR_FAILED",
+    "preparationStatus": "HOLD",
+    "physicalAttempts": 2,
+    "automaticRetries": 0,
+    "observations": [
+      { "endpoint": "search", "status": 200, "elapsedMs": 3261.226, "requestId": "d8ff6109-6391-4aed-b88b-5348c736d72b", "returnedCredits": 1 },
+      { "endpoint": "extract", "status": 200, "elapsedMs": 80.822, "requestId": "ad865679-80c5-4e3f-8269-89f268f627e5", "returnedCredits": 0 }
+    ],
+    "nvidiaRequests": 0,
+    "proposalIssued": false,
+    "confirmationPerformed": false,
+    "moneyEvaluationPerformed": false,
+    "rawResponseOrSecretsStored": false,
+    "preciseValidationReason": "Not retained by the redacting probe; no narrower cause is claimed"
+  },
+  "remainingGates": [
+    "Actual bridge preparation through NVIDIA and an actual browser confirmation have not succeeded",
+    "Mock success is not real interoperability or merchant applicability evidence",
+    "Source publication does not deploy or enable hosted live calls",
+    "Final benchmark, independent release review, video and submission remain separate gates"
+  ]
+}

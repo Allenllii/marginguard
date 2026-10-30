@@ -1,7 +1,7 @@
 {
-  "baselineMain": "70759199ea11395284e952bfc37054f48c19edf1",
-  "sourceBranch": "codex/source-version-footer",
-  "scope": "Minimal source/footer and release-ledger correction. Sitesv5 provenance is separate from GitHub application source. No new raw logs, provider call, private data, CI or deployment.",
+  "baselineMain": "9bade621874e08359b901b1fe03729619176334c",
+  "sourceBranch": "codex/sponsor-bridge-ui",
+  "scope": "Reviewed sponsor API and explicit UI confirmation; synthetic fixtures and redacted observations only. Actual two-request probe held after extraction, no NVIDIA request. No new credentials, raw logs, private gold, CI or deployment; final benchmark not run.",
   "files": [
     {
       "path": ".env.example",
@@ -25,8 +25,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 11845,
-      "sha256": "3ec1f08f693e4c7dc0f4694100e394c43b0f638cf5bcb03917dc3359b0c3e33e"
+      "bytes": 12781,
+      "sha256": "59a44a6a454ac87156644e6732ca88ad147f566238d62f102b0a21e0273388c4"
     },
     {
       "path": "data/decision-cases.json",
@@ -134,9 +134,14 @@
       "sha256": "9078e5aab89069e3ee58d70221385f87274555455e4c64de62f12952432e5335"
     },
     {
+      "path": "docs/PREFLIGHT-SPONSOR-BRIDGE.md",
+      "bytes": 9549,
+      "sha256": "574317b4da3bb3ddf6df072124316f8a5fd72c703a6d71f1ba91aa3f8e6c0eeb"
+    },
+    {
       "path": "docs/PROMO-PREFLIGHT.md",
-      "bytes": 9322,
-      "sha256": "70974be4d5fbe609443ae377e2b464c99ebc2b7513dd891e32255097044c3839"
+      "bytes": 9580,
+      "sha256": "2725e86a2a2c55471dc686a96842edb8ae6a9499dc13d45fb39934e6e8d50b03"
     },
     {
       "path": "docs/PROVIDER-COST-CONTROLS.md",
@@ -152,6 +157,11 @@
       "path": "docs/SPEC.md",
       "bytes": 27418,
       "sha256": "1b8752d656f805120aa297d746b47c4b838adf1a984e30699377c17d573e08ec"
+    },
+    {
+      "path": "docs/SPONSOR-BRIDGE-REVIEW.md",
+      "bytes": 6179,
+      "sha256": "c346b4ba1595cddf95e111684edaaca2a78238cde25723daeca2c44a381b751b"
     },
     {
       "path": "docs/VISUAL-DESIGN.md",
@@ -369,6 +379,11 @@
       "sha256": "ad3768fcc8d7720ecbc82959167af4428e1940e3b915d9a4a93f07640de7d0a7"
     },
     {
+      "path": "evidence/preflight-sponsor-bridge-verification.json",
+      "bytes": 1856,
+      "sha256": "106c9cd194720ff0c07648fedbdb1d5cba0766c4fb654f2c33fd9c6b8516999a"
+    },
+    {
       "path": "evidence/production-20261029-smoke.json",
       "bytes": 686,
       "sha256": "fe810202e60c719ef1dd9f97add08a89fef6fedd1b4b23a3ca80ecf28151018f"
@@ -382,6 +397,11 @@
       "path": "evidence/spec-request-budget-20261029.json",
       "bytes": 1936,
       "sha256": "07f1fb87033e8214d08675f3381d3531737a69cf1c3e9a7058d31c36017cc82c"
+    },
+    {
+      "path": "evidence/sponsor-bridge-ui-verification.json",
+      "bytes": 2744,
+      "sha256": "c446beb068ded7f0fef49c7e43e1aa8f57fe1c554c676ee462ffc9fd4b44f628"
     },
     {
       "path": "evidence/tavily-live-proof.json",
@@ -420,8 +440,8 @@
     },
     {
       "path": "playwright.config.ts",
-      "bytes": 579,
-      "sha256": "fef858605880c1d6ab38f1363cf407c871e795eaa270229719144476559574ec"
+      "bytes": 615,
+      "sha256": "6c6c5491540f804bcdfbc9c22922bcfe27e02bc3a87545c4116ed1a5b3388b73"
     },
     {
       "path": "playwright.csv-mapping.config.ts",
@@ -644,9 +664,24 @@
       "sha256": "e5d16017965733fc485fa81af0fc760a8536f0cd5c13711482cce6bf887da8de"
     },
     {
+      "path": "server/preflight-bridge.ts",
+      "bytes": 6443,
+      "sha256": "b5d003074dd4a0cb6362dc83ebd2de0db61d45e9511188e48ba99e88ecca4b49"
+    },
+    {
+      "path": "server/preflight-intent.ts",
+      "bytes": 8673,
+      "sha256": "892f3f0a2622b1a1d844ae750fbde270954162ded26655ba79b139909ff73f52"
+    },
+    {
+      "path": "server/preflight-policy.ts",
+      "bytes": 8578,
+      "sha256": "132893ad381721db125c2a0622cc1320bbe5e90e41ea3706818abef4e9b06fd3"
+    },
+    {
       "path": "server/service.ts",
-      "bytes": 8975,
-      "sha256": "c6865fcdf57ac0ddca7c7fe1db1782c8e430fa9a4db01104e3ebecb984cb3e2c"
+      "bytes": 13504,
+      "sha256": "0c393c005eade731c270bd510c4ee286de4e7da6bede3fcd288b14a9c76f6943"
     },
     {
       "path": "server/tavily.ts",
@@ -687,6 +722,11 @@
       "path": "shared/preflight-adapters.ts",
       "bytes": 8960,
       "sha256": "ae14eca75770074c9920cf6ce1abee05ae2e5524ce55b4933c48c10a27247b1f"
+    },
+    {
+      "path": "shared/preflight-bridge-response.ts",
+      "bytes": 3215,
+      "sha256": "2377b71a943cd5e75dfe90ac146661240f83675d293da7cf8af626f1a0869347"
     },
     {
       "path": "shared/preflight.ts",
@@ -744,14 +784,24 @@
       "sha256": "0ab7dd28a8c28b250dea917812508058077017c9a33c1a68b36eedc2b049cc26"
     },
     {
+      "path": "src/PreflightSponsorBridge.tsx",
+      "bytes": 10974,
+      "sha256": "691db5035824718a5f901ae5b6ae484f64700001be13d2d69bbbee74d3fd74ae"
+    },
+    {
       "path": "src/PromoPreflight.tsx",
-      "bytes": 24824,
-      "sha256": "b4d9fda4bba5d6d059d64d6e41722861788e6e9727ff63e0f1cdc4e1689e0ab2"
+      "bytes": 26704,
+      "sha256": "aa6f7860c50c195eab91382eed7924c3604d473ec575d1f65951a3c143608efa"
     },
     {
       "path": "src/main.tsx",
-      "bytes": 1952,
-      "sha256": "9e8223a5a43beb8ab3f20a92d6d2376cee9dd4581b0250c4160e54410f88ba34"
+      "bytes": 1980,
+      "sha256": "4ee4af005d8178262259d781fe0123c4483742255c6d4fdcb8dbcecc0b655b41"
+    },
+    {
+      "path": "src/preflight-sponsor-bridge.css",
+      "bytes": 1631,
+      "sha256": "b520cbc453aa15e2325819dbe00ef09b335a402d00f15ba8b109e2eb5c4d0bf6"
     },
     {
       "path": "src/promo-preflight.css",
@@ -852,6 +902,31 @@
       "path": "tests/preflight-adapters.test.ts",
       "bytes": 9648,
       "sha256": "3ea95de8fb0441f7fdb24cd4db57f5bcf2e929de33a3ac2f1594ecfed81ac14f"
+    },
+    {
+      "path": "tests/preflight-bridge-response.test.ts",
+      "bytes": 4362,
+      "sha256": "a0f349e717725899f00e357d80cb543efbe75daff4f03fb1a7650283857a09d1"
+    },
+    {
+      "path": "tests/preflight-bridge.browser.spec.ts",
+      "bytes": 19221,
+      "sha256": "a0ce5bfe64393a0349d76e8aca082c1affb7b7b09db40e043cc81ceaf80ec67e"
+    },
+    {
+      "path": "tests/preflight-bridge.test.ts",
+      "bytes": 17237,
+      "sha256": "6fda0dd19b808ed9043ca07b0f26ed2d375b55d0d709ecb8aba1d6ff5cbc2883"
+    },
+    {
+      "path": "tests/preflight-intent.test.ts",
+      "bytes": 10842,
+      "sha256": "aec56277e895a318add64fbf8b71236c24b8d367327c1cc2cd4d076bbb0a5d4a"
+    },
+    {
+      "path": "tests/preflight-policy.test.ts",
+      "bytes": 11008,
+      "sha256": "87eb25280eb2c3699a99a355d700f9140a0f22bdb8474f1c611aa2ff95cfb153"
     },
     {
       "path": "tests/preflight.browser.spec.ts",

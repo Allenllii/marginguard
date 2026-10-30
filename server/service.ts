@@ -7,6 +7,8 @@ import { decidePolicy } from '../shared/policy-decision.js';
 import { budgetLimits, MemoryBudget, type LiveBudget, type LiveService } from './budget.js';
 import type { ResearchPacket } from '../shared/types.js';
 import { fixtureReference, parseFixtureReference, ResearchIdSchema } from './fixture-reference.js';
+import { preparePreflightBridge } from './preflight-bridge.js';
+import { PreflightValidationError, runPreflight, validatePreflightInput, type PreflightRule } from '../shared/preflight.js';
 
 export const AssumptionsSchema = z.object({ discountCeilingPercent: z.number().int().min(0).max(60), shippingSubsidyCents: z.number().int().min(0).max(2000) }).strict();
 const Payload = z.object({ csv: z.string().min(1).max(MAX_BYTES), live: z.boolean().optional(), assumptions: AssumptionsSchema.optional() }).strict();
@@ -26,6 +28,8 @@ export function createService(options: { env?: Record<string, string | undefined
   const expires = Date.parse(env.LIVE_ENABLED_UNTIL || '2026-12-16T00:00:00Z');
   if (!Number.isFinite(expires)) throw new Error('LIVE_ENABLED_UNTIL must be an ISO date.');
   let modelInFlight = false, searchInFlight = false, nextModel = 0, nextSearch = 0, apiMinute = -1, apiCount = 0;
+  // Ephemeral proposals hold generated rules, never seller data. Restarts expire safely.
+  const proposals = new Map<string, { rules: PreflightRule[]; expires: number }>();
   async function reserve(service: LiveService): Promise<Reply | null> {
     if (!liveSafe) return { status: 503, body: { error: 'Public live calls require a durable budget store and verified provider hard caps. Offline demo remains available.' } };
     if (now() >= expires) return { status: 503, body: { error: 'This live-demo authorization window has ended. Offline analysis remains available.' } };
@@ -37,6 +41,50 @@ export function createService(options: { env?: Record<string, string | undefined
     const minute = Math.floor(now() / 60000); if (minute !== apiMinute) { apiMinute = minute; apiCount = 0; }
     if (++apiCount > 120) return { status: 429, body: { error: 'Request rate exceeded. Try again shortly.' }, headers: { 'Retry-After': '60' } };
     try {
+      if (method === 'POST' && path === '/api/preflight/prepare') {
+        const { activity, context, live } = z.object({ activity: z.string().min(1).max(240), context: ContextSchema, live: z.boolean().default(false) }).strict().parse(body);
+        if (context.platform !== 'Shopify' || context.region !== 'US' || context.discountOrigin !== 'native') return { status: 422, body: { status: 'HOLD', error: 'Confirm Shopify, US and native discount context. Other or unknown contexts are outside this bridge.' } };
+        const upstream = live && tavily.enabled && !!tavily.key && nvidia.enabled && !!nvidia.key;
+        if (upstream && (modelInFlight || searchInFlight || now() < Math.max(nextModel, nextSearch))) return { status: 429, body: { status: 'HOLD', error: 'Wait before another live provider request.' }, headers: { 'Retry-After': String(Math.max(1, Math.ceil((Math.max(nextModel, nextSearch) - now()) / 1000))) } };
+        if (upstream) { modelInFlight = true; searchInFlight = true; }
+        const reservation: { denial: Reply | null } = { denial: null };
+        try {
+          const prepared = await preparePreflightBridge(activity, { live, tavily, nebius: nvidia, request, now,
+            reserve: async service => {
+              reservation.denial = await reserve(service);
+              if (reservation.denial) return false;
+              if (service === 'tavily') nextSearch = Math.max(nextSearch, now() + 10000);
+              else nextModel = Math.max(nextModel, now() + 10000);
+              return true;
+            },
+            onRateLimit: (service, seconds) => {
+              if (service === 'tavily') nextSearch = Math.max(nextSearch, now() + seconds * 1000);
+              else nextModel = Math.max(nextModel, now() + seconds * 1000);
+            },
+          });
+          let proposalId: string | null = null;
+          if (prepared.status === 'NEEDS_CONFIRMATION') {
+            for (const [id, proposal] of proposals) if (proposal.expires <= now()) proposals.delete(id);
+            if (proposals.size >= 50) proposals.delete(proposals.keys().next().value!);
+            proposalId = crypto.randomUUID();
+            proposals.set(proposalId, { rules: structuredClone(prepared.rules), expires: now() + 600000 });
+          }
+          return { status: reservation.denial?.status ?? 200, body: { ...prepared, proposalId, proposalTtlSeconds: proposalId ? 600 : null }, ...(reservation.denial?.headers ? { headers: reservation.denial.headers } : {}) };
+        } finally { if (upstream) { modelInFlight = false; searchInFlight = false; } }
+      }
+      if (method === 'POST' && path === '/api/preflight/confirm') {
+        const confirmation = z.object({ proposalId: z.string().uuid(), confirmed: z.literal(true), input: z.unknown() }).strict().parse(body);
+        const proposal = proposals.get(confirmation.proposalId);
+        if (!proposal || proposal.expires <= now()) {
+          proposals.delete(confirmation.proposalId);
+          return { status: 422, body: { status: 'HOLD', error: 'This proposal is missing, expired or already consumed. Prepare and review it again.' } };
+        }
+        const input = validatePreflightInput(confirmation.input);
+        if (JSON.stringify(input.rules) !== JSON.stringify(proposal.rules)) return { status: 422, body: { status: 'HOLD', error: 'The confirmed rules differ from the reviewed proposal. Review the exact proposal or edit the local simulator independently.' } };
+        const simulation = runPreflight(input);
+        proposals.delete(confirmation.proposalId);
+        return { status: 200, body: { mode: 'offline', status: simulation.status, simulation, sellerConfirmed: true, providerRequests: 0, checkoutStatus: 'HOLD', checkoutVerified: false, note: 'Seller confirmation authorizes this bounded simulation only. Policy references do not verify store eligibility or checkout execution.' } };
+      }
       if (method === 'GET' && path === '/api/demo') { const csv = createDemoCsv(); return { status: 200, body: { csv, analysis: analyze(csv, 'Northstar Supply · synthetic demo', true) } }; }
       if (method === 'POST' && path === '/api/analyze') { const { csv, assumptions } = Payload.parse(body); const synthetic = csv === createDemoCsv(); return { status: 200, body: analyze(csv, synthetic ? 'Northstar Supply · synthetic demo' : 'Imported CSV', synthetic, assumptions) }; }
       if (method === 'POST' && path === '/api/research') {
@@ -76,6 +124,7 @@ export function createService(options: { env?: Record<string, string | undefined
       }
       return { status: 404, body: { error: 'Unknown API route.' } };
     } catch (error) {
+      if (path.startsWith('/api/preflight/')) return { status: error instanceof z.ZodError || error instanceof PreflightValidationError ? 422 : 400, body: { status: 'HOLD', error: 'The preflight request is invalid or could not complete. No proposal was applied.' } };
       if (error instanceof InputError) return { status: 422, body: { error: error.message } };
       if (error instanceof z.ZodError) return { status: 422, body: { error: 'Request fields or context are invalid. Check the required CSV, finding, platform, and carrier values.' } };
       return { status: 400, body: { error: 'The request could not complete. No credential or upstream response details are exposed.' } };
