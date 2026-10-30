@@ -1,0 +1,30 @@
+{
+  "baseCommit": "70759199ea11395284e952bfc37054f48c19edf1",
+  "verifiedAtUtc": "2026-10-29T23:20:41Z",
+  "environment": "Isolated clone in task-10/marginguard-sponsor; main workspace untouched",
+  "providerCalls": 0,
+  "credentialFilesRead": 0,
+  "customerDataSent": false,
+  "externalSubmissionAttempted": false,
+  "checks": [
+    { "command": "npm test", "passed": 247, "failed": 0, "note": "Provider credential environment variables explicitly cleared. Local API socket test required sandbox escalation after localhost EACCES." },
+    { "command": "npm run benchmark:test", "passed": 65, "failed": 0 },
+    { "command": "npm run lint", "exitCode": 0 },
+    { "command": "npm run build", "exitCode": 0, "note": "TypeScript, frontend, portable Worker and ESM artifact validation passed; no Node builtins in Worker." },
+    { "command": "git diff --check", "exitCode": 0 }
+  ],
+  "newMockTests": { "policy": 15, "intent": 10, "bridge": 13, "total": 38 },
+  "independentReview": {
+    "result": "No remaining blocker",
+    "foundAndFixed": "Scoped contrary policy clauses and selected Search conflicts now HOLD before any model proposal",
+    "reviewed": ["Per-HTTP budget integration", "Shared cooldown and in-flight guards", "Explicit single-use confirmation", "Fixture provenance preservation", "Integer engine authority"]
+  },
+  "limitations": [
+    "API slice only; existing offline browser UI stays unchanged",
+    "Shopify US native discounts, bounded English percentage/free-shipping grammar only",
+    "Documentation is reference evidence; checkout remains HOLD and unverified",
+    "Proposals expire after ten minutes and service/isolate restart",
+    "Conservative text screening can HOLD qualified official documentation",
+    "Real provider interoperability remains for mainline under existing approved credentials and request budgets"
+  ]
+}
