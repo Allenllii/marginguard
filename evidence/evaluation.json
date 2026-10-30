@@ -1,5 +1,5 @@
 {
-  "executedAt": "2026-10-29T04:28:21.427Z",
+  "executedAt": "2026-10-30T03:17:56.928Z",
   "scope": "Two synthetic fixtures; deterministic rules only. No live inference and no claims about real-world accuracy.",
   "plantedFixture": {
     "orders": 504,
