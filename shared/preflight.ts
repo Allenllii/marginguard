@@ -57,6 +57,23 @@ export const PREFLIGHT_FIXTURE: PreflightInput = {
   evidence: { mode: 'fixture', semantics: 'unknown', costsReference: 'Synthetic fixture; no seller cost evidence', rulesReference: 'Authored product/order percentage experiment', operationsReference: '' },
 };
 
+/** Synthetic basket for proposals whose thresholds the one-$50-item sample can never reach. Not seller data. */
+export const PREFLIGHT_THRESHOLD_BASKET = { skus: [{ id: 'DEMO-SKU-40', priceCents: 4000, unitCostCents: 2400 }], maxQuantity: 3 } as const;
+const fullBasketReaches = (skus: readonly PreflightSku[], maxQuantity: number, rule: PreflightRule) =>
+  skus.reduce((total, sku) => total + sku.priceCents, 0) * maxQuantity >= rule.minSubtotalCents && skus.length * maxQuantity >= rule.minItems;
+/**
+ * If `input` still uses the untouched sample basket and one of its rules can never fire on it
+ * (e.g. "$10 off orders over $75" on one $50 item), return the input with the synthetic threshold
+ * basket instead, so the exhaustive search covers carts that cross the threshold. Otherwise null.
+ */
+export function withThresholdBasket(input: PreflightInput): PreflightInput | null {
+  const sample = input.maxQuantity === PREFLIGHT_FIXTURE.maxQuantity && JSON.stringify(input.skus) === JSON.stringify(PREFLIGHT_FIXTURE.skus);
+  const unreachable = input.rules.some(rule => !fullBasketReaches(input.skus, input.maxQuantity, rule));
+  const { skus, maxQuantity } = PREFLIGHT_THRESHOLD_BASKET;
+  if (!sample || !unreachable || !input.rules.every(rule => fullBasketReaches(skus, maxQuantity, rule))) return null;
+  return { ...input, skus: skus.map(sku => ({ ...sku })), maxQuantity };
+}
+
 function fail(path: string, message: string): never { throw new PreflightValidationError(`${path}: ${message}`); }
 function object(value: unknown, path: string, keys: string[]): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value) || ![Object.prototype, null].includes(Object.getPrototypeOf(value))) fail(path, 'expected a plain object');

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { PREFLIGHT_FIXTURE, runPreflight, type PreflightInput, type PreflightResult, type PreflightRule } from '../shared/preflight';
+import { PREFLIGHT_FIXTURE, runPreflight, withThresholdBasket, type PreflightInput, type PreflightResult, type PreflightRule } from '../shared/preflight';
 import { checkInterpretation, parsePreflightBridgeReply, PREFLIGHT_POLICY_URL, recordedModelOutput, RECORDED_INTERPRETATION, safeBridgeMessage, SYNTHETIC_CAMPAIGN, type PreflightBridgeReply, type UnmodeledCondition } from '../shared/preflight-bridge-response';
 import './preflight-sponsor-bridge.css';
 
@@ -7,6 +7,8 @@ export interface BridgeAudit {
   mode: 'fixture' | 'live'; model: string | null; receivedAt: string; confirmedAt: string;
   providerAttempts: number; sources: { id: string; title: string; url: string; snippet: string }[];
   boundary: string;
+  /** Set when the untouched sample basket was swapped for the synthetic threshold basket. */
+  syntheticBasket?: string;
   /** Present only for the offline replay of a recorded Nemotron run. Not proof of a live call. */
   replay?: { model: string; requestId: string; recordedOn: string; campaign: string; unmodeledConditions: UnmodeledCondition[]; source: string };
 }
@@ -22,6 +24,12 @@ function describeRule(rule: PreflightRule) {
   const when = [rule.minSubtotalCents ? `subtotal at least ${usd(rule.minSubtotalCents)} [${rule.minSubtotalCents} cents]` : '', rule.minItems ? `at least ${rule.minItems} items` : ''].filter(Boolean).join(' and ');
   return `${rule.id}: ${what}${when ? ` · when ${when}` : ' · no minimum'}`;
 }
+/** Synthetic basket the confirmation will use instead of the sample basket, if any. Pure; safe on invalid drafts. */
+function thresholdBasket(getInput: () => PreflightInput, rules: PreflightRule[]) {
+  try { return withThresholdBasket({ ...getInput(), rules }); } catch { return null; }
+}
+const basketNote = (input: PreflightInput) => `Simulated on a synthetic basket so every threshold can fire: ${input.skus.map(sku => `${sku.id} at ${usd(sku.priceCents)} (unit cost ${usd(sku.unitCostCents)})`).join(', ')}, quantity 1–${input.maxQuantity}. Not your data.`;
+const REVIEW_LABEL = 'I reviewed these rules, their order, thresholds and stacking, and approve a simulation only';
 const recordedLabel = `Recorded Nemotron 3 Super interpretation (request ${RECORDED_INTERPRETATION.requestId}, ${RECORDED_INTERPRETATION.recordedOn}), replayed offline`;
 
 export default function PreflightSponsorBridge({ getInput, onConfirmed, active }: {
@@ -86,7 +94,9 @@ export default function PreflightSponsorBridge({ getInput, onConfirmed, active }
     try {
       const rules = proposal.mode === 'live' ? proposal.packet.rules : proposal.rules;
       const offline = proposal.mode !== 'live';
-      const input = { ...getInput(), rules }, expected = runPreflight(input);
+      // The explicit review covers rule order, thresholds and stacking, so it is the semantics confirmation.
+      const reviewed = { ...getInput(), rules }, base = { ...reviewed, evidence: { ...reviewed.evidence, semantics: 'explicit_simulation' as const } };
+      const swapped = withThresholdBasket(base), input = swapped ?? base, expected = runPreflight(input);
       if (proposal.mode === 'live') {
         const response = await fetch('/api/preflight/confirm', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal, body: JSON.stringify({ proposalId: proposal.packet.proposalId, confirmed: true, input }) });
         const body = await response.json(); if (ticket !== generation.current) return;
@@ -98,12 +108,14 @@ export default function PreflightSponsorBridge({ getInput, onConfirmed, active }
         receivedAt: proposal.receivedAt, confirmedAt: new Date().toISOString(), providerAttempts: proposal.mode === 'live' ? proposal.packet.http.attempted : 0,
         sources: proposal.mode === 'live' ? proposal.packet.policy?.sources ?? [] : [],
         boundary: 'Explicitly confirmed bounded simulation. Policy applicability and real checkout remain unverified; monetary values come only from the integer engine.',
+        ...(swapped ? { syntheticBasket: basketNote(swapped) } : {}),
         ...(proposal.mode === 'recorded' ? { replay: { model: RECORDED_INTERPRETATION.model, requestId: RECORDED_INTERPRETATION.requestId, recordedOn: RECORDED_INTERPRETATION.recordedOn, campaign: RECORDED_INTERPRETATION.campaign, unmodeledConditions: proposal.unmodeled, source: 'evidence/live-intent-20261030.json' } } : {}) });
       clear(); setMessage('Rules confirmed for simulation only. Inspect the deterministic audit below.');
     } catch (failure) { if (ticket === generation.current) { setProposal(null); setMessage(`On hold: ${safeBridgeMessage(failure instanceof Error ? failure.message : null, 'Confirmation outcome unknown. No retry was made.')}`); } }
     finally { if (ticket === generation.current) setBusy(false); }
   }
   const rules = proposal?.mode === 'live' ? proposal.packet.rules : proposal?.rules;
+  const swapPreview = rules ? thresholdBasket(getInput, rules) : null;
   const unmodeled = proposal?.mode === 'live' ? proposal.packet.unmodeledConditions ?? [] : proposal?.mode === 'recorded' ? proposal.unmodeled : [];
   return <details className="pf-bridge" ref={panel} open onToggle={event => { if (!event.currentTarget.open) clear(); }}>
     <summary>Describe a campaign: Tavily + Nemotron propose the rules</summary>
@@ -129,10 +141,11 @@ export default function PreflightSponsorBridge({ getInput, onConfirmed, active }
       <h3>{proposal.mode === 'fixture' ? 'Offline sample proposal' : proposal.mode === 'recorded' ? recordedLabel : 'Live Nemotron proposal · needs your confirmation'}</h3>
       {proposal.mode === 'recorded' ? <p className="pf-help">Campaign: “{RECORDED_INTERPRETATION.campaign}”. The local parser cannot read this free-form text, so these rules are Nemotron&apos;s reading ({RECORDED_INTERPRETATION.model}). Every value appears in the campaign text.</p> : null}
       <ol>{rules.map(rule => <li key={rule.id}>{describeRule(rule)}</li>)}</ol>
+      {swapPreview ? <p className="pf-bridge-unmodeled" data-testid="preflight-threshold-basket">The one-item {usd(PREFLIGHT_FIXTURE.skus[0].priceCents)} sample never reaches a threshold above. {basketNote(swapPreview)}</p> : null}
       {unmodeled.length ? <p className="pf-bridge-unmodeled" data-testid="preflight-unmodeled">Not simulated: {unmodeled.map(condition => CONDITION_LABELS[condition]).join(', ')}. The simulation applies the rules to every basket, so check who actually qualifies.</p> : null}
       {proposal.mode === 'recorded' ? <p>Recorded on {RECORDED_INTERPRETATION.recordedOn} with live Tavily and Nebius calls; replayed here with no provider call. <a href={PREFLIGHT_POLICY_URL} target="_blank" rel="noopener noreferrer">Reference policy</a></p> : proposal.mode === 'live' ? <><p>Model: {proposal.packet.model} · {proposal.packet.http.attempted} provider calls. Browser received {proposal.receivedAt}; policy effective date unverified.</p><p className="pf-help">{proposal.packet.policy?.reason} Read the complete policy and check your store settings. A reference permits hypothetical preparation only; it does not clear a campaign for launch.</p>{proposal.packet.policy?.sources.map(source => <blockquote key={source.id}><p>{source.snippet}</p><a href={source.url} target="_blank" rel="noopener noreferrer">[{source.id}] Open official policy</a></blockquote>)}</> : <p>Sample rules written for this demo; no search or model call. <a href={PREFLIGHT_POLICY_URL} target="_blank" rel="noopener noreferrer">Reference policy</a></p>}
       <p className="pf-help">{proposal.mode === 'live' ? 'Live confirmation sends the current synthetic or seller-entered basket inputs to this app server for integer calculation. They are not sent to providers.' : 'Confirmation runs the integer engine in this browser; nothing is sent.'} Confirmation applies these rules only to the sandbox; real checkout stays on hold.</p>
-      <label className="pf-bridge-check"><input type="checkbox" checked={reviewed} onChange={event => { confirmationPermit.current = event.target.checked; setReviewed(event.target.checked); }} disabled={busy} />I reviewed these rules and approve a simulation only</label>
+      <label className="pf-bridge-check"><input type="checkbox" checked={reviewed} onChange={event => { confirmationPermit.current = event.target.checked; setReviewed(event.target.checked); }} disabled={busy} />{REVIEW_LABEL}</label>
       <button type="button" onClick={confirm} disabled={!reviewed || busy}>Confirm proposed rules</button>
     </section> : null}
   </details>;

@@ -8,7 +8,7 @@ import { policyReviewDossier } from '../server/preflight-policy-dossier';
 const model = 'nvidia/Nemotron-3_5-Lightning';
 const policyUrl = 'https://help.shopify.com/en/manual/discounts/discount-combinations';
 const campaign = '20% product discount then 20% order discount then free shipping';
-const reviewLabel = 'I reviewed these rules and approve a simulation only';
+const reviewLabel = 'I reviewed these rules, their order, thresholds and stacking, and approve a simulation only';
 const rules = [
   { id: 'R1', minSubtotalCents: 0, minItems: 0, type: 'percent', scope: 'product', basisPoints: 2000 },
   { id: 'R2', minSubtotalCents: 0, minItems: 0, type: 'percent', scope: 'order', basisPoints: 2000 },
@@ -355,9 +355,17 @@ test('offline replay: the recorded Nemotron 3 Super reading of the VIP campaign 
   await expect(page.getByTestId('preflight-unmodeled')).toContainText('customer segment');
   await expect(region).not.toContainText(/live Nemotron proposal/i);
   await expect(confirmButton(page)).toBeDisabled();
+  // The one $50 sample item can never reach $75, so the replay is simulated on a labelled synthetic $40 x 1-3 basket.
+  await expect(page.getByTestId('preflight-threshold-basket')).toContainText('DEMO-SKU-40 at $40.00 (unit cost $24.00), quantity 1–3. Not your data.');
   await page.getByRole('checkbox', { name: reviewLabel, exact: true }).check(); await confirmButton(page).click();
-  await expect(page.getByTestId('preflight-worst-contribution')).toHaveText('$2.00');
+  await expect(page.getByTestId('preflight-worst-contribution')).toHaveText('-$2.00');
+  await expect(page.locator('.pf-contribution')).toContainText('Below your $0.00 floor');
   await expect(page.getByTestId('preflight-status')).toHaveText('On hold');
+  await expect(page.locator('.pf-basket-list')).toContainText('DEMO-SKU-40× 2');
+  // The review covered rule order, so the report does not also call it unconfirmed.
+  await expect(page.locator('.pf-hold')).not.toContainText('not been explicitly confirmed');
+  await expect(page.getByRole('checkbox', { name: /I explicitly confirm this simulation/ })).toBeChecked();
+  await expect(receipt(page)).toContainText('Simulated on a synthetic basket so every threshold can fire');
   await expect(receipt(page)).toContainText('replayed offline'); await expect(receipt(page)).toContainText('0 provider calls');
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download JSON audit', exact: true }).click();
@@ -366,6 +374,9 @@ test('offline replay: the recorded Nemotron 3 Super reading of the VIP campaign 
   expect(exported.bridge.replay.requestId).toBe('chatcmpl-8ae1c087d8a60974'); expect(exported.bridge.replay.unmodeledConditions).toEqual(['customer_segment']);
   expect(JSON.stringify(exported)).not.toContain('"proof"');
   expect(exported.input.rules.map((rule: { type: string }) => rule.type)).toEqual(['percent', 'fixed', 'free_shipping']);
+  expect(exported.input.skus).toEqual([{ id: 'DEMO-SKU-40', priceCents: 4000, unitCostCents: 2400 }]); expect(exported.input.maxQuantity).toBe(3);
+  expect(exported.worst.contributionCents).toBe(-200); expect(exported.worst.basket).toEqual([{ skuId: 'DEMO-SKU-40', quantity: 2 }]);
+  expect(exported.input.evidence.semantics).toBe('explicit_simulation'); expect(exported.bridge.syntheticBasket).toContain('Not your data');
   expect(urls.filter(url => url.includes('/api/'))).toEqual([]);
 });
 
