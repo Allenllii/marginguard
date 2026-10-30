@@ -1,6 +1,6 @@
-import { useRef, useState, type FormEvent } from 'react';
-import { ArrowDownToLine, ArrowRight, FlaskConical, Plus, Trash2 } from 'lucide-react';
-import { PREFLIGHT_FIXTURE, runPreflight, type PreflightInput, type PreflightResult } from '../shared/preflight';
+import { useId, useRef, useState, type FormEvent } from 'react';
+import { ArrowDownToLine, ArrowLeft, ArrowRight, FlaskConical, Plus, ShieldCheck, Trash2 } from 'lucide-react';
+import { PREFLIGHT_FIXTURE, runPreflight, type PreflightInput, type PreflightResult, type PreflightRule } from '../shared/preflight';
 import './promo-preflight.css';
 import PreflightSponsorBridge, { type BridgeAudit } from './PreflightSponsorBridge';
 import PreflightComparison, { statusLabel } from './PreflightComparison';
@@ -14,15 +14,17 @@ type Draft = {
   costsReference: string; rulesReference: string; operationsReference: string; semanticsConfirmed: boolean;
 };
 
-const usd = (cents: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+import { amount, applied, dollarsText, percentText, usd, type Unit } from './preflight-units';
+
+const ruleDraft = (rule: PreflightRule): RuleDraft => ({ id: rule.id, type: rule.type, scope: rule.type === 'percent' ? rule.scope : 'order', value: rule.type === 'percent' ? percentText(rule.basisPoints) : rule.type === 'fixed' ? dollarsText(rule.amountCents) : '0', minSubtotalCents: dollarsText(rule.minSubtotalCents), minItems: String(rule.minItems) });
 
 function fixtureDraft(): Draft {
   return {
-    skus: PREFLIGHT_FIXTURE.skus.map(sku => ({ id: sku.id, priceCents: String(sku.priceCents), unitCostCents: String(sku.unitCostCents) })),
-    rules: PREFLIGHT_FIXTURE.rules.map(rule => ({ id: rule.id, type: rule.type, scope: rule.type === 'percent' ? rule.scope : 'order', value: String(rule.type === 'percent' ? rule.basisPoints : rule.type === 'fixed' ? rule.amountCents : 0), minSubtotalCents: String(rule.minSubtotalCents), minItems: String(rule.minItems) })),
-    maxQuantity: String(PREFLIGHT_FIXTURE.maxQuantity), shippingChargedCents: String(PREFLIGHT_FIXTURE.shippingChargedCents),
-    shippingCostCents: String(PREFLIGHT_FIXTURE.shippingCostCents), paymentFeeBps: String(PREFLIGHT_FIXTURE.paymentFeeBps),
-    contributionFloorCents: String(PREFLIGHT_FIXTURE.contributionFloorCents), sellerAttested: false,
+    skus: PREFLIGHT_FIXTURE.skus.map(sku => ({ id: sku.id, priceCents: dollarsText(sku.priceCents), unitCostCents: dollarsText(sku.unitCostCents) })),
+    rules: PREFLIGHT_FIXTURE.rules.map(ruleDraft),
+    maxQuantity: String(PREFLIGHT_FIXTURE.maxQuantity), shippingChargedCents: dollarsText(PREFLIGHT_FIXTURE.shippingChargedCents),
+    shippingCostCents: dollarsText(PREFLIGHT_FIXTURE.shippingCostCents), paymentFeeBps: percentText(PREFLIGHT_FIXTURE.paymentFeeBps),
+    contributionFloorCents: dollarsText(PREFLIGHT_FIXTURE.contributionFloorCents), sellerAttested: false,
     costsReference: '', rulesReference: '', operationsReference: '', semanticsConfirmed: false,
   };
 }
@@ -35,7 +37,7 @@ function nextIdentifier(prefix: string, used: string[]) {
 }
 
 function integer(value: string, label: string, signed = false) {
-  if (!(signed ? /^-?(0|[1-9]\d*)$/ : /^(0|[1-9]\d*)$/).test(value)) throw new Error(`${label}: enter a whole number${signed ? '' : ' of zero or more'}. Use cents or basis points, with no decimal, comma or exponent.`);
+  if (!(signed ? /^-?(0|[1-9]\d*)$/ : /^(0|[1-9]\d*)$/).test(value)) throw new Error(`${label}: enter a whole number${signed ? '' : ' of zero or more'}, with no decimal, comma or exponent.`);
   const result = Number(value);
   if (!Number.isSafeInteger(result)) throw new Error(`${label}: the number is too large.`);
   return result;
@@ -44,17 +46,17 @@ function integer(value: string, label: string, signed = false) {
 function toInput(draft: Draft): PreflightInput {
   return {
     currency: 'USD',
-    skus: draft.skus.map((sku, index) => ({ id: sku.id, priceCents: integer(sku.priceCents, `SKU ${index + 1} price`), unitCostCents: integer(sku.unitCostCents, `SKU ${index + 1} unit cost`) })),
+    skus: draft.skus.map((sku, index) => ({ id: sku.id, priceCents: amount(sku.priceCents, `SKU ${index + 1} price`, 'dollars'), unitCostCents: amount(sku.unitCostCents, `SKU ${index + 1} unit cost`, 'dollars') })),
     maxQuantity: integer(draft.maxQuantity, 'Quantity limit'),
     rules: draft.rules.map((rule, index) => {
-      const common = { id: rule.id, minSubtotalCents: integer(rule.minSubtotalCents, `Rule ${index + 1} subtotal threshold`), minItems: integer(rule.minItems, `Rule ${index + 1} item threshold`) };
-      if (rule.type === 'percent') return { ...common, type: 'percent' as const, scope: rule.scope, basisPoints: integer(rule.value, `Rule ${index + 1} percentage`) };
-      if (rule.type === 'fixed') return { ...common, type: 'fixed' as const, amountCents: integer(rule.value, `Rule ${index + 1} fixed discount`) };
+      const common = { id: rule.id, minSubtotalCents: amount(rule.minSubtotalCents, `Rule ${index + 1} subtotal threshold`, 'dollars'), minItems: integer(rule.minItems, `Rule ${index + 1} item threshold`) };
+      if (rule.type === 'percent') return { ...common, type: 'percent' as const, scope: rule.scope, basisPoints: amount(rule.value, `Rule ${index + 1} percentage`, 'percent') };
+      if (rule.type === 'fixed') return { ...common, type: 'fixed' as const, amountCents: amount(rule.value, `Rule ${index + 1} fixed discount`, 'dollars') };
       return { ...common, type: 'free_shipping' as const };
     }),
-    shippingChargedCents: integer(draft.shippingChargedCents, 'Customer shipping charge'),
-    shippingCostCents: integer(draft.shippingCostCents, 'Shipping cost'),
-    paymentFeeBps: integer(draft.paymentFeeBps, 'Payment fee'), contributionFloorCents: integer(draft.contributionFloorCents, 'Contribution floor', true),
+    shippingChargedCents: amount(draft.shippingChargedCents, 'Customer shipping charge', 'dollars'),
+    shippingCostCents: amount(draft.shippingCostCents, 'Shipping cost', 'dollars'),
+    paymentFeeBps: amount(draft.paymentFeeBps, 'Payment fee', 'percent'), contributionFloorCents: amount(draft.contributionFloorCents, 'Contribution floor', 'dollars', true),
     evidence: { mode: draft.sellerAttested ? 'user' : 'fixture', semantics: draft.semanticsConfirmed ? 'explicit_simulation' : 'unknown', costsReference: draft.costsReference, rulesReference: draft.rulesReference, operationsReference: draft.operationsReference },
   };
 }
@@ -72,8 +74,10 @@ function exportAudit(result: PreflightResult, bridge: BridgeAudit | null) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function NumberField({ label, value, onChange, hint, signed = false }: { label: string; value: string; onChange: (value: string) => void; hint?: string; signed?: boolean }) {
-  return <label className="pf-field"><span>{label}</span><input type="text" inputMode={signed ? 'text' : 'numeric'} value={value} onChange={event => onChange(event.target.value)} autoComplete="off" spellCheck={false} maxLength={15} />{hint ? <small>{hint}</small> : null}</label>;
+function NumberField({ label, value, onChange, hint, signed = false, unit }: { label: string; value: string; onChange: (value: string) => void; hint?: string; signed?: boolean; unit?: Unit }) {
+  const exact = unit ? applied(value, unit, signed) : '', id = useId();
+  // The name stays the bare label; the hint and the exact applied value are descriptions.
+  return <label className="pf-field"><span>{label}</span><input type="text" aria-label={label} aria-describedby={[hint ? `${id}-hint` : '', exact ? `${id}-applied` : ''].filter(Boolean).join(' ') || undefined} inputMode={signed ? 'text' : unit ? 'decimal' : 'numeric'} value={value} onChange={event => onChange(event.target.value)} autoComplete="off" spellCheck={false} maxLength={15} />{hint ? <small id={`${id}-hint`}>{hint}</small> : null}{exact ? <small className="pf-applied" id={`${id}-applied`}>{exact}</small> : null}</label>;
 }
 
 export default function PromoPreflight({ workspaceActive = true }: { workspaceActive?: boolean }) {
@@ -123,7 +127,7 @@ export default function PromoPreflight({ workspaceActive = true }: { workspaceAc
   const basketLimit = (Number(draft.maxQuantity) + 1) ** draft.skus.length - 1;
 
   return <div className="pf-shell">
-    <nav className="pf-back" aria-label="Return to analysis"><a href="#">← Back to analysis</a><span>MarginGuard / Promo Preflight</span></nav>
+    <nav className="pf-back" aria-label="Return to analysis"><span className="pf-brand"><span className="pf-brand-mark" aria-hidden="true"><ShieldCheck size={18} /></span>Margin<span>Guard</span><small>/ Promo Preflight</small></span><a href="#" className="pf-back-link"><ArrowLeft size={16} aria-hidden="true" /> Back to analysis</a></nav>
     <DemoBanner />
     <header className="pf-hero">
       <div className="pf-hero-copy">
@@ -133,54 +137,54 @@ export default function PromoPreflight({ workspaceActive = true }: { workspaceAc
         <Limits items={['A simulation of the rules you enter. No store connection, checkout check, orders or configuration changes.', 'Money comes only from your inputs and integer-cent code. Optional Tavily + Nemotron preparation needs separate consent.', 'Modeled contribution is not realized savings or a launch approval.']} />
       </div>
       <aside className="pf-golden" aria-label="Synthetic example walkthrough">
-        <p className="pf-kicker">SYNTHETIC EXAMPLE · 1 ITEM</p>
+        <p className="pf-kicker">SAMPLE WALKTHROUGH · 1 ITEM · NOT YOUR DATA</p>
         <div className="pf-golden-path"><span>$50.00<small>Price</small></span><ArrowRight size={16} aria-hidden="true" /><span>$40.00<small>20% product</small></span><ArrowRight size={16} aria-hidden="true" /><span>$32.00<small>20% order</small></span></div>
-        <div className="pf-golden-outcome"><div><span>Then free shipping</span><strong>-$6.00</strong><small>Modeled contribution</small></div><span className="pf-pill pf-pill-warm">{statusLabel('HOLD')}</span></div>
-        <p>$30.00 COGS + $8.00 shipping cost; fee 0%. Baseline contribution $20.00. Remove the order discount: <strong>+$2.00</strong>.</p>
-        <small>Sample rules and costs; not a real checkout.</small>
+        <div className="pf-golden-outcome"><div><span>Then free shipping</span><strong>-$6.00</strong><small>Contribution after all three rules stack</small></div></div>
+        <p>$30.00 COGS + $8.00 shipping cost; fee 0%. With no promotion: contribution <strong>+$20.00</strong>. Without the order discount: contribution <strong>+$2.00</strong>.</p>
+        <small>Sample rules and costs to show how stacking adds up; run the test below with your own numbers.</small>
       </aside>
     </header>
 
     <PreflightSponsorBridge key={`${draftVersion}:${workspaceActive}`} active={workspaceActive} getInput={() => toInput(draft)} onConfirmed={(confirmed, audit) => {
-      setDraft(previous => ({ ...previous, rules: confirmed.input.rules.map(rule => ({ id: rule.id, type: rule.type, scope: rule.type === 'percent' ? rule.scope : 'order', value: String(rule.type === 'percent' ? rule.basisPoints : rule.type === 'fixed' ? rule.amountCents : 0), minSubtotalCents: String(rule.minSubtotalCents), minItems: String(rule.minItems) })) }));
+      setDraft(previous => ({ ...previous, rules: confirmed.input.rules.map(ruleDraft) }));
       setDraftVersion(previous => previous + 1); setResult(confirmed); setBridgeAudit(audit); setError(''); setNotice(`Rules confirmed for simulation. ${confirmed.searchSpace.scenarios} scenarios checked; ${statusLabel(confirmed.status).toLowerCase()}.`);
       requestAnimationFrame(() => { resultRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); resultRef.current?.focus({ preventScroll: true }); });
     }} />
-    {bridgeAudit ? <div className="pf-notice" data-testid="preflight-bridge-provenance">{bridgeAudit.mode === 'fixture' ? 'Sample proposal confirmed (offline)' : 'Live Tavily + Nemotron proposal confirmed'} · {bridgeAudit.providerAttempts} provider calls · Money calculated by integer code. Real checkout stays on hold.</div> : null}
+    {bridgeAudit ? <div className="pf-notice" data-testid="preflight-bridge-provenance">{bridgeAudit.replay ? `Recorded Nemotron 3 Super interpretation (request ${bridgeAudit.replay.requestId}, ${bridgeAudit.replay.recordedOn}) confirmed, replayed offline` : bridgeAudit.mode === 'fixture' ? 'Sample proposal confirmed (offline)' : 'Live Tavily + Nemotron proposal confirmed'} · {bridgeAudit.providerAttempts} provider calls · Money calculated by integer code. Real checkout stays on hold.</div> : null}
     <main className="pf-layout" aria-label="Promotion collision sandbox">
       <form className="pf-form" onSubmit={run} noValidate aria-label="Promotion simulation inputs">
         <section className="pf-card" aria-labelledby="pf-basket-title">
           <div className="pf-section-top"><div><p className="pf-kicker">01 / BASKET BOUNDARY</p><h2 id="pf-basket-title">Small enough to audit completely.</h2></div><span className="pf-count">{draft.skus.length} / 3 SKUs</span></div>
-          <p className="pf-help">Amounts are integer USD cents: 5000 = $50.00. Every nonempty basket from zero to your quantity limit per SKU is tested.</p>
+          <p className="pf-help">Enter dollars (49.99) and percentages (20 or 2.9). Each field shows the exact whole cents or basis points the integer engine uses; a third decimal rounds half up. Every nonempty basket from zero to your quantity limit per SKU is tested.</p>
           {draft.skus.map((sku, index) => <fieldset className="pf-input-row" key={index}>
             <legend>SKU {index + 1}</legend>
             <label className="pf-field"><span>SKU {index + 1} ID</span><input value={sku.id} onChange={event => skuField(index, 'id', event.target.value)} maxLength={40} autoComplete="off" spellCheck={false} /></label>
-            <NumberField label={`SKU ${index + 1} price (cents)`} value={sku.priceCents} onChange={value => skuField(index, 'priceCents', value)} />
-            <NumberField label={`SKU ${index + 1} unit cost (cents)`} value={sku.unitCostCents} onChange={value => skuField(index, 'unitCostCents', value)} />
+            <NumberField label={`SKU ${index + 1} price ($)`} value={sku.priceCents} onChange={value => skuField(index, 'priceCents', value)} unit="dollars" />
+            <NumberField label={`SKU ${index + 1} unit cost ($)`} value={sku.unitCostCents} onChange={value => skuField(index, 'unitCostCents', value)} unit="dollars" />
             {draft.skus.length > 1 ? <button type="button" className="pf-icon-action" aria-label={`Remove SKU ${index + 1}`} onClick={() => edit(previous => ({ ...previous, skus: previous.skus.filter((_, i) => i !== index) }))}><Trash2 size={16} aria-hidden="true" /></button> : null}
           </fieldset>)}
-          <div className="pf-inline-controls"><button type="button" className="pf-text-action" disabled={draft.skus.length >= 3} onClick={() => edit(previous => ({ ...previous, skus: [...previous.skus, { id: nextIdentifier('SKU', previous.skus.map(sku => sku.id)), priceCents: '5000', unitCostCents: '3000' }] }))}><Plus size={15} aria-hidden="true" /> Add SKU</button><label className="pf-field pf-quantity"><span>Quantity limit per SKU</span><select value={draft.maxQuantity} onChange={event => scalar('maxQuantity', event.target.value)}>{[1, 2, 3].map(quantity => <option key={quantity} value={quantity}>{quantity}</option>)}</select></label></div>
+          <div className="pf-inline-controls"><button type="button" className="pf-text-action" disabled={draft.skus.length >= 3} onClick={() => edit(previous => ({ ...previous, skus: [...previous.skus, { id: nextIdentifier('SKU', previous.skus.map(sku => sku.id)), priceCents: '50.00', unitCostCents: '30.00' }] }))}><Plus size={15} aria-hidden="true" /> Add SKU</button><label className="pf-field pf-quantity"><span>Quantity limit per SKU</span><select value={draft.maxQuantity} onChange={event => scalar('maxQuantity', event.target.value)}>{[1, 2, 3].map(quantity => <option key={quantity} value={quantity}>{quantity}</option>)}</select></label></div>
         </section>
 
         <section className="pf-card" aria-labelledby="pf-rule-title">
           <div className="pf-section-top"><div><p className="pf-kicker">02 / PROPOSED RULES</p><h2 id="pf-rule-title">Make every stacking assumption visible.</h2></div><span className="pf-count">{draft.rules.length} / 3 rules</span></div>
-          <p className="pf-help">These are simulated rules you supply. Percentages use basis points: 2000 = 20%. Product and order labels both reduce remaining basket merchandise in this limited model.</p>
+          <p className="pf-help">These are simulated rules you supply. Percentages are entered as percent (20 = 20%). Product and order labels both reduce remaining basket merchandise in this limited model.</p>
           {draft.rules.map((rule, index) => <fieldset className="pf-rule" key={index}>
             <legend>Rule {index + 1}</legend><div className="pf-rule-heading"><label className="pf-field"><span>Rule {index + 1} ID</span><input value={rule.id} onChange={event => ruleField(index, 'id', event.target.value)} maxLength={40} autoComplete="off" spellCheck={false} /></label><button type="button" className="pf-icon-action" aria-label={`Remove rule ${index + 1}`} onClick={() => edit(previous => ({ ...previous, rules: previous.rules.filter((_, i) => i !== index) }))}><Trash2 size={16} aria-hidden="true" /></button></div>
             <div className="pf-rule-grid"><label className="pf-field"><span>Rule {index + 1} type</span><select value={rule.type} onChange={event => ruleField(index, 'type', event.target.value)}><option value="percent">Percentage discount</option><option value="fixed">Fixed discount</option><option value="free_shipping">Free shipping</option></select></label>
-              {rule.type === 'percent' ? <><label className="pf-field"><span>Rule {index + 1} scope label</span><select value={rule.scope} onChange={event => ruleField(index, 'scope', event.target.value)}><option value="product">Product</option><option value="order">Order</option></select></label><NumberField label={`Rule ${index + 1} discount (bps)`} value={rule.value} onChange={value => ruleField(index, 'value', value)} /></> : rule.type === 'fixed' ? <NumberField label={`Rule ${index + 1} discount (cents)`} value={rule.value} onChange={value => ruleField(index, 'value', value)} /> : <p className="pf-rule-explanation">Reduces the simulated customer shipping charge to zero. Your shipping cost remains.</p>}
-            </div><div className="pf-thresholds"><NumberField label={`Rule ${index + 1} minimum subtotal (cents)`} value={rule.minSubtotalCents} onChange={value => ruleField(index, 'minSubtotalCents', value)} hint="Original merchandise subtotal" /><NumberField label={`Rule ${index + 1} minimum items`} value={rule.minItems} onChange={value => ruleField(index, 'minItems', value)} hint="Total units in the basket" /></div>
+              {rule.type === 'percent' ? <><label className="pf-field"><span>Rule {index + 1} scope label</span><select value={rule.scope} onChange={event => ruleField(index, 'scope', event.target.value)}><option value="product">Product</option><option value="order">Order</option></select></label><NumberField label={`Rule ${index + 1} discount (%)`} value={rule.value} onChange={value => ruleField(index, 'value', value)} unit="percent" /></> : rule.type === 'fixed' ? <NumberField label={`Rule ${index + 1} discount ($)`} value={rule.value} onChange={value => ruleField(index, 'value', value)} unit="dollars" /> : <p className="pf-rule-explanation">Reduces the simulated customer shipping charge to zero. Your shipping cost remains.</p>}
+            </div><div className="pf-thresholds"><NumberField label={`Rule ${index + 1} minimum subtotal ($)`} value={rule.minSubtotalCents} onChange={value => ruleField(index, 'minSubtotalCents', value)} hint="Original merchandise subtotal" unit="dollars" /><NumberField label={`Rule ${index + 1} minimum items`} value={rule.minItems} onChange={value => ruleField(index, 'minItems', value)} hint="Total units in the basket" /></div>
           </fieldset>)}
           {draft.rules.length === 0 ? <p className="pf-empty-rule">No promotion rules. The test will audit baseline basket contribution.</p> : null}
-          <button type="button" className="pf-text-action" disabled={draft.rules.length >= 3} onClick={() => edit(previous => ({ ...previous, rules: [...previous.rules, { id: nextIdentifier('rule', previous.rules.map(rule => rule.id)), type: 'percent', scope: 'order', value: String(1000 + previous.rules.length * 100), minSubtotalCents: '0', minItems: '1' }] }))}><Plus size={15} aria-hidden="true" /> Add rule</button>
+          <button type="button" className="pf-text-action" disabled={draft.rules.length >= 3} onClick={() => edit(previous => ({ ...previous, rules: [...previous.rules, { id: nextIdentifier('rule', previous.rules.map(rule => rule.id)), type: 'percent', scope: 'order', value: String(10 + previous.rules.length), minSubtotalCents: '0.00', minItems: '1' }] }))}><Plus size={15} aria-hidden="true" /> Add rule</button>
           <p className="pf-note">Search includes every ordered subset, including no rules. Each rule can apply once. Thresholds use the original basket; discounts cannot exceed remaining merchandise.</p>
         </section>
 
         <section className="pf-card" aria-labelledby="pf-cost-title"><div className="pf-section-top"><div><p className="pf-kicker">03 / COSTS & GUARDRAIL</p><h2 id="pf-cost-title">Include the costs that survive the promotion.</h2></div></div><div className="pf-cost-grid">
-          <NumberField label="Customer shipping charge (cents)" value={draft.shippingChargedCents} onChange={value => scalar('shippingChargedCents', value)} hint="One charge per basket, before free shipping" />
-          <NumberField label="Your shipping cost (cents)" value={draft.shippingCostCents} onChange={value => scalar('shippingCostCents', value)} hint="One cost per basket" />
-          <NumberField label="Payment fee (bps)" value={draft.paymentFeeBps} onChange={value => scalar('paymentFeeBps', value)} hint="Charged on merchandise after discount + shipping collected" />
-          <NumberField label="Minimum contribution (cents)" value={draft.contributionFloorCents} onChange={value => scalar('contributionFloorCents', value)} hint="A seller guardrail; may be negative" signed />
+          <NumberField label="Customer shipping charge ($)" value={draft.shippingChargedCents} onChange={value => scalar('shippingChargedCents', value)} hint="One charge per basket, before free shipping" unit="dollars" />
+          <NumberField label="Your shipping cost ($)" value={draft.shippingCostCents} onChange={value => scalar('shippingCostCents', value)} hint="One cost per basket" unit="dollars" />
+          <NumberField label="Payment fee (%)" value={draft.paymentFeeBps} onChange={value => scalar('paymentFeeBps', value)} hint="Charged on merchandise after discount + shipping collected" unit="percent" />
+          <NumberField label="Minimum contribution ($)" value={draft.contributionFloorCents} onChange={value => scalar('contributionFloorCents', value)} hint="A seller guardrail; may be negative" signed unit="dollars" />
         </div></section>
 
         <section className="pf-card" aria-labelledby="pf-evidence-title"><div className="pf-section-top"><div><p className="pf-kicker">04 / YOUR EVIDENCE</p><h2 id="pf-evidence-title">Missing evidence keeps it on hold.</h2></div></div><p className="pf-help">Sample inputs always stay on hold. To label a simulation as seller-attested, record all three references and confirm eligibility and sequencing. These entries are your assertions; this sandbox does not verify them.</p>

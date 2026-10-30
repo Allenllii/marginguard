@@ -1,17 +1,12 @@
 import { z } from 'zod';
-
-// Key-order-independent equality for plain JSON rule objects (Workers have no node:util).
-const canonical = (v: unknown): string => Array.isArray(v) ? `[${v.map(canonical).join(',')}]` : v && typeof v === 'object' ? `{${Object.keys(v).sort().map(k => `${JSON.stringify(k)}:${canonical((v as Record<string, unknown>)[k])}`).join(',')}}` : JSON.stringify(v);
-import { PREFLIGHT_FIXTURE, validatePreflightInput, type PreflightRule } from '../shared/preflight.js';
 import { BASE_URL, completionControls } from './nebius.js';
 import { boundedJson } from './http.js';
-import { UNMODELED_CONDITIONS } from '../shared/preflight-bridge-response.js';
+import { checkInterpretation, type IntentInterpretation, type UnmodeledCondition } from '../shared/preflight-bridge-response.js';
+import type { PreflightRule } from '../shared/preflight.js';
 
+export { parseCampaignGrammar, type IntentInterpretation, type UnmodeledCondition } from '../shared/preflight-bridge-response.js';
 /** Reasoning-tier Nemotron for campaign interpretation; fast drafts keep NEBIUS_MODEL. */
 export const DEFAULT_REASONING_MODEL = 'nvidia/nemotron-3-super-120b-a12b';
-export type UnmodeledCondition = typeof UNMODELED_CONDITIONS[number];
-/** `grammar_confirmed`: the local parser read the same rules. `nemotron_interpreted`: only the model could read it. */
-export type IntentInterpretation = 'grammar_confirmed' | 'nemotron_interpreted';
 export interface PreflightIntentResult {
   mode: 'live' | 'fixture';
   status: 'HOLD' | 'NEEDS_CONFIRMATION';
@@ -37,47 +32,6 @@ export function screenCampaignText(raw: unknown): string {
   return text;
 }
 
-/**
- * Deterministic cross-check grammar: one to three product/order percentage
- * discounts or free shipping, separated by then/and/commas. Returns null when the
- * text is outside the grammar; free-form campaigns are then model-interpreted.
- */
-export function parseCampaignGrammar(text: string): PreflightRule[] | null {
-  const clauses = text.toLowerCase().split(/\s+(?:and then|then|and)\s+|,\s*/);
-  if (clauses.length > 3 || clauses.some(clause => !clause)) return null;
-  const rules: PreflightRule[] = [];
-  for (const clause of clauses) {
-    const clean = clause.trim().replace(/^(?:apply|offer) (?:a )?/, '');
-    const id = `R${rules.length + 1}`;
-    if (clean === 'free shipping') { rules.push({ id, type: 'free_shipping', minSubtotalCents: 0, minItems: 0 }); continue; }
-    const direct = clean.match(/^(\d{1,3}(?:\.\d{1,2})?)\s*(?:%|percent) (product|order) discount$/);
-    const on = clean.match(/^(\d{1,3}(?:\.\d{1,2})?)\s*(?:%|percent) discount on (products?|order)$/);
-    const of = clean.match(/^(product|order) discount of (\d{1,3}(?:\.\d{1,2})?)\s*(?:%|percent)$/);
-    const literal = direct?.[1] ?? on?.[1] ?? of?.[2];
-    const scope = (direct?.[2] ?? on?.[2] ?? of?.[1])?.replace(/s$/, '');
-    if (literal === undefined || (scope !== 'product' && scope !== 'order') || /^0\d/.test(literal)) return null;
-    const basisPoints = hundredths(literal);
-    if (basisPoints < 1 || basisPoints > 10000) return null;
-    rules.push({ id, type: 'percent', scope, basisPoints, minSubtotalCents: 0, minItems: 0 });
-  }
-  return rules;
-}
-
-/** Integer hundredths of a decimal literal, never via floating point: "37.25" -> 3725. */
-function hundredths(literal: string): number {
-  const [whole, fraction = ''] = literal.replace(/,/g, '').split('.');
-  return Number(whole) * 100 + Number(fraction.padEnd(2, '0'));
-}
-
-// Strict, bounded model contract. No ids, totals, savings or prose: any extra
-// field fails `.strict()`. Values are integers inside the engine's ranges.
-const Thresholds = { minSubtotalCents: z.number().int().min(0).max(9_000_000), minItems: z.number().int().min(0).max(9) };
-const ModelRule = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('percent'), scope: z.enum(['product', 'order']), basisPoints: z.number().int().min(1).max(10000), ...Thresholds }).strict(),
-  z.object({ type: z.literal('fixed'), amountCents: z.number().int().min(1).max(1_000_000), ...Thresholds }).strict(),
-  z.object({ type: z.literal('free_shipping'), ...Thresholds }).strict(),
-]);
-const IntentSchema = z.object({ rules: z.array(ModelRule).max(3), unmodeled: z.array(z.enum(UNMODELED_CONDITIONS)).max(UNMODELED_CONDITIONS.length) }).strict();
 const Catalog = z.object({ data: z.array(z.object({ id: z.string().max(256) })).max(2000) });
 const Completion = z.object({ choices: z.array(z.object({
   finish_reason: z.literal('stop'),
@@ -143,27 +97,10 @@ export async function parsePreflightIntent(
     if (message.refusal || message.tool_calls?.length || (message.function_call !== undefined && message.function_call !== null)) throw new Error('refusal-or-tools');
     failureCode = 'MODEL_RULE_JSON_INVALID';
     const parsedJson = JSON.parse(message.content);
-    failureCode = 'MODEL_RULE_SCHEMA_INVALID';
-    const parsed = IntentSchema.parse(parsedJson);
-    if (!parsed.rules.length) return hold('Nemotron found no rule the simulator can represent. Rephrase the campaign or author rules in the local simulator.', 'MODEL_NO_RULES');
-    // Engine validator: duplicate semantics, ranges, allowlisted fields.
-    failureCode = 'MODEL_RULE_VALIDATION_FAILED';
-    const rules = validatePreflightInput({ ...PREFLIGHT_FIXTURE, rules: parsed.rules.map((rule, index) => ({ id: `R${index + 1}`, ...rule })) }).rules;
-    // Grounding: every non-zero value must be exactly a number the seller wrote
-    // (in hundredths: 20% -> 2000 bp, $75 -> 7500 cents, 2 items -> 200).
-    const literals = new Set((text.match(/\d[\d,]*(?:\.\d{1,2})?/g) ?? []).map(hundredths));
-    const values = rules.flatMap(rule => [rule.minSubtotalCents, rule.minItems * 100, rule.type === 'percent' ? rule.basisPoints : rule.type === 'fixed' ? rule.amountCents : 0]);
-    if (values.some(value => value !== 0 && !literals.has(value))) return hold('Nemotron proposed a value that does not appear in the campaign text. No rule was applied.', 'MODEL_VALUE_UNGROUNDED');
-    const grammar = parseCampaignGrammar(text);
-    if (grammar && canonical(grammar) !== canonical(rules)) return hold('Nemotron\'s interpretation differs from the local parser\'s reading of this campaign. No rule was applied; rephrase the campaign or author the rules in the local simulator.', 'MODEL_GRAMMAR_MISMATCH');
-    const unmodeledConditions = [...new Set(parsed.unmodeled)];
-    const conditions = unmodeledConditions.length ? ` Conditions not simulated: ${unmodeledConditions.join(', ')}.` : '';
-    return {
-      mode: 'live', status: 'NEEDS_CONFIRMATION', rules, model: config.model, unmodeledConditions,
-      interpretation: grammar ? 'grammar_confirmed' : 'nemotron_interpreted',
-      reason: (grammar ? 'Nemotron and the local parser agree on these rules.' : 'Interpreted by Nemotron — review before simulating. The local parser could not read this free-form campaign.')
-        + conditions + ' Explicitly confirm the proposed simulation rules. No store or checkout was changed; money is calculated only by the integer engine.',
-    };
+    // Shared with the offline replay: zod contract, engine validator, grounding, grammar cross-check.
+    const checked = checkInterpretation(text, parsedJson);
+    if (!checked.ok) return hold(checked.reason, checked.code);
+    return { mode: 'live', status: 'NEEDS_CONFIRMATION', rules: checked.rules, model: config.model, unmodeledConditions: checked.unmodeledConditions, interpretation: checked.interpretation, reason: checked.reason };
   } catch {
     return hold('The model request failed or its output could not be validated. No rule was applied and no automatic retry was made.', failureCode);
   }
