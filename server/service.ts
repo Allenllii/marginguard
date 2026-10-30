@@ -8,6 +8,7 @@ import { budgetLimits, MemoryBudget, type LiveBudget, type LiveService } from '.
 import type { ResearchPacket } from '../shared/types.js';
 import { fixtureReference, parseFixtureReference, ResearchIdSchema } from './fixture-reference.js';
 import { preparePreflightBridge } from './preflight-bridge.js';
+import { DEFAULT_REASONING_MODEL } from './preflight-intent.js';
 import { PreflightValidationError, runPreflight, validatePreflightInput, type PreflightRule } from '../shared/preflight.js';
 
 export const AssumptionsSchema = z.object({ discountCeilingPercent: z.number().int().min(0).max(60), shippingSubsidyCents: z.number().int().min(0).max(2000) }).strict();
@@ -22,7 +23,8 @@ export class MemoryResearchStore implements ResearchStore {
 export function createService(options: { env?: Record<string, string | undefined>; budget?: LiveBudget; store?: ResearchStore; request?: typeof fetch; reviewPreflightSource?: (text: string) => boolean; now?: () => number } = {}) {
   const env = options.env ?? {}, now = options.now ?? Date.now, request = options.request ?? fetch;
   const limits = budgetLimits(env), budget = options.budget ?? new MemoryBudget(limits), store = options.store ?? new MemoryResearchStore();
-  const nvidia = { key: env.NEBIUS_API_KEY, model: env.NEBIUS_MODEL || 'nvidia/Nemotron-3_5-Lightning', enabled: env.NEBIUS_ENABLE_LIVE === 'true' };
+  // Routing: NEBIUS_MODEL serves fast drafts (explain/remediate); NEBIUS_REASONING_MODEL interprets campaigns.
+  const nvidia = { key: env.NEBIUS_API_KEY, model: env.NEBIUS_MODEL || 'nvidia/Nemotron-3_5-Lightning', reasoningModel: env.NEBIUS_REASONING_MODEL || DEFAULT_REASONING_MODEL, enabled: env.NEBIUS_ENABLE_LIVE === 'true' };
   const tavily = { key: env.TAVILY_API_KEY, enabled: env.TAVILY_ENABLE_LIVE === 'true' };
   const hosted = env.PUBLIC_DEMO === 'true', liveSafe = !hosted || (budget.durable && env.PROVIDER_HARD_CAPS_VERIFIED === 'true');
   const expires = Date.parse(env.LIVE_ENABLED_UNTIL || '2026-12-16T00:00:00Z');
@@ -37,7 +39,7 @@ export function createService(options: { env?: Record<string, string | undefined
     return result.allowed ? null : { status: 429, body: { error: result.reason }, headers: { 'Retry-After': String(result.retryAfterSeconds) } };
   }
   return { async dispatch(method: string, path: string, body?: unknown): Promise<Reply> {
-    if (method === 'GET' && path === '/api/health') return { status: 200, body: { ok: true, provider: providerStatus({ ...nvidia, enabled: nvidia.enabled && liveSafe && now() < expires }), tavily: tavilyStatus({ ...tavily, enabled: tavily.enabled && liveSafe && now() < expires }), limits: { ...limits, scope: budget.durable ? 'durable' : 'process lifetime', liveSafe, enabledUntil: new Date(expires).toISOString() } } };
+    if (method === 'GET' && path === '/api/health') return { status: 200, body: { ok: true, provider: providerStatus({ ...nvidia, enabled: nvidia.enabled && liveSafe && now() < expires }), tavily: tavilyStatus({ ...tavily, enabled: tavily.enabled && liveSafe && now() < expires }), models: { fast: nvidia.model, reasoning: nvidia.reasoningModel, routing: { explain: 'fast', remediate: 'fast', preflightIntent: 'reasoning' } }, limits: { ...limits, scope: budget.durable ? 'durable' : 'process lifetime', liveSafe, enabledUntil: new Date(expires).toISOString() } } };
     const minute = Math.floor(now() / 60000); if (minute !== apiMinute) { apiMinute = minute; apiCount = 0; }
     if (++apiCount > 120) return { status: 429, body: { error: 'Request rate exceeded. Try again shortly.' }, headers: { 'Retry-After': '60' } };
     try {

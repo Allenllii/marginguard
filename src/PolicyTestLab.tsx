@@ -15,7 +15,7 @@ const scenarioLabels = {
 const verdictLabels = {
   supported: 'Supported for investigation',
   contradicted: 'Exception challenges remedy',
-  hold: 'HOLD · evidence needed',
+  hold: 'On hold — needs more evidence',
 };
 
 /** An entirely local counterfactual view of an existing, server-issued packet. */
@@ -38,7 +38,7 @@ export default function PolicyTestLab({ packet, dataset }: { packet: ResearchPac
       finally { link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
       setExportNotice({ packet, action, message: 'Audit JSON download prepared locally. No new retrieval or provider call.' });
     } catch {
-      setExportNotice({ packet, action, message: 'The audit could not be exported. Refresh the source packet and check the dataset assumptions, then try again.' });
+      setExportNotice({ packet, action, message: 'The audit could not be exported. Load the policy result again and check the dataset assumptions, then try again.' });
     }
   }
 
@@ -47,12 +47,10 @@ export default function PolicyTestLab({ packet, dataset }: { packet: ResearchPac
       <div>
         <p className="ptl-eyebrow">CHALLENGE THE PROPOSED FIX</p>
         <h3 id={`${id}-heading`}>Policy-to-Test</h3>
-        <p className="ptl-deck">One source packet. Three scenarios. Different next checks.</p>
+        <p className="ptl-deck">Same sources. Three possible discount origins. Different next checks.</p>
       </div>
-      <span className="ptl-mode">{suite.mode === 'fixture' ? 'Offline fixture · no provider call' : 'Live-mode packet · no new call'}</span>
+      <span className="ptl-mode">{suite.mode === 'fixture' ? 'Saved result · no live call' : 'Live result · no new call'}</span>
     </header>
-
-    <p className="ptl-boundary"><strong>Synthetic counterfactual tests.</strong> These cards vary an assumed origin against the same packet. They do not execute a change or test a real store. An evidence match supports a review; store eligibility and the effective policy still need verification.</p>
 
     <fieldset className="ptl-controls">
       <legend>Proposed action</legend>
@@ -61,11 +59,11 @@ export default function PolicyTestLab({ packet, dataset }: { packet: ResearchPac
         <option value="review-combination-settings">Review combination settings</option>
         <option value="audit-manual-overrides">Audit manual overrides</option>
       </select>
-      <p>Only the hypothesis changes. The source packet and financial calculations stay the same.</p>
+      <p>Only the proposed fix changes. Sources and dollars stay the same.</p>
     </fieldset>
 
     <p className="ptl-summary" role="status" aria-live="polite" aria-atomic="true">
-      {supportCount} supported for investigation · {contradictionCount} challenged by an exception · {holdCount} on HOLD
+      {supportCount} supported for investigation · {contradictionCount} challenged by an exception · {holdCount} on hold
       {exportNotice?.packet === packet && exportNotice.action === action ? <>. {exportNotice.message}</> : null}
     </p>
 
@@ -95,18 +93,22 @@ export default function PolicyTestLab({ packet, dataset }: { packet: ResearchPac
             {card.evidence.map((evidence, evidenceIndex) => <div className="ptl-source" key={`${evidence.sourceId}-${evidence.ruleId}-${evidenceIndex}`}>
               <blockquote>{evidence.quote}</blockquote>
               <a href={evidence.url} target="_blank" rel="noopener noreferrer">[{evidence.sourceId}] Open cited policy<span className="ptl-sr-only"> in a new tab</span></a>
-              <p>{suite.mode === 'fixture' ? 'Authored fixture excerpt; no current retrieval.' : 'Excerpt from the existing retrieved packet; verify the full source.'}</p>
+              <p>{suite.mode === 'fixture' ? 'Saved summary; no live search.' : 'Excerpt from the live result; read the full source.'}</p>
             </div>)}
-          </details> : <p className="ptl-no-match">No applicable clause passed the code checks for this scenario.</p>}
+          </details> : <p className="ptl-no-match">No matching policy passage for this case.</p>}
         </article>
       </li>)}
     </ol>
 
-    <p className="ptl-notice">{suite.notice}</p>
-    {suite.rejectedCandidates > 0 ? <p className="ptl-rejected">{suite.rejectedCandidates} candidate{suite.rejectedCandidates === 1 ? '' : 's'} rejected by the evidence checks.</p> : null}
-    <div className="ptl-export">
-      <button type="button" onClick={exportAudit} aria-describedby={`${id}-export-description`}>Download Policy-to-Test audit (JSON)</button>
-      <p id={`${id}-export-description`}>Local snapshot of the assumptions, three judgments, HOLD reasons, sources and fingerprints. No new retrieval or provider call. Exposure is not realized savings.</p>
-    </div>
+    <details className="advanced">
+      <summary>Advanced: audit details and JSON download</summary>
+      <p className="ptl-boundary"><strong>Synthetic what-if tests.</strong> These cards vary an assumed origin against the same sources. They do not execute a change or test a real store. A match supports a review; store eligibility and the effective policy still need checking.</p>
+      <p className="ptl-notice">{suite.notice}</p>
+      {suite.rejectedCandidates > 0 ? <p className="ptl-rejected">{suite.rejectedCandidates} candidate{suite.rejectedCandidates === 1 ? '' : 's'} rejected by the evidence checks.</p> : null}
+      <div className="ptl-export">
+        <button type="button" onClick={exportAudit} aria-describedby={`${id}-export-description`}>Download Policy-to-Test audit (JSON)</button>
+        <p id={`${id}-export-description`}>Local snapshot of the assumptions, three judgments, on-hold reasons, sources and fingerprints. No new retrieval or provider call. Exposure is not realized savings.</p>
+      </div>
+    </details>
   </section>;
 }

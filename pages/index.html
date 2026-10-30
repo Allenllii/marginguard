@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="MarginGuard offline demo. Runs entirely in your browser with synthetic data.">
+<link rel="icon" href="data:,">
+<title>MarginGuard · Offline demo</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f4f5ef; color: #1d211c; font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 34rem; padding: 2rem 1rem; }
+  h1 { font-size: 1.5rem; margin: 0 0 .5rem; }
+  button { font: inherit; padding: .4rem 1rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>MarginGuard</h1>
+  <p id="status">Starting the offline demo in your browser…</p>
+  <noscript><p>This demo runs entirely in your browser and needs JavaScript enabled.</p></noscript>
+</main>
+<script>
+  // This page is only served when no service worker controls the tab (first
+  // visit, hard reload, or unsupported browser). Once sw.js is active it serves
+  // the real app at this same URL, so register it and reload once.
+  const status = document.getElementById('status');
+  let failed = false;
+  const fail = reason => {
+    if (failed) return;
+    failed = true;
+    clearTimeout(stalled);
+    status.textContent = `The demo could not start: ${reason} It runs the app inside a service worker, which needs a current Chrome, Edge, Firefox or Safari over HTTPS, outside private/incognito modes that block service workers.`;
+    const retry = document.createElement('button');
+    retry.textContent = 'Try again';
+    retry.onclick = () => { try { sessionStorage.removeItem('mg-pages-boot'); } catch {} location.reload(); };
+    status.after(retry);
+  };
+  const stalled = setTimeout(() => fail('the service worker did not start within 15 seconds.'), 15000);
+  const attempts = (() => { try { return Number(sessionStorage.getItem('mg-pages-boot')) || 0; } catch { return 0; } })();
+  if (!('serviceWorker' in navigator)) fail('this browser does not offer service workers here.');
+  else if (attempts >= 2) fail('the service worker is registered but did not take control of this page.');
+  else navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(() => {
+    clearTimeout(stalled);
+    try { sessionStorage.setItem('mg-pages-boot', String(attempts + 1)); } catch {}
+    location.reload();
+  }, error => fail(`${error.message}.`));
+</script>
+</body>
+</html>

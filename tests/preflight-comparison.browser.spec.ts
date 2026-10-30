@@ -11,6 +11,8 @@ const reference = (page: Page) => page.getByLabel('Adjustment evidence reference
 
 async function openComparison(page: Page) {
   await page.goto('/#preflight');
+  await expect(page.getByRole('heading', { name: 'Compare the same cart', exact: true })).toBeHidden();
+  await page.getByText('Advanced: compare the same cart with adjusted rules', { exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Compare the same cart', exact: true })).toBeVisible();
 }
 
@@ -43,7 +45,7 @@ test('same-cart comparison keeps the original collision and explicitly chosen al
   await expect(original(page)).toHaveText('-$6.00');
   await expect(adjusted(page)).toHaveText('$2.00');
   await expect(delta(page)).toContainText('$8.00');
-  await expect(page.getByTestId('comparison-status')).toHaveText('HOLD');
+  await expect(page.getByTestId('comparison-status')).toHaveText('On hold');
   await expect(page.getByRole('region', { name: 'Same-cart comparison report', exact: true })).toBeFocused();
   const report = await downloadReport(page);
   expect(report.original.basket).toEqual([{ skuId: 'DEMO-SKU', quantity: 1 }]);
@@ -125,7 +127,7 @@ test('missing adjustment evidence or seller review preserves HOLD without invent
   await openComparison(page); await lock(page).click();
   await page.getByRole('button', { name: 'Remove adjusted rule 2', exact: true }).click();
   await compare(page).click();
-  await expect(page.getByTestId('comparison-status')).toHaveText('HOLD');
+  await expect(page.getByTestId('comparison-status')).toHaveText('On hold');
   const report = await downloadReport(page);
   expect(report.sellerConfirmed).toBe(false);
   expect(report.adjustmentReference).toBe('');
@@ -143,7 +145,7 @@ test('seller evidence and confirmed semantics gate REVIEW and MODEL_CLEAR for th
   await lock(page).click();
   await reference(page).fill('Synthetic seller control: explicitly retain the original rules');
   await confirmation(page).check(); await compare(page).click();
-  await expect(page.getByTestId('comparison-status')).toHaveText('REVIEW');
+  await expect(page.getByTestId('comparison-status')).toHaveText('Review risk');
   await expect(original(page)).toHaveText('-$6.00');
   await expect(adjusted(page)).toHaveText('-$6.00');
   await expect(delta(page)).toContainText('$0.00');
@@ -159,7 +161,7 @@ test('seller evidence and confirmed semantics gate REVIEW and MODEL_CLEAR for th
   await lock(page).click();
   await reference(page).fill('Synthetic seller control: review the retained free-shipping rule');
   await confirmation(page).check(); await compare(page).click();
-  await expect(page.getByTestId('comparison-status')).toHaveText('MODEL_CLEAR');
+  await expect(page.getByTestId('comparison-status')).toHaveText('Clear in model');
   await expect(original(page)).toHaveText('$12.00');
   await expect(adjusted(page)).toHaveText('$12.00');
   await expect(delta(page)).toContainText('$0.00');
@@ -311,7 +313,7 @@ for (const width of [320, 390, 1440]) test(`same-cart comparison is keyboard usa
   await expect(report).toBeFocused();
   await expect(original(page)).toHaveText('-$6.00');
   await expect(adjusted(page)).toHaveText('$2.00');
-  await expect(page.getByTestId('comparison-status')).toHaveText('HOLD');
+  await expect(page.getByTestId('comparison-status')).toHaveText('On hold');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const unnamedControls = await page.locator('input,select,button').evaluateAll(nodes => nodes.filter(node => {
     if (node instanceof HTMLButtonElement) return !(node.getAttribute('aria-label') || node.textContent?.trim());

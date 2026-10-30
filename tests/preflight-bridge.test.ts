@@ -4,24 +4,31 @@ import { createService } from '../server/service.js';
 import { MemoryBudget, type LiveBudget, type LiveService } from '../server/budget.js';
 import { PREFLIGHT_FIXTURE, runPreflight, type PreflightInput, type PreflightRule } from '../shared/preflight.js';
 import type { PreflightBridgeResult } from '../server/preflight-bridge.js';
+import { parsePreflightBridgeReply } from '../shared/preflight-bridge-response.js';
 import offline from '../worker/offline-entry.js';
 import { createDemoCsv } from '../server/demo.js';
 import { createApp } from '../server/app.js';
 import { once } from 'node:events';
 
 const model = 'nvidia/Nemotron-3_5-Lightning';
+const reasoning = 'nvidia/nemotron-3-super-120b-a12b';
 const policyUrl = 'https://help.shopify.com/en/manual/discounts/discount-combinations';
 const content = 'Eligible Shopify discounts can combine when combination settings on each discount permit the combination. Verify the store eligibility requirements before testing any campaign.';
 const context = { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'native' };
 const payload = { activity: '20% product discount then 20% order discount then free shipping', context, live: true };
 const env = { TAVILY_ENABLE_LIVE: 'true', TAVILY_API_KEY: 'mock-tavily-not-real', NEBIUS_ENABLE_LIVE: 'true', NEBIUS_API_KEY: 'mock-nebius-not-real', NEBIUS_MODEL: model };
-const actions = [{ type: 'percent', scope: 'product', rateRef: 'N1' }, { type: 'percent', scope: 'order', rateRef: 'N2' }, { type: 'free_shipping' }];
+const modelRules = [
+  { type: 'percent', scope: 'product', basisPoints: 2000, minSubtotalCents: 0, minItems: 0 },
+  { type: 'percent', scope: 'order', basisPoints: 2000, minSubtotalCents: 0, minItems: 0 },
+  { type: 'free_shipping', minSubtotalCents: 0, minItems: 0 },
+];
+const modelReply = (value: unknown = { rules: modelRules, unmodeled: [] }) => json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(value) } }] });
 const json = (value: unknown, status = 200, headers?: Record<string, string>) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json', ...headers } });
 const replies = () => [
   json({ results: [{ title: 'Combining discounts', url: policyUrl, content }] }),
   json({ results: [{ url: policyUrl, raw_content: content }], failed_results: [] }),
-  json({ data: [{ id: model }] }),
-  json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ actions }) } }] }),
+  json({ data: [{ id: model }, { id: reasoning }] }),
+  modelReply(),
 ];
 type Prepared = PreflightBridgeResult & { proposalId: string | null };
 function harness(options: { budget?: LiveBudget; env?: Record<string, string | undefined>; responses?: Response[]; transport?: typeof fetch } = {}) {
@@ -86,7 +93,7 @@ test('seller-confirmed inputs change only the simulation label; checkout remains
   assert.equal(reply.status, 200); const result = reply.body as { status: string; checkoutStatus: string; checkoutVerified: boolean };
   assert.equal(result.status, 'REVIEW'); assert.equal(result.checkoutStatus, 'HOLD'); assert.equal(result.checkoutVerified, false); assert.equal(h.calls.length, 4);
   const allBodies = h.calls.map(call => String(call.init?.body)).join(' ');
-  for (const privateValue of ['Seller cost record', 'Seller authored rules', 'Seller operations record', 'DEMO-SKU', '5000', '3000', 'raw csv', '20%']) assert.ok(!allBodies.includes(privateValue));
+  for (const privateValue of ['Seller cost record', 'Seller authored rules', 'Seller operations record', 'DEMO-SKU', '5000', '3000', 'raw csv']) assert.ok(!allBodies.includes(privateValue));
 });
 
 test('unknown context, hostile customer prose and arbitrary extra inputs stop before all providers', async () => {
@@ -105,7 +112,7 @@ test('unknown context, hostile customer prose and arbitrary extra inputs stop be
 });
 
 test('offline and missing/wrong configuration are explicitly held without provider attempts', async () => {
-  for (const override of [{ TAVILY_ENABLE_LIVE: 'false' }, { NEBIUS_ENABLE_LIVE: 'false' }, { NEBIUS_MODEL: 'other/provider' }, { NEBIUS_API_KEY: '' }, { TAVILY_API_KEY: '' }]) {
+  for (const override of [{ TAVILY_ENABLE_LIVE: 'false' }, { NEBIUS_ENABLE_LIVE: 'false' }, { NEBIUS_REASONING_MODEL: 'other/provider' }, { NEBIUS_API_KEY: '' }, { TAVILY_API_KEY: '' }]) {
     const h = harness({ env: override }); const result = await h.prepare();
     assert.equal(result.body.status, 'HOLD'); assert.equal(result.body.mode, 'fixture'); assert.equal(result.body.proposalId, null); assert.equal(h.calls.length, 0);
   }
@@ -146,7 +153,9 @@ test('partial retrieval, conflicts and malformed model output hold and never ret
     [1, json({ results: [{ url: policyUrl, raw_content: content }], failed_results: [{ url: policyUrl, error: env.TAVILY_API_KEY }] })],
     [1, json({ results: [{ url: policyUrl, raw_content: content + ' This policy is outdated.' }], failed_results: [] })],
     [2, json({ data: [{ id: 'nvidia/other' }] })],
-    [3, json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ actions, contributionCents: 999999 }) } }] })],
+    [3, modelReply({ rules: modelRules, unmodeled: [], contributionCents: 999999 })],
+    [3, modelReply({ rules: [{ ...modelRules[0], basisPoints: 2500 }, ...modelRules.slice(1)], unmodeled: [] })],
+    [3, modelReply({ rules: [modelRules[1], modelRules[0], modelRules[2]], unmodeled: [] })],
     [3, json({ choices: [{ finish_reason: 'length', message: { content: '{}' } }] })],
   ] as const) {
     const responses = replies(); responses[stage] = replacement;
@@ -235,4 +244,46 @@ test('HTTP boundary: new endpoints retain origin, body-size, validation and disa
     }
     assert.equal(calls, 0);
   } finally { await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve())); }
+});
+
+test('free-form campaign: Nemotron reasoning model interprets, validation gates, seller confirms, engine computes money', async () => {
+  const activity = '20% off sitewide plus an extra $10 off orders over $75 for VIPs, stackable with free shipping';
+  const rules = [modelRules[0], { type: 'fixed', amountCents: 1000, minSubtotalCents: 7500, minItems: 0 }, modelRules[2]];
+  const responses = replies(); responses[3] = modelReply({ rules, unmodeled: ['customer_segment'] });
+  const h = harness({ responses }); const reply = await h.prepare({ ...payload, activity });
+  assert.equal(reply.status, 200); assert.equal(reply.body.status, 'NEEDS_CONFIRMATION');
+  assert.equal(reply.body.model, reasoning); assert.equal(reply.body.interpretation, 'nemotron_interpreted');
+  assert.deepEqual(reply.body.unmodeledConditions, ['customer_segment']);
+  assert.match(reply.body.reason, /Interpreted by Nemotron — review before simulating/);
+  assert.equal(parsePreflightBridgeReply(reply.body).interpretation, 'nemotron_interpreted');
+  const sent = JSON.parse(String(h.calls[3].init?.body));
+  assert.equal(sent.model, reasoning); assert.deepEqual(JSON.parse(sent.messages[1].content), { campaign: activity });
+  const input = confirmInput(reply.body.rules);
+  const confirmed = await h.service.dispatch('POST', '/api/preflight/confirm', { proposalId: reply.body.proposalId, confirmed: true, input });
+  assert.equal(confirmed.status, 200);
+  assert.deepEqual((confirmed.body as { simulation: unknown }).simulation, runPreflight(input)); assert.equal(h.calls.length, 4);
+});
+
+test('grammar campaign reports grammar_confirmed; disagreement holds with the mismatch reason', async () => {
+  assert.equal((await harness().prepare()).body.interpretation, 'grammar_confirmed');
+  const responses = replies(); responses[3] = modelReply({ rules: modelRules.slice(0, 2), unmodeled: [] });
+  const held = await harness({ responses }).prepare();
+  assert.equal(held.body.status, 'HOLD'); assert.match(held.body.reason, /MODEL_GRAMMAR_MISMATCH/); assert.equal(held.body.interpretation, null);
+});
+
+test('routing: campaign intent uses NEBIUS_REASONING_MODEL, explain drafts keep the fast NEBIUS_MODEL, health exposes both', async () => {
+  const ultra = 'nvidia/Nemotron-3-Ultra-550b-a55b';
+  const brief = JSON.stringify({ summary: 'A concise summary of the findings.', priorities: [], caveat: 'Verify everything before acting on it.' });
+  const queue = [...replies(), json({ data: [{ id: model }] }), json({ choices: [{ finish_reason: 'stop', message: { content: brief } }] })];
+  queue[2] = json({ data: [{ id: ultra }] });
+  const h = harness({ env: { NEBIUS_REASONING_MODEL: ultra }, responses: queue });
+  const health = (await h.service.dispatch('GET', '/api/health')).body as { provider: { model: string }; models: { fast: string; reasoning: string } };
+  assert.equal(health.provider.model, model); assert.deepEqual({ fast: health.models.fast, reasoning: health.models.reasoning }, { fast: model, reasoning: ultra });
+  assert.equal((await h.prepare()).body.model, ultra);
+  h.advance(60000);
+  await h.service.dispatch('POST', '/api/explain', { csv: createDemoCsv(), live: true });
+  const completions = h.calls.filter(call => call.url.endsWith('/chat/completions')).map(call => JSON.parse(String(call.init?.body)).model);
+  assert.deepEqual(completions, [ultra, model]);
+  const defaults = (await harness({ env: { NEBIUS_REASONING_MODEL: undefined } }).service.dispatch('GET', '/api/health')).body as { models: { reasoning: string } };
+  assert.equal(defaults.models.reasoning, reasoning);
 });

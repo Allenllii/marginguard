@@ -2,11 +2,11 @@
   "config": {
     "argv": [
       "C:\\Program Files\\nodejs\\node.exe",
-      "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\margin-guard\\node_modules\\@playwright\\test\\cli.js",
+      "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\mg-main\\node_modules\\@playwright\\test\\cli.js",
       "test"
     ],
-    "configFile": "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\margin-guard\\playwright.config.ts",
-    "rootDir": "C:/Users/liwen/Documents/Codex/2026-10-27/task/margin-guard/tests",
+    "configFile": "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\mg-main\\playwright.config.ts",
+    "rootDir": "C:/Users/liwen/Documents/Codex/2026-10-27/task/mg-main/tests",
     "failOnFlakyTests": false,
     "forbidOnly": false,
     "fullyParallel": false,
@@ -22,7 +22,7 @@
     "preserveOutput": "always",
     "projects": [
       {
-        "outputDir": "C:/Users/liwen/Documents/Codex/2026-10-27/task/margin-guard/test-results",
+        "outputDir": "C:/Users/liwen/Documents/Codex/2026-10-27/task/mg-main/test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
@@ -30,10 +30,16 @@
         },
         "id": "",
         "name": "",
-        "testDir": "C:/Users/liwen/Documents/Codex/2026-10-27/task/margin-guard/tests",
+        "testDir": "C:/Users/liwen/Documents/Codex/2026-10-27/task/mg-main/tests",
         "testIgnore": [],
         "testMatch": [
-          "browser.spec.ts"
+          "browser.spec.ts",
+          "csv-mapping.browser.spec.ts",
+          "policy-to-test.browser.spec.ts",
+          "policy-test-audit.browser.spec.ts",
+          "preflight.browser.spec.ts",
+          "preflight-bridge.browser.spec.ts",
+          "preflight-comparison.browser.spec.ts"
         ],
         "timeout": 30000
       }
@@ -42,20 +48,28 @@
       {
         "grep": {},
         "grepInvert": null,
-        "outputDir": "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\margin-guard\\test-results",
+        "outputDir": "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\mg-main\\test-results",
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
           "actualWorkers": 1
         },
         "name": "",
-        "testDir": "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\margin-guard\\tests",
-        "snapshotDir": "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\margin-guard\\tests",
+        "testDir": "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\mg-main\\tests",
+        "snapshotDir": "C:\\Users\\liwen\\Documents\\Codex\\2026-10-27\\task\\mg-main\\tests",
         "testIgnore": [],
-        "testMatch": "browser.spec.ts",
+        "testMatch": [
+          "browser.spec.ts",
+          "csv-mapping.browser.spec.ts",
+          "policy-to-test.browser.spec.ts",
+          "policy-test-audit.browser.spec.ts",
+          "preflight.browser.spec.ts",
+          "preflight-bridge.browser.spec.ts",
+          "preflight-comparison.browser.spec.ts"
+        ],
         "timeout": 30000,
         "use": {
-          "baseURL": "http://127.0.0.1:3000",
+          "baseURL": "http://127.0.0.1:3201",
           "viewport": {
             "width": 1440,
             "height": 1080
@@ -104,6 +118,414 @@
       "line": 0,
       "specs": [
         {
+          "title": "contrast: 1280px auxiliary text across the full fixture journey meets minimum ratios",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1140,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:20.352Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-cedc82386e14ff8d00ce",
+          "file": "browser.spec.ts",
+          "line": 46,
+          "column": 34
+        },
+        {
+          "title": "contrast: 393px auxiliary text across the full fixture journey meets minimum ratios",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 991,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:21.770Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-c073c88c438fcdc8691d",
+          "file": "browser.spec.ts",
+          "line": 46,
+          "column": 34
+        },
+        {
+          "title": "readability: mobile assumptions, finding labels, KPI notes and footer use legible text without overflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 349,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:22.766Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-6933bd299f323711d3b8",
+          "file": "browser.spec.ts",
+          "line": 85,
+          "column": 1
+        },
+        {
+          "title": "case cancellation: navigating away before the source preview resolves does not steal view or focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 436,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:23.121Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-5c56d950ac8a69f6ece8",
+          "file": "browser.spec.ts",
+          "line": 95,
+          "column": 1
+        },
+        {
+          "title": "mobile menu: closed navigation is absent from keyboard focus and Escape restores the trigger",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 373,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:23.563Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-26ad1fa9d6bd9ffa1037",
+          "file": "browser.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "case focus: 1280px explicit entry reveals and focuses the asynchronous decision",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 413,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:23.942Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-e8d283f632f72563b6f2",
+          "file": "browser.spec.ts",
+          "line": 119,
+          "column": 34
+        },
+        {
+          "title": "case focus: 390px explicit entry reveals and focuses the asynchronous decision",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 364,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:24.360Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-3170839794b1ae1238bf",
+          "file": "browser.spec.ts",
+          "line": 119,
+          "column": 34
+        },
+        {
+          "title": "visual: case comparison is readable at mobile width and keyboard works with reduced motion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 452,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:24.730Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-3ebc9e6f154f2118acac",
+          "file": "browser.spec.ts",
+          "line": 133,
+          "column": 1
+        },
+        {
+          "title": "judge entry: one click shows the manual-discount action change, honest mode and working source branch",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 603,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:25.187Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-26878e640963010b596e",
+          "file": "browser.spec.ts",
+          "line": 157,
+          "column": 1
+        },
+        {
+          "title": "review: ordinary apps hold, confirmed Scripts API uses its own exception, and privacy names the server",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 669,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:25.795Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-7bddb7f0b44bffc76355",
+          "file": "browser.spec.ts",
+          "line": 177,
+          "column": 1
+        },
+        {
+          "title": "journey: policy evidence survives scenario navigation but a different dataset clears it",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 679,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:26.470Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-1e3f3e18f493cfec9374",
+          "file": "browser.spec.ts",
+          "line": 199,
+          "column": 1
+        },
+        {
+          "title": "clarity: the evidence decision leads the draft and keeps assumptions, citations and authority explicit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 628,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:27.153Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-eaaff7487e23ddb2b7a9",
+          "file": "browser.spec.ts",
+          "line": 227,
+          "column": 1
+        },
+        {
           "title": "desktop: overview, evidence, scenario, report, offline brief, valid and invalid import",
           "ok": true,
           "tags": [],
@@ -119,12 +541,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1783,
+                  "duration": 1599,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:46.404Z",
+                  "startTime": "2026-10-30T03:16:27.787Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -134,7 +556,7 @@
           ],
           "id": "fbeac1b2decfba2c3acd-c994bc56530c8671d6c7",
           "file": "browser.spec.ts",
-          "line": 5,
+          "line": 251,
           "column": 1
         },
         {
@@ -153,12 +575,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1320,
+                  "duration": 1084,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:48.692Z",
+                  "startTime": "2026-10-30T03:16:29.391Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -168,7 +590,7 @@
           ],
           "id": "fbeac1b2decfba2c3acd-e056cb721d335fb114a1",
           "file": "browser.spec.ts",
-          "line": 67,
+          "line": 314,
           "column": 1
         },
         {
@@ -187,12 +609,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1022,
+                  "duration": 986,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:50.018Z",
+                  "startTime": "2026-10-30T03:16:30.481Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -202,7 +624,7 @@
           ],
           "id": "fbeac1b2decfba2c3acd-b15e3ab0f15a57b3f5bf",
           "file": "browser.spec.ts",
-          "line": 92,
+          "line": 339,
           "column": 1
         },
         {
@@ -221,12 +643,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 932,
+                  "duration": 895,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:51.047Z",
+                  "startTime": "2026-10-30T03:16:31.473Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -236,7 +658,7 @@
           ],
           "id": "fbeac1b2decfba2c3acd-a7b0a5af4d8984e0ef9a",
           "file": "browser.spec.ts",
-          "line": 136,
+          "line": 384,
           "column": 1
         },
         {
@@ -255,12 +677,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 547,
+                  "duration": 564,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:51.984Z",
+                  "startTime": "2026-10-30T03:16:32.373Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -270,7 +692,7 @@
           ],
           "id": "fbeac1b2decfba2c3acd-e9fbb28b13448c35901b",
           "file": "browser.spec.ts",
-          "line": 151,
+          "line": 399,
           "column": 1
         },
         {
@@ -289,12 +711,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 815,
+                  "duration": 834,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:52.537Z",
+                  "startTime": "2026-10-30T03:16:32.942Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -304,7 +726,7 @@
           ],
           "id": "fbeac1b2decfba2c3acd-5582929ab7baf688ae48",
           "file": "browser.spec.ts",
-          "line": 162,
+          "line": 410,
           "column": 1
         },
         {
@@ -323,12 +745,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 374,
+                  "duration": 371,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:53.357Z",
+                  "startTime": "2026-10-30T03:16:33.781Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -338,7 +760,7 @@
           ],
           "id": "fbeac1b2decfba2c3acd-dcc9e55476a26a631448",
           "file": "browser.spec.ts",
-          "line": 173,
+          "line": 421,
           "column": 1
         },
         {
@@ -357,12 +779,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 456,
+                  "duration": 452,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:53.737Z",
+                  "startTime": "2026-10-30T03:16:34.157Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -372,7 +794,7 @@
           ],
           "id": "fbeac1b2decfba2c3acd-e0a602c34bf55ddd3b08",
           "file": "browser.spec.ts",
-          "line": 187,
+          "line": 435,
           "column": 1
         },
         {
@@ -391,12 +813,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 385,
+                  "duration": 400,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:54.198Z",
+                  "startTime": "2026-10-30T03:16:34.615Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -406,7 +828,7 @@
           ],
           "id": "fbeac1b2decfba2c3acd-bbf73dc92fb98c738f79",
           "file": "browser.spec.ts",
-          "line": 198,
+          "line": 446,
           "column": 1
         },
         {
@@ -425,12 +847,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 748,
+                  "duration": 758,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-29T04:30:54.588Z",
+                  "startTime": "2026-10-30T03:16:35.020Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -440,7 +862,1925 @@
           ],
           "id": "fbeac1b2decfba2c3acd-4f38343f51a5b55692e0",
           "file": "browser.spec.ts",
-          "line": 212,
+          "line": 460,
+          "column": 1
+        },
+        {
+          "title": "mode badge reports /api/health and live controls appear only when configured",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 704,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:35.784Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fbeac1b2decfba2c3acd-dec8d59140b451fa77ec",
+          "file": "browser.spec.ts",
+          "line": 472,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "csv-mapping.browser.spec.ts",
+      "file": "csv-mapping.browser.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "CSV mapper 1440px: keyboard preview, private-column exclusion, download and server import",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 713,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:36.511Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eab5e64e5ebfae45c09a-019bed72d5aadf23d02b",
+          "file": "csv-mapping.browser.spec.ts",
+          "line": 22,
+          "column": 34
+        },
+        {
+          "title": "CSV mapper 320px: keyboard preview, private-column exclusion, download and server import",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 728,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:37.229Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eab5e64e5ebfae45c09a-01aecffe6b638d8ad6dc",
+          "file": "csv-mapping.browser.spec.ts",
+          "line": 22,
+          "column": 34
+        },
+        {
+          "title": "CSV mapper: duplicate mapping and changed selections revoke confirmation and validation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 605,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:37.963Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eab5e64e5ebfae45c09a-27e7a1505b9e6fe7bb77",
+          "file": "csv-mapping.browser.spec.ts",
+          "line": 67,
+          "column": 1
+        },
+        {
+          "title": "CSV mapper: invalid dates and duplicate orders are blocked locally without replacing the dataset",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 588,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:38.574Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eab5e64e5ebfae45c09a-815fcd081f24bb5454f8",
+          "file": "csv-mapping.browser.spec.ts",
+          "line": 87,
+          "column": 1
+        },
+        {
+          "title": "CSV mapper: recalculation retains known synthetic provenance while a fresh file import uses its own provenance",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 863,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:39.167Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "eab5e64e5ebfae45c09a-bb151a95d14defaf2f45",
+          "file": "csv-mapping.browser.spec.ts",
+          "line": 107,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "policy-test-audit.browser.spec.ts",
+      "file": "policy-test-audit.browser.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "audit download captures the current dataset, source provenance and all scenarios without a request",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1021,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:40.046Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5c73d8653c0e644c7484-6425860aefecbbba2e6e",
+          "file": "policy-test-audit.browser.spec.ts",
+          "line": 96,
+          "column": 1
+        },
+        {
+          "title": "a failed live-labelled packet exports all HOLD reasons without creating retrieved evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 907,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:41.073Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5c73d8653c0e644c7484-d74d0ca98efc94b996f5",
+          "file": "policy-test-audit.browser.spec.ts",
+          "line": 154,
+          "column": 1
+        },
+        {
+          "title": "audit export has a described keyboard target and stays within the 320px offline layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 918,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:41.985Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5c73d8653c0e644c7484-d9b65179cb28f287a15a",
+          "file": "policy-test-audit.browser.spec.ts",
+          "line": 186,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "policy-to-test.browser.spec.ts",
+      "file": "policy-to-test.browser.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Policy-to-Test reuses one fixture packet, changes only the hypothesis, and clears with context",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 706,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:42.912Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9debf278f11dd292383-a2760e4becc3786ecb7c",
+          "file": "policy-to-test.browser.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "Policy-to-Test keeps failed, retracted and wrong-region fixture packets on HOLD",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 610,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:43.623Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9debf278f11dd292383-0d21e4f3ab6bf8beedbc",
+          "file": "policy-to-test.browser.spec.ts",
+          "line": 43,
+          "column": 1
+        },
+        {
+          "title": "Policy-to-Test stays readable at 320px with keyboard targets and reduced motion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 499,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:44.238Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9debf278f11dd292383-afb05f25c2095ffb87f6",
+          "file": "policy-to-test.browser.spec.ts",
+          "line": 63,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "preflight-bridge.browser.spec.ts",
+      "file": "preflight-bridge.browser.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "bridge fixture: zero API requests and explicit review precede a synthetic simulation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 945,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:44.761Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-562f54ce9b8cf7ebde29",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 119,
+          "column": 1
+        },
+        {
+          "title": "bridge mocked live: one prepare and explicit confirmation send separate minimal envelopes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 765,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:45.711Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-376798abe29225ac309a",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 144,
+          "column": 1
+        },
+        {
+          "title": "bridge mocked budget HOLD consumes consent without hidden retry or automatic confirmation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 698,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:46.482Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-57ad7328e23eb0c642e8",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 168,
+          "column": 1
+        },
+        {
+          "title": "bridge mocked no-evidence HOLD never becomes a proposal or silently substitutes fixtures",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 682,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:47.186Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-7ffbafce19bb4a23b46a",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 177,
+          "column": 1
+        },
+        {
+          "title": "bridge mocked diagnostics preserve the exact static HOLD code without exposing source data",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 667,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:47.873Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-5fbd0abdb733e47daee2",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 187,
+          "column": 1
+        },
+        {
+          "title": "bridge mocked delayed confirmation cannot display old money after a cost edit",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 722,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:48.545Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-f4eca33a0bbf30e8224c",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 198,
+          "column": 1
+        },
+        {
+          "title": "bridge mocked delayed prepare: cancel invalidates its response",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 693,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:49.272Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-f1f6c30b40b980f6a25f",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 222,
+          "column": 60
+        },
+        {
+          "title": "bridge mocked delayed prepare: cost edit invalidates its response",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 698,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:49.970Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-a26190a608e4324d11bd",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 222,
+          "column": 60
+        },
+        {
+          "title": "bridge mocked delayed prepare: inactive workspace cannot restore a proposal after browser navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 805,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:50.673Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-ddf3ce934c241304bb28",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 235,
+          "column": 1
+        },
+        {
+          "title": "bridge mocked unsafe source URLs cannot create a confirmable proposal or executable link",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 787,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:51.483Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-21f6c42315560db4754a",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 249,
+          "column": 1
+        },
+        {
+          "title": "bridge no-key mode: checking availability cannot enable a live preparation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 613,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:52.275Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-9754d92e4a45c7935d1f",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 262,
+          "column": 1
+        },
+        {
+          "title": "bridge fixture at 320px: keyboard confirmation and reduced motion retain readable bounded layout",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 699,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:52.893Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-3cf4e4878b5d292a6df0",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 276,
+          "column": 1
+        },
+        {
+          "title": "unreviewed policy: full held excerpt and fingerprint are visible but cancellation clears it",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 723,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:53.597Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-d03f043095f41d3631a7",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 293,
+          "column": 1
+        },
+        {
+          "title": "unreviewed policy: changing campaign or context cannot retain a stale dossier",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 796,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:54.325Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-b6d30b5d7f088c5d79bd",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 305,
+          "column": 1
+        },
+        {
+          "title": "unreviewed policy: forged URL or impossible offsets cannot be rendered as review evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 797,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:55.126Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-63cda35aeb5675873595",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 318,
+          "column": 1
+        },
+        {
+          "title": "unreviewed policy: long fingerprint wraps at 320px with reduced motion and keyboard access",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 792,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:55.929Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f9d216acf1ef00a07b29-66b94d17e5d42c28aadc",
+          "file": "preflight-bridge.browser.spec.ts",
+          "line": 331,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "preflight-comparison.browser.spec.ts",
+      "file": "preflight-comparison.browser.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "same-cart comparison keeps the original collision and explicitly chosen alternative on one locked snapshot",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 738,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:56.735Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-ac1e0cd6b9ce69599257",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "rule and evidence edits immediately clear amounts and confirmation, even after reverting",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 860,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:57.478Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-092747fc322defec017c",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 72,
+          "column": 1
+        },
+        {
+          "title": "identical reviewed rules have an exact zero delta and preserve both original traces",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 749,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:58.344Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-2cbfc9804021647eeeae",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 100,
+          "column": 1
+        },
+        {
+          "title": "editing the source costs invalidates the entire lock and both comparison sides",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 713,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:59.098Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-d748657637568a91799a",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 113,
+          "column": 1
+        },
+        {
+          "title": "missing adjustment evidence or seller review preserves HOLD without inventing an improvement",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 695,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:16:59.817Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-4ee92edd3710c176bb05",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 126,
+          "column": 1
+        },
+        {
+          "title": "seller evidence and confirmed semantics gate REVIEW and MODEL_CLEAR for the same reviewed rules",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 978,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:00.518Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-743e7cc403031e672809",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 138,
+          "column": 1
+        },
+        {
+          "title": "invalid source money fails before locking, and malformed adjusted percentages clear the report",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 705,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:01.502Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-3936e89a6f576ce728bc",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 175,
+          "column": 1
+        },
+        {
+          "title": "percentage rounding uses one shared three-unit basket and integer half-up cents",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 833,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:02.212Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-1217b01852c01333c801",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 192,
+          "column": 1
+        },
+        {
+          "title": "natural Tab navigation visits adjusted-rule controls and reaches compare without a keyboard trap",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 849,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:03.050Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-801b4a02ff2da64849df",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 217,
+          "column": 1
+        },
+        {
+          "title": "same-cart report keeps amounts and assumptions accessible at 200 percent CSS zoom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 868,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:03.904Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-7eb80314c93f7eb9123a",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 251,
+          "column": 1
+        },
+        {
+          "title": "maximum supported amounts and long supplied identifiers and references wrap at 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 755,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:04.777Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-4d9037c45e59be3e4b41",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 278,
+          "column": 1
+        },
+        {
+          "title": "same-cart comparison is keyboard usable and fits 320px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 865,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:05.537Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-7c5eccfa5e6b8c65e49e",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 301,
+          "column": 39
+        },
+        {
+          "title": "same-cart comparison is keyboard usable and fits 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 888,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:06.407Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-78b77ed073849e62c52b",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 301,
+          "column": 39
+        },
+        {
+          "title": "same-cart comparison is keyboard usable and fits 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1019,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:07.301Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09e701a227aa239efa3e-c1294cc8a4a555031aca",
+          "file": "preflight-comparison.browser.spec.ts",
+          "line": 301,
+          "column": 39
+        }
+      ]
+    },
+    {
+      "title": "preflight.browser.spec.ts",
+      "file": "preflight.browser.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "golden collision is offline, auditable, held and keyboard focus reaches the report",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 596,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:08.343Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-491c617b3acde63ba5e3",
+          "file": "preflight.browser.spec.ts",
+          "line": 7,
+          "column": 1
+        },
+        {
+          "title": "seller omits the order rule, stale results disappear, and the fixture stays HOLD at positive contribution",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 628,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:08.945Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-8bffaf7ff8c60fb4634d",
+          "file": "preflight.browser.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "noninteger and malicious inputs fail closed with an accessible error",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 619,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:09.579Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-b819c3622733344929e1",
+          "file": "preflight.browser.spec.ts",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "three SKUs and quantity three exhaust the bounded 1008 scenarios; duplicates are rejected",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 667,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:10.203Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-f46c2ff57813d08d0aef",
+          "file": "preflight.browser.spec.ts",
+          "line": 53,
+          "column": 1
+        },
+        {
+          "title": "zero rules is an explicit baseline experiment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 639,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:10.876Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-3605d5c6a05c16a4386c",
+          "file": "preflight.browser.spec.ts",
+          "line": 66,
+          "column": 1
+        },
+        {
+          "title": "seller attestations and explicit semantics gate model labels; a missing reference restores HOLD",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 755,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:11.520Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-4b6141415090920a8fd5",
+          "file": "preflight.browser.spec.ts",
+          "line": 75,
+          "column": 1
+        },
+        {
+          "title": "JSON export contains replayable inputs, formula, trace, bounds and evidence gaps",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 616,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:12.281Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-1e1a39d0b1c2f681d730",
+          "file": "preflight.browser.spec.ts",
+          "line": 91,
+          "column": 1
+        },
+        {
+          "title": "layout and labels: 320px, reduced motion, all controls have accessible names",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 710,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:12.902Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-797e07b9ba34f3ccb024",
+          "file": "preflight.browser.spec.ts",
+          "line": 109,
+          "column": 39
+        },
+        {
+          "title": "layout and labels: 390px, reduced motion, all controls have accessible names",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 613,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:13.617Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-c7c35abbcf15ef31e3e3",
+          "file": "preflight.browser.spec.ts",
+          "line": 109,
+          "column": 39
+        },
+        {
+          "title": "layout and labels: 1440px, reduced motion, all controls have accessible names",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 769,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:14.236Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-c6aea053f0a85efca1a6",
+          "file": "preflight.browser.spec.ts",
+          "line": 109,
+          "column": 39
+        },
+        {
+          "title": "navigation preserves the existing analysis entry and can return from the isolated sandbox",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 691,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:15.010Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-949596482a1dc6d4242f",
+          "file": "preflight.browser.spec.ts",
+          "line": 127,
+          "column": 1
+        },
+        {
+          "title": "switching workspaces preserves an imported dataset, its assumptions and the sandbox result",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 810,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:15.707Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-6ec062532084f95af9ef",
+          "file": "preflight.browser.spec.ts",
+          "line": 136,
+          "column": 1
+        },
+        {
+          "title": "browser Back to Preflight releases hidden evidence-drawer scroll and keyboard effects",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 850,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-30T03:17:16.523Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "96d72b23b6ce06f834ae-98c5243e60be606eaabe",
+          "file": "preflight.browser.spec.ts",
+          "line": 155,
           "column": 1
         }
       ]
@@ -448,9 +2788,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-10-29T04:30:46.071Z",
-    "duration": 9544.434,
-    "expected": 10,
+    "startTime": "2026-10-30T03:16:19.909Z",
+    "duration": 57858.56,
+    "expected": 77,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

@@ -18,36 +18,41 @@ After the existing decision card, inside the packet results:
 {issue?.kind === 'discount' ? <PolicyTestLab packet={packet} /> : null}
 ```
 
-The component owns only the proposed-action selector. It has no network call, CSV prop, provider configuration, persistence or financial calculation. Its CSS is imported locally and namespaced. It reuses the existing server-issued packet; it does not add clauses or run a new search to make a comparison look complete. The ordinary existing fixture therefore supports the normal card only; the manual existing fixture challenges the manual settings remedy only. The dedicated UI test uses one explicitly authored fixture containing both clauses, to exercise all three verdicts.
+The component owns only the proposed-action selector. It has no network call, CSV prop, provider configuration, persistence or financial calculation. Its CSS is imported locally and namespaced. It reuses the existing server-issued packet; it does not add clauses or run a new search to make a comparison look complete. Because every card is decided by `decidePolicy`, the panel can never disagree with the main decision card on the same packet. The dedicated UI test uses one authored fixture containing both a native and a manual clause, to exercise all three verdicts.
 
-## Pure interface and trust boundary
+## Pure interface and how verdicts are decided
 
 ```ts
 buildPolicyTestSuite({
   packet, // existing ResearchPacket, issued by /api/research
   action: 'review-combination-settings', // or 'audit-manual-overrides'
-  candidates, // optional untrusted model candidate array; no model call here
 });
 ```
 
-It returns `mode`, `status`, `notice`, `rejectedCandidates` and three ordered cards. Each card contains `scenario`, `verdict`, `reason`, `nextCheck`, exact source-clause `evidence`, and `missingEvidence`.
+It returns `mode`, `status`, `notice`, `rejectedCandidates` (always `0`; kept for the v1 audit schema and the current UI) and three ordered cards. Each card contains `scenario`, `verdict`, `reason`, `nextCheck`, `evidence` and `missingEvidence`.
 
-An optional candidate is strictly:
+**One authority.** For each card the suite calls `decidePolicy('discount', packet)` with the packet's own context and only `discountOrigin` swapped: `native` for "Normal / code", `manual` for "Manual / POS / draft", `unknown` for "Unknown". It then maps the decision:
 
-```json
-{
-  "sourceId": "S1",
-  "ruleId": "manual-exception",
-  "quote": "Manual POS and draft-order discounts apply regardless of combination settings.",
-  "limitation": "review-only"
-}
-```
+| Card | decidePolicy says | Review combination settings | Audit manual overrides |
+|---|---|---|---|
+| Normal / code | `review` | supported | HOLD |
+| Manual / POS / draft | `contradicted` (manual exception) | contradicted | supported |
+| Unknown | always `hold` | HOLD | HOLD |
+| any | `hold` / `insufficient` | HOLD | HOLD |
 
-There are at most six candidates; arbitrary verdicts, next steps, prose, URLs, extra fields and other limitations are rejected. Code checks the official platform domain, scheme/credentials/port, source ID uniqueness, packet/region/platform scope, exact complete sentence membership, narrow rule grammar, denials, conflicts and unresolved conditions. A positive candidate cannot hide a contrary sentence or source. Explicit `[]` means no evidence, without fallback. With no candidate argument, code proposes candidate clauses from the same packet and passes them through the same checks. This revision does not alter the existing NVIDIA prompt or claim model discovery.
+Native + manual audit is HOLD, not contradicted: a code or automatic discount has no manual override to audit, and the cited policy points at the settings instead. No policy exception argues against the audit, so the "Exception challenges remedy" label would be wrong.
 
-The matcher deliberately accepts a small declarative grammar, including the existing authored native/manual/WooCommerce fixtures. Questions, reported claims, another subject's exception and unverified additional conditions HOLD. **Live excerpts outside this grammar also HOLD**; this is conservative under-recognition, not a general policy language interpreter. A URL and a matching sentence do not authenticate arbitrary caller-supplied packet contents or establish policy semantics. Do not add an endpoint accepting client-provided source text as live evidence. Keep the existing server-issued research ID/cache and Tavily source-screening boundary.
+Card evidence lists exactly the sources `decidePolicy` cited (`sourceIds`). The quote is the full sentence from that source's snippet that best matches the scenario (a manual/POS/draft sentence with "always apply", "bypass" or "regardless" for the manual card; a combination sentence that doesn't mention manual/POS/draft for the native card). Quote selection never changes a verdict.
 
-All supported cards retain missing store eligibility, actual configuration/override records, transaction scope, intent and effective-date checks. Source provenance is inherited from the packet; source snippets remain untrusted. No store account is connected, cause established, or recovery measured.
+**Pre-screens that HOLD every card.** Before calling `decidePolicy`, the suite rejects packets that are not an `ok` US discount packet with 1-3 sources (`S1`-`S3`, snippets up to 1,200 characters), duplicate source IDs, a source URL that isn't HTTPS on the platform's official domain (`help.shopify.com` or `woocommerce.com`, no credentials or port), prompt-injection text or markup in a title or snippet, a retraction, expiry or contrary rule, and a UK or other non-US source region. A source with no region tag is allowed, as in `decidePolicy`; Tavily only tags `global` when a page says so.
+
+What this does not do: it doesn't read the full policy page, check store eligibility, confirm the effective date, or run anything against a store. Snippets remain untrusted text. Do not add an endpoint accepting client-provided source text as live evidence; keep the server-issued research ID/cache and Tavily source screening.
+
+### October 29 change: one decision rule for both panels
+
+A live Tavily run returned the Shopify POS page ("Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions. ..."). The main decision card (`decidePolicy`) rebutted the settings fix, while Policy-to-Test held all three cards, because its separate exact-sentence matcher and closed title list only recognised authored fixture wording. The matcher, the title list and the unused model-candidate filter (`PolicyTestCandidatesSchema`, no caller in `src/`, `server/` or `shared/`) were removed. `tests/policy-to-test.test.ts` now pins agreement with `decidePolicy` on that real packet and on the offline fixtures. The audit `rulesetVersion` moved to `policy-to-test/v2`.
+
+Precision now equals `decidePolicy`'s. Its manual check works per source rather than per sentence, and its native check accepts any passage that mentions combinations, so some phrasing the old matcher held (questions, conditional clauses, a manual subject borrowed from another sentence) now follows the main card.
 
 ## Reproduce offline verification
 
@@ -62,20 +67,6 @@ npm test
 
 The UI verifier owns a headless Chrome process and temporary loopback Vite server, disables Vite environment-file loading, and permits only same-origin GET requests. It never imports the app server, keys or CSV. It checks keyboard action selection and disclosure, exact citations, unknown HOLD, synthetic/fixture labels, visible focus, 44px controls, 320/768/1440 layouts, reduced motion, page errors and outbound requests. Chrome must be installed; a sandbox may need permission for the browser and test API to connect to their own loopback server.
 
-Integration review added four regressions that first failed: cross-sentence retractions, cross-source retractions, missing/conflicting region metadata and failed live-packet wording. Retractions now conservatively hold the whole packet. Source-region metadata is required; unknown applicability holds. A live-mode label describes the received mode without asserting successful or usable retrieval. This remains a narrow matcher, not semantic certification.
-
 Observed locally after integration: 31 Policy-to-Test unit regressions, all 170 existing-plus-new unit/API tests, 14 isolated component UI checks, three integrated browser scenarios, lint and strict frontend build passed. Browser scenarios cover unchanged exposure/no extra request when changing hypothesis, context invalidation, shipping exclusion, repeated preview, no-result/retracted/wrong-region HOLD, keyboard, 320px layout and reduced motion. The final combined suite is recorded separately in the integration handoff. Local proof files stay local; they are not a sponsor benchmark or real provider-call evidence.
 
-No live provider requests, real merchant CSV transfer, final benchmark, deployment, video or key changes were performed. Live excerpts outside the declared grammar can remain on HOLD; real provider validation of this new view has not been run.
-
-Independent-audit corrections: every sentence in a recorded packet must now be
-recognized by the narrow rule catalog, apart from exact review reminders in the
-authored fixtures. An unknown follow-up sentence holds the whole packet even if
-a candidate selects a positive earlier sentence. Full Tavily result text is
-screened for known retractions, expiry and contrary rules before excerpt
-selection. Regional restrictions are checked in titles and body text; absence
-of a detected restriction no longer produces a `global` tag. These conservative
-screens reduce coverage and do not certify arbitrary policy semantics.
-Unfamiliar source titles also HOLD, even with a caller-supplied `global` tag.
-Only the small declared fixture/document-title catalog is recognized; this
-avoids pretending that a country-name keyword list covers every possible scope.
+No live provider requests, real merchant CSV transfer, final benchmark, deployment, video or key changes were performed. Those counts predate the October 29 change.

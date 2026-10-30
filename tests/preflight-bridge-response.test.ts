@@ -67,3 +67,15 @@ test('browser error display bounds untrusted prose and falls back for directives
   }
   assert.equal(safeBridgeMessage('Budget unavailable. No retry.', 'Safe failure'), 'Budget unavailable. No retry.');
 });
+
+test('additive interpretation fields: optional, enumerated, and never on a HOLD', () => {
+  assert.equal(parsePreflightBridgeReply(valid()).interpretation, undefined);
+  const labeled = parsePreflightBridgeReply({ ...valid(), interpretation: 'nemotron_interpreted', unmodeledConditions: ['customer_segment'] });
+  assert.deepEqual([labeled.interpretation, labeled.unmodeledConditions], ['nemotron_interpreted', ['customer_segment']]);
+  assert.throws(() => parsePreflightBridgeReply({ ...valid(), interpretation: 'trusted' }));
+  assert.throws(() => parsePreflightBridgeReply({ ...valid(), unmodeledConditions: ['vip discount of $500'] }));
+  const held = { ...valid(), status: 'HOLD', rules: [], model: null, policy: null, proposalId: null, proposalTtlSeconds: null, interpretation: null, unmodeledConditions: [],
+    http: { maximumAttempts: 4, attempted: 0, blocked: false, unknownOutcomes: 0, traces: [] } };
+  assert.equal(parsePreflightBridgeReply(held).status, 'HOLD');
+  assert.throws(() => parsePreflightBridgeReply({ ...held, interpretation: 'grammar_confirmed' }));
+});

@@ -1,6 +1,6 @@
 import type { LiveService } from './budget.js';
 import { retrievePreflightPolicy, type PreflightPolicyResult } from './preflight-policy.js';
-import { normalizePreflightActivity, parsePreflightIntent } from './preflight-intent.js';
+import { DEFAULT_REASONING_MODEL, parsePreflightIntent, screenCampaignText, type IntentInterpretation, type UnmodeledCondition } from './preflight-intent.js';
 import type { PreflightRule } from '../shared/preflight.js';
 
 type Endpoint = 'search' | 'extract' | 'models' | 'completion';
@@ -13,13 +13,16 @@ export interface PreflightHttpReport {
 export interface PreflightBridgeResult {
   mode: 'fixture' | 'live'; status: 'HOLD' | 'NEEDS_CONFIRMATION'; reason: string;
   rules: PreflightRule[]; policy: PreflightPolicyResult | null; model: string | null;
+  /** Additive: how the rules were read, and campaign conditions the simulator does not model. */
+  interpretation: IntentInterpretation | null; unmodeledConditions: UnmodeledCondition[];
   requiresSellerConfirmation: true; applyAutomatically: false; checkoutVerified: false;
   http: PreflightHttpReport;
 }
 export interface PreflightBridgeOptions {
   live: boolean;
   tavily: { enabled?: boolean; key?: string };
-  nebius: { enabled?: boolean; key?: string; model?: string };
+  /** `reasoningModel` interprets the campaign; `model` (fast drafts) is not used here. */
+  nebius: { enabled?: boolean; key?: string; model?: string; reasoningModel?: string };
   /** Existing service guard: durable/public caps, expiry and provider attempt budget. */
   reserve: (service: LiveService) => Promise<boolean>;
   request: typeof fetch;
@@ -35,15 +38,16 @@ export async function preparePreflightBridge(activity: unknown, options: Preflig
   let blocked = false;
   const snapshot = (): PreflightHttpReport => ({ maximumAttempts: 4, attempted: traces.length, blocked, unknownOutcomes: traces.filter(trace => trace.outcome === 'unknown').length, traces: traces.map(trace => ({ ...trace })) });
   const result = (reason: string, extra: Partial<PreflightBridgeResult> = {}): PreflightBridgeResult => ({
-    mode: traces.length ? 'live' : 'fixture', status: 'HOLD', reason, rules: [], policy: null, model: null,
+    mode: traces.length ? 'live' : 'fixture', status: 'HOLD', reason, rules: [], policy: null, model: null, interpretation: null, unmodeledConditions: [],
     requiresSellerConfirmation: true, applyAutomatically: false, checkoutVerified: false, ...extra, http: snapshot(),
   });
-  // Validate the privacy grammar before spending even a Search attempt.
-  let normalized: ReturnType<typeof normalizePreflightActivity>;
-  try { normalized = normalizePreflightActivity(activity); }
-  catch { return result('Unsupported activity. Use the documented campaign grammar without customer data.'); }
+  // Run the local privacy screen before spending even a Search attempt.
+  let campaign: string;
+  try { campaign = screenCampaignText(activity); }
+  catch { return result('Unsupported activity. Describe the promotion in plain English without emails, links, long numbers, markup or customer data.'); }
   if (!options.live) return result('Offline fixture mode. No provider was called and no campaign has been parsed.');
-  if (!options.tavily.enabled || !options.tavily.key || !options.nebius.enabled || !options.nebius.key || !options.nebius.model || !/^nvidia\/[a-zA-Z0-9._/-]+$/u.test(options.nebius.model)) return result('An explicitly enabled Tavily and NVIDIA/Nebius configuration is required. No provider was called.');
+  const nebius = { ...options.nebius, model: options.nebius.reasoningModel ?? DEFAULT_REASONING_MODEL };
+  if (!options.tavily.enabled || !options.tavily.key || !nebius.enabled || !nebius.key || !/^nvidia\/[a-zA-Z0-9._/-]+$/u.test(nebius.model)) return result('An explicitly enabled Tavily and NVIDIA/Nebius configuration is required. No provider was called.');
 
   const request: typeof fetch = async (input, init) => {
     const url = input instanceof Request ? input.url : String(input);
@@ -83,7 +87,7 @@ export async function preparePreflightBridge(activity: unknown, options: Preflig
   }, options.reviewPreflightSource);
   if (contentRejected || [options.tavily.key, options.nebius.key].some(key => key && JSON.stringify(policy).includes(key))) return result('The policy response failed the data safety check. No proposal or response content is exposed.');
   if (policy.mode !== 'live' || policy.status !== 'REFERENCE_READY') return result(blocked ? 'The request budget or guard stopped the pipeline. No automatic retry was made.' : policy.reason, { policy });
-  const intent = await parsePreflightIntent(normalized, options.nebius, request);
+  const intent = await parsePreflightIntent(campaign, nebius, request);
   if (blocked || intent.mode !== 'live' || intent.status !== 'NEEDS_CONFIRMATION') return result(blocked ? 'The request budget or guard stopped the pipeline. No automatic retry was made.' : intent.reason, { policy });
-  return result('Review the exact parsed rules and explicitly confirm seller inputs before running the bounded simulation.', { status: 'NEEDS_CONFIRMATION', rules: intent.rules, policy, model: intent.model });
+  return result(intent.reason, { status: 'NEEDS_CONFIRMATION', rules: intent.rules, policy, model: intent.model, interpretation: intent.interpretation, unmodeledConditions: intent.unmodeledConditions });
 }

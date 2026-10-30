@@ -1,0 +1,200 @@
+{
+  "description": "Live local run of main 1f6a977 on 2026-10-30 (UTC), driven through the browser UI with synthetic data. Server-side keys loaded from an ignored local env file; no key appears here.",
+  "source_commit": "1f6a977",
+  "dataset": "data/northstar-demo.csv (synthetic, seed 73021)",
+  "context": {
+    "platform": "Shopify",
+    "region": "US",
+    "discountOrigin": "manual"
+  },
+  "calls": [
+    {
+      "provider": "Nebius Token Factory",
+      "operation": "GET /v1/models (operator check, outside the app)",
+      "status": 200,
+      "nvidia_models_listed": [
+        "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+        "nvidia/Nemotron-3_5-Lightning",
+        "nvidia/Nemotron-3-Ultra-550b-a55b",
+        "nvidia/nemotron-3-super-120b-a12b",
+        "nvidia/Nemotron-3.5-Super-VL"
+      ]
+    },
+    {
+      "provider": "Tavily",
+      "operation": "POST /search (basic, include_domains=help.shopify.com, max_results=3)",
+      "status": 200,
+      "requestId": "19444728-22d2-4be8-ab7e-7c4d0714bb07",
+      "latencyMs": 1535,
+      "credits": 1,
+      "query": "Shopify official documentation manual POS draft order discounts bypass combination settings exceptions",
+      "sources_accepted": 3,
+      "note": "S2 and S3 returned identical snippets from two URLs."
+    },
+    {
+      "provider": "Nebius Token Factory",
+      "operation": "GET /v1/models (app availability check)",
+      "status": 200
+    },
+    {
+      "provider": "Nebius Token Factory",
+      "operation": "POST /v1/chat/completions",
+      "model": "nvidia/Nemotron-3_5-Lightning",
+      "status": 200,
+      "requestId": "31354285bac744de81d06e20979fcac4",
+      "latencyMs": 1006,
+      "inputTokens": 579,
+      "outputTokens": 100
+    }
+  ],
+  "observed_outcome": {
+    "main_decision": "contradicted: initial 'review combination settings' fix rebutted by the live Shopify POS passage; next check redirected to auditing manual/POS/draft overrides",
+    "policy_to_test_panel": "all three scenarios HOLD on the same live packet (inconsistent with main decision; fixed in a follow-up commit)",
+    "header_badge": "showed 'Offline demo mode' while live providers were configured (bug)"
+  },
+  "cost": "Tavily: 1 credit. Token Factory: 579 input + 100 output tokens on Nemotron-3.5-Lightning; dollar amount not confirmed against an invoice.",
+  "followup_calls": [
+    {
+      "provider": "Tavily",
+      "operation": "POST /search via server/tavily.ts research() on branch fix/tavily (uncommitted working tree)",
+      "case": "Shopify discount, manual origin",
+      "request": {
+        "search_depth": "advanced",
+        "chunks_per_source": 3,
+        "max_results": 3,
+        "include_domains": [
+          "help.shopify.com"
+        ],
+        "include_domains_mode": "restrict",
+        "auto_parameters": false
+      },
+      "query": "Shopify official documentation manual POS draft order discounts bypass combination settings exceptions",
+      "status": 200,
+      "requestId": "8f7b9603-06d4-4398-a844-8157b4d581bb",
+      "latencyMs": 4970,
+      "tavilyResponseTimeSeconds": 4.83,
+      "credits": 2,
+      "results_returned": 3,
+      "returned_urls": [
+        "https://help.shopify.com/en/manual/discounts/discount-combinations",
+        "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/draft-orders",
+        "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/save-retrieve-order"
+      ],
+      "sources_accepted": [
+        {
+          "id": "S1",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "snippetChars": 635
+        },
+        {
+          "id": "S2",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/draft-orders",
+          "snippetChars": 561
+        }
+      ],
+      "decision": "contradicted",
+      "decision_sourceIds": [
+        "S1"
+      ],
+      "outcome": "Advanced search returned the main Combining discounts page; its best chunk states that manually applied custom discounts (POS cart, draft order) and Scripts API discounts always apply regardless of combination settings. The two draft-order URLs returned the same passage and were accepted once (S2).",
+      "date": "2026-10-30 (UTC), between 02:55 and 03:03"
+    },
+    {
+      "provider": "Tavily",
+      "operation": "POST /search via server/tavily.ts research() on branch fix/tavily (uncommitted working tree)",
+      "case": "Shopify discount, native origin",
+      "request": {
+        "search_depth": "advanced",
+        "chunks_per_source": 3,
+        "max_results": 3,
+        "include_domains": [
+          "help.shopify.com"
+        ],
+        "include_domains_mode": "restrict",
+        "auto_parameters": false
+      },
+      "query": "Shopify official documentation automatic code discount combination eligibility settings",
+      "status": 200,
+      "requestId": "ef540bad-f498-47a4-9104-9341c34df254",
+      "latencyMs": 5517,
+      "tavilyResponseTimeSeconds": 5.4,
+      "credits": 2,
+      "results_returned": 3,
+      "returned_urls": [
+        "https://help.shopify.com/en/manual/discounts/discount-combinations",
+        "https://help.shopify.com/en/manual/discounts/discount-combinations#eligibility-requirements",
+        "https://help.shopify.com/en/manual/discounts/discount-combinations#manage-combinations"
+      ],
+      "sources_accepted": [
+        {
+          "id": "S1",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "snippetChars": 617
+        }
+      ],
+      "decision": "review",
+      "decision_sourceIds": [
+        "S1"
+      ],
+      "outcome": "Tavily returned the same page three times under different #fragment URLs with identical content; de-duplication kept one source. Decision routed to review.",
+      "date": "2026-10-30 (UTC), between 02:55 and 03:03"
+    },
+    {
+      "provider": "Tavily",
+      "operation": "POST /search via server/tavily.ts research() on branch fix/tavily (uncommitted working tree)",
+      "case": "USPS shipping",
+      "request": {
+        "search_depth": "advanced",
+        "chunks_per_source": 3,
+        "max_results": 3,
+        "include_domains": [
+          "usps.com"
+        ],
+        "include_domains_mode": "restrict",
+        "auto_parameters": false
+      },
+      "query": "USPS United States official shipping dimensional weight surcharges package dimensions policy",
+      "status": 200,
+      "requestId": "49f49e01-5a52-4e87-95c0-569dc1e89fb7",
+      "latencyMs": 2242,
+      "tavilyResponseTimeSeconds": 2.1,
+      "credits": 2,
+      "results_returned": 3,
+      "returned_urls": [
+        "https://www.usps.com/business/business-shipping.htm",
+        "https://pe.usps.com/cpim/ftp/manuals/dmm300/notice123.pdf",
+        "https://www.usps.com/ship/mail-shipping-services.htm"
+      ],
+      "sources_accepted": [
+        {
+          "id": "S1",
+          "url": "https://www.usps.com/business/business-shipping.htm",
+          "snippetChars": 754
+        },
+        {
+          "id": "S2",
+          "url": "https://pe.usps.com/cpim/ftp/manuals/dmm300/notice123.pdf",
+          "snippetChars": 738
+        },
+        {
+          "id": "S3",
+          "url": "https://www.usps.com/ship/mail-shipping-services.htm",
+          "snippetChars": 762
+        }
+      ],
+      "decision": "review",
+      "decision_sourceIds": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "outcome": "Three usps.com passages on DIM weight and nonstandard fees, no duplicates; region screen passed. Decision routed to review.",
+      "date": "2026-10-30 (UTC), between 02:55 and 03:03"
+    }
+  ],
+  "followup_cost": "Tavily: 6 credits total (3 advanced searches at 2 credits each). No Nebius calls.",
+  "offline_replay": {
+    "tavily": "Hosted fixture for Shopify + discount + manual origin replays S1 of request 19444728-22d2-4be8-ab7e-7c4d0714bb07 (title Shopify Help Center | Discount combinations on POS). This file did not store the S1 snippet text; the replayed text is the S1 snippet for the same title, URL and query recorded in evidence/tavily-live-proof.json (request 75fc38ff-9fd0-4b4a-ae88-26ffc1aa57e5, 2026-10-27).",
+    "nvidia": "Offline remediation for that packet replays the documentedPolicy, inference, nextStep and uncertainty fields of Nemotron-3.5-Lightning request 31354285bac744de81d06e20979fcac4 from the network capture of this run."
+  }
+}

@@ -28,7 +28,8 @@
     "build:frontend": "tsc --noEmit && vite build",
     "db:generate": "drizzle-kit generate",
     "verify:policy-ui": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/verify-policy-ui.ts",
-    "build:offline-demo": "npm run build && node --import tsx scripts/build-worker.ts --offline-only && node scripts/verify-offline-artifact.mjs"
+    "build:offline-demo": "npm run build && node --import tsx scripts/build-worker.ts --offline-only && node scripts/verify-offline-artifact.mjs",
+    "build:pages": "npm run build:frontend && node --import tsx scripts/build-worker.ts --offline-only && node scripts/build-pages.mjs"
   },
   "dependencies": {
     "@noble/hashes": "2.4.0",

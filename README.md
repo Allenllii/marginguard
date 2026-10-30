@@ -1,159 +1,128 @@
 # MarginGuard
 
-**Find the leaks. Follow the evidence. Model your next move.**
+**Check the fix before you ship it.** MarginGuard finds where a small online store is losing margin, then tests the suggested fix against live official policy before the seller acts on it.
 
-[Open the public judge demo](https://marginguard-evidence.liwenzhao0306.chatgpt.site) | [Source: main](https://github.com/Allenllii/marginguard/tree/main) | [Development specification](docs/SPEC.md) | [Release identities](docs/RELEASE.md)
+[Live demo](__DEMO_URL__) · [Demo video](__VIDEO_URL__) · [Spec](docs/SPEC.md) · [Architecture](docs/ARCHITECTURE.md)
 
-For the 2026-10-30 development-source consolidation and Claude Code continuation, read [the source disposition](docs/SOURCE-CONSOLIDATION.md), [the complete handoff](docs/CLAUDE-HANDOFF.md) and [offline CI scope](docs/CI.md). The source now includes the conservative changed-policy review dossier; this source update does not deploy the Site or release new private evidence. Historical counts below remain attached to their recorded source versions.
+Built for the Nebius x NVIDIA Global AI Hackathon: **Best Apps and Agents** track, **Best Use of Tavily** prize.
 
-MarginGuard helps small ecommerce sellers turn a margin anomaly into a specific next check. It validates an order CSV, calculates exact contribution and rule-based exposure, shows the source rows, and uses policy evidence to qualify a proposed remedy. The primary demonstration redirects an overly generic discount-settings suggestion to a manual-override audit when the applicable Shopify exception supports that change.
+## The problem
 
-## What the judge demo does
+A seller sees discounts eating margin. The usual advice, from dashboards and chatbots alike, is "tighten your discount combination settings." On Shopify that advice is a no-op for a whole class of discounts: custom discounts applied manually in POS or on draft orders apply regardless of combination settings. The seller flips the toggle, nothing changes, and the leak continues.
 
-The public site is an **offline demonstration** with synthetic orders, authored policy summaries and deterministic guidance. It makes **no Tavily or model requests**. Live buttons are disabled, and the forced-offline Worker ignores runtime provider keys and database bindings. The current deployed version and any pending source update are recorded in [RELEASE.md](docs/RELEASE.md). The main branch contains the integrated source. Source and Site versions are separate; a source revision is not claimed deployed until the Site is verified.
+Generic AI advice fails here because it never checks the platform's own rules against the seller's situation.
 
-1. From the homepage, click **See the discount policy counterexample**. It opens the synthetic discount case with manual-origin context and offline source preview in one click: 28 rows, $658.08 modeled exposure at the default seller ceiling.
-2. Choose **Manual / POS / draft**, then **Preview source fixtures**. The rule-based decision redirects the next check to staff/manual overrides. Expand the source and inspect its limitations.
-3. Choose an unknown origin, ordinary app mechanism, or wrong region to see the recommendation held. A confirmed Scripts API origin is distinct from an ordinary app.
-4. Draft offline checks, change recovery assumptions in **Scenario lab**, return to the evidence, then export the report. Importing another dataset or changing rule assumptions clears old results.
+## What MarginGuard does
 
-The selected origin is seller-provided context, not a connected Shopify account or an inference from the CSV. The source describes an investigation constraint; it does not establish the anomaly's cause or guarantee recovery.
+1. **Finds the leak with exact math.** Import an order CSV. Deterministic code computes contribution in integer cents and flags discount stacking, shipping overruns and return spikes. Every finding shows its formula, its source rows and the seller assumptions behind it.
+2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard asks **Tavily** for official documentation restricted to the platform's own domain. A rule engine decides whether the retrieved passage applies to the seller's context.
+3. **Changes the next action, not the numbers.** In the demo case Tavily returns Shopify's POS policy: *"Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions."* The settings fix is rebutted, and the next check becomes an audit of staff/manual overrides. Same 28 rows, same $658.08 modeled exposure, different action.
+4. **Holds when evidence is missing.** Unknown discount origin, the wrong region, an ordinary app mistaken for the Scripts API, or conflicting passages put the recommendation on hold instead of guessing.
+5. **Drafts the check with NVIDIA Nemotron on Nebius Token Factory.** Nemotron writes the cited constraint, hypothesis, validation step and uncertainty. Code validates every citation and rejects drafts that change money or upgrade a hold.
+6. **Tests a promotion before launch.** In Promo Preflight, describe a campaign in plain English. Nemotron turns it into structured rules, Tavily pulls the governing policy page, the seller confirms, and an integer simulator finds the worst cart, for example a $50 cart that ends at **−$6.00 contribution** once stacked.
 
-## Real integrations: observed locally, separate from the hosted demo
+## How the sponsor technology is used
 
-The server has actual Tavily and NVIDIA-on-Nebius adapters. A controlled local browser probe on October 29 used Tavily search, authenticated model discovery and one successful completion from `nvidia/Nemotron-3_5-Lightning`.
+```mermaid
+flowchart LR
+  CSV[Order CSV] --> A[Deterministic engine<br/>integer cents, findings]
+  A --> Q[Context: platform, region,<br/>discount origin]
+  Q --> T[Tavily Search<br/>official domain only]
+  T --> S[Screening: domain, injection,<br/>retraction, region, duplicates]
+  S --> D[decidePolicy<br/>single decision authority]
+  D --> N[Nemotron on Token Factory<br/>cited draft]
+  N --> V[Citation + claim validation]
+  V --> UI[Next check, hold, or rebuttal]
+  P[Campaign text] --> R[Nemotron reasoning model<br/>text to rules] --> G[Rule validation + seller confirm] --> X[Integer simulation]
+  TE[Tavily Extract<br/>policy page] --> G
+```
 
-| Observation | Recorded result |
+| Technology | Where | What it does |
+| --- | --- | --- |
+| **Tavily Search** | `server/tavily.ts` | Fixed, generic queries (never order data), `include_domains` restricted to help.shopify.com, woocommerce.com, usps.com or ups.com; returned passages are screened, de-duplicated and passed to the decision rule. The passage decides the verdict. |
+| **Tavily Extract** | `server/preflight-policy.ts` | Pulls the full reviewed policy page in Promo Preflight before any rule is proposed. |
+| **Nebius Token Factory** | `server/nebius.ts`, `server/preflight-intent.ts` | OpenAI-compatible API; model IDs verified with `GET /v1/models` before each call. |
+| **NVIDIA Nemotron-3.5-Lightning** | analyst brief, cited policy draft | Fast structured drafts (about 1 s, ~600 input / 100 output tokens). |
+| **NVIDIA Nemotron 3 Super** | Promo Preflight | Reasoning model that interprets free-form campaign text into rules that code then validates. |
+
+The model never computes money or decides eligibility. Those stay in `server/analysis.ts`, `shared/policy-decision.ts` and `shared/preflight.ts`.
+
+## A real live run
+
+Recorded from the local app on 2026-10-30 with synthetic data ([ledger](evidence/live-run-20261030.json)):
+
+| Call | Result |
 | --- | --- |
-| Tavily request | `8df2a245-7576-48d3-9d40-ffb7b7213991`; 1 returned credit; 1,851 ms |
-| NVIDIA completion | `196038cb42e7180cb4fb6c1b30977819`; 579 input / 99 output tokens |
-| Model stage | 2,164 ms including model discovery and validation |
-| Scope | One controlled probe; three HTTP requests; no automatic retry |
+| Tavily Search, help.shopify.com | request `19444728-22d2-4be8-ab7e-7c4d0714bb07`, 1 credit, 1.5 s; returned the Shopify POS combination policy |
+| Decision | settings fix rebutted → audit manual/POS/draft overrides |
+| Nemotron-3.5-Lightning completion | request `31354285bac744de81d06e20979fcac4`, 579 input / 100 output tokens, 1.0 s |
 
-See [sanitized proof](evidence/pr7-live-journey-20261029.json) and [observed feedback](docs/PR7-LIVE-VERIFICATION.md). These are observations on the recorded source revision, not a model-quality benchmark or proof that the hosted site runs live inference. Earlier failed attempts remain documented. The latest routing/privacy/fixture corrections have their own offline regressions.
+## Try it
 
-Tavily receives only fixed generic platform/carrier policy queries restricted to official domains. NVIDIA receives aggregate finding metrics and short supporting passages. Code owns money calculations and policy decision status; model drafts pass schema, reference and bounded-claim checks or display an explicit fallback. Source membership alone does not prove semantic fidelity.
+**Hosted demo (no account, no keys).** [Open the demo](__DEMO_URL__), click **See the discount policy counterexample**, then switch the discount origin between *Manual / POS / draft* and *Unknown* to watch the next check change. The hosted build runs offline: it replays the recorded live Tavily and Nemotron responses above and labels them as recorded. It makes no provider calls.
 
-## Run and reproduce
-
-Requires Node.js 24.19+ and npm. Windows PowerShell is supported.
+**Run locally (offline).**
 
 ```sh
-npm ci --ignore-scripts --registry=https://registry.npmjs.org
-npm run dev
+npm ci --ignore-scripts
+npm run dev        # http://127.0.0.1:3000
 ```
 
-Open http://127.0.0.1:3000. No account or key is needed for fixture mode. For local production, run `npm run build` then `npm start`. Vite output stays in `frontend-dist/`; Worker packaging uses `dist/` and does not remove the Node frontend.
+**Run locally with live Tavily + Nemotron.** Create `.env.local`:
 
 ```sh
-npm run check
-npm run build:offline-demo
+TAVILY_API_KEY=...
+TAVILY_ENABLE_LIVE=true
+NEBIUS_API_KEY=...
+NEBIUS_ENABLE_LIVE=true
+NEBIUS_MODEL=nvidia/Nemotron-3_5-Lightning
+NEBIUS_REASONING_MODEL=nvidia/nemotron-3-super-120b-a12b
 ```
 
-`check` runs lint, strict TypeScript, frontend/Worker builds, unit/API tests and small synthetic rule/routing evaluations. The offline build also checks embedded HTML/JS/CSS, disabled providers and a cross-instance fixture draft. For browser tests, run `npm run start:qa` in one terminal and `npm run test:ui` in another. Chrome must be installed; `MARGINGUARD_TEST_URL` can select another tested app origin. Browser tests use synthetic data.
+Then `npm run dev`, open the counterexample, tick the consent box and click **Search official policies**, then **Draft with NVIDIA**. Each provider is capped at 2 calls/minute, 20/day and 100 per process by default.
 
-This integrated candidate passed **264 unit/API tests, 65 offline evaluation-harness self-tests, 12 synthetic routing cases and 13 offline artifact route checks**. The same **57 browser scenarios** passed on local Node and forced-offline Worker boundaries. Raw regression logs remain local. These are development regressions; the predeclared final benchmark has **not run**.
+Requires Node.js 24.19+.
 
-## Optional campaign preparation
+## Safety and privacy by design
 
-Open **Promo Preflight**, then **Review a campaign with policy evidence**. The
-synthetic preview sends no request and requires rule review before simulation.
-Local live mode separately requires an availability check, supported seller
-context, one-use credit consent, then a second explicit rule confirmation. The
-model interprets a narrow normalized grammar; it cannot invent money or change
-the store. The JSON audit records preparation provenance separately from the
-integer calculation.
+- Raw rows, order IDs, product names and file names never enter a search query or prompt; only aggregate metrics and short cited passages reach the model.
+- CSVs are processed in memory for the calculation and not stored.
+- Tavily results are restricted to official domains and screened for prompt-injection text, retractions, regional scope and duplicates.
+- Model output is schema-validated; citations must reference returned sources; digits in model prose are rejected so money stays in code.
+- Provider calls need explicit consent, are rate- and budget-capped, never retried silently, and every failure is shown.
 
-The earlier actual bridge probe held after extraction and remains documented.
-The subsequent controlled synthetic local browser loop completed Tavily
-Search/Extract, NVIDIA model discovery/completion, explicit operator confirmation
-and integer-engine parity. The public Site stays offline; real checkout is
-unverified. Existing live analyst evidence above belongs to its separate recorded
-workflow. See [bridge review and observations](docs/SPONSOR-BRIDGE-REVIEW.md).
+## Synthetic data and golden numbers
 
-## Synthetic data and calculation contract
+Seed 73021 generates 504 orders (September 1-28, 2026) with three planted issues. `npm run evaluate` checks them against [ground truth](data/ground-truth.json).
 
-Seed 73021 creates 504 orders for September 1-28, 2026. Generate it with `npm run data:generate`; verify it with `npm run evaluate`. [Ground truth](data/ground-truth.json) pins amounts and all evidence row IDs.
-
-| Golden result | Value |
+| | Value |
 | --- | ---: |
 | Net revenue | $39,846.22 |
 | Contribution | $22,077.83 |
-| Recent return spike | $1,040.00 / 14 evidence rows |
-| Stacked discounts | $658.08 / 28 evidence rows |
-| Shipping overrun | $220.50 / 21 evidence rows |
-| Total modeled exposure | $1,918.58 / 63 rows |
+| Return spike (CLOUD-HOODIE) | $1,040.00 / 14 rows |
+| Stacked discounts | $658.08 / 28 rows |
+| Shipping overrun | $220.50 / 21 rows |
 
-All money is integer cents: net revenue = gross - discount - refund + shipping charged; contribution subtracts COGS, shipping cost and return cost. COGS remains expensed on returns. Taxes, payment fees, marketing, fixed overhead and restock credits are outside this MVP. Exposure is a hypothetical review candidate, not realized savings, accounting profit or demonstrated customer impact.
+Modeled exposure is a review candidate, not realized savings. Discount ceiling (default 20%) and shipping allowance (default $3) are editable seller assumptions, not platform rules. CSV format: [template](data/template.csv); UTF-8, USD, up to 2 MiB / 10,000 rows.
 
-The discount ceiling (default 20%, editable 0-60%) and shipping allowance (default $3, editable $0-$20) are seller assumptions, not platform rules. Returns compare the latest seven days with the preceding twenty-one under explicit volume/rate thresholds. Refund orders are excluded from the discount/shipping rules. Scenario recovery percentages do not model demand or execution costs.
+## Tests
 
-CSV: UTF-8, USD, one unique order per row, maximum 2 MiB and 10,000 rows. Use [template.csv](data/template.csv). Required columns:
+`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, __UNIT_TESTS__ unit/API tests, __FRAMEWORK_TESTS__ benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run __BROWSER_TESTS__ Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
 
-```text
-order_id,order_date,sku,category,gross_sales,discount,promo_count,cogs,shipping_charged,shipping_cost,refund,return_cost
+## Limits
+
+All data is synthetic and there is no store connection: the seller supplies the discount origin. The policy rules cover a deliberately small set of Shopify, WooCommerce, USPS and UPS cases. Live mode runs locally with your own keys; the hosted demo replays a recorded run.
+
+## Project layout
+
+```
+server/   analysis, provider adapters (tavily, nebius, preflight-*), orchestration, Express adapter
+shared/   pure logic shared by server, Worker and UI: policy decision, preflight simulation, types
+src/      React UI (no money or eligibility logic)
+worker/   Worker entry points (live and forced-offline)
+tests/    unit/API tests and Playwright specs
+data/     synthetic dataset, template, ground truth
+docs/     spec, architecture, feature notes; docs/history holds earlier process notes
 ```
 
-The parser rejects missing/unknown/duplicate headers, duplicate IDs, impossible dates, malformed quoting, unsafe labels and invalid or inconsistent amounts. Partial refunds count as returns. Aggregate line-item exports before import.
-
-## Privacy, runtime controls and architecture
-
-CSV uploads are sent to the app server for validation and calculation. They remain in browser/session and transient server memory; this app does not persist CSVs in a database or analytics. Use synthetic or non-sensitive data on the public site. Hosting infrastructure may process request metadata. Raw rows, order IDs, product labels and filenames are excluded from provider prompts and search queries.
-
-Local live mode needs approved server-side credentials and explicit flags/consent. Never commit `.env` or `.env.local`. Builds and offline tests do not load local secret files. Operator verification commands are documented in [DEPLOYMENT.md](docs/DEPLOYMENT.md). Public live mode remains off; durable request budgets and verified provider monetary caps are required before considering it. No secret is needed for the public offline demo.
-
-The [architecture map](docs/ARCHITECTURE.md) separates deterministic math, policy applicability, provider transport, request budgets/stores, UI orchestration and Node/Worker boundaries. Explicit fixture references rebuild only canonical server-authored summaries across cold Worker instances; live research uses server-issued UUIDs and expiring server storage. Imported or client-supplied source text cannot become live evidence.
-
-## Release status
-
-Public offline hosting and genuine local sponsor calls exist. Independent review and corrections are in progress. Final controlled benchmark, release freeze, final video and Devpost submission remain pending. No award odds, generalized accuracy or customer savings are claimed. [Submission draft](docs/submission-draft.md) and [release checklist](docs/RELEASE.md) distinguish completed evidence from remaining gates.
-
-Submitted artifacts freeze at **October 30, 2026, 17:00 UTC**. Preserve free judge access through December 15. No automatic post-freeze updates to submitted source, site or video.
-
-MIT; see [LICENSE](LICENSE). Dependency and model/API terms apply separately.
-
-The current visual revision leads with a policy hypothesis/change comparison, a separate evidence boundary and a single case entry. It uses system fonts and CSS only, with keyboard activation, measured hero-text contrast, 320px layout checks and prefers-reduced-motion support. See [visual design rationale](docs/VISUAL-DESIGN.md).
-
-## Controlled final benchmark preparation
-
-The evaluation-only framework is described in [docs/FINAL-BENCHMARK.md](docs/FINAL-BENCHMARK.md). `npm run benchmark:test` runs offline harness regressions with injected transports. `npm run benchmark:plan -- --config scripts/benchmark/example.config.json --dataset scripts/benchmark/fixture.dataset.json` prints a disabled development plan without provider calls or credential loading. The exploratory `evaluate:live` script is not a fair final benchmark and must not be used to claim retrieval superiority. Final independent holdout/gold, pricing/budget review, exact frozen candidate, concrete plan approval and human blinding remain pending. No final benchmark has run.
-
-## CSV column mapping
-
-On **Data & method**, the mapping assistant previews different export headers in browser memory. Every analysis field is required and every omitted column needs explicit review. It never infers totals, currencies, dates or missing costs. Only the selected columns are sent to the app server after **Analyze mapped CSV**; local preview, validation and download send no CSV requests. The built-in example remains labeled synthetic through recalculation. See [CSV mapping contract and limitations](docs/CSV-MAPPING.md).
-
-The default `npm run test:ui` includes the mapping regressions. A focused run uses `npx playwright test --config playwright.csv-mapping.config.ts` against the documented local offline server.
-
-## Evidence-conditioned policy tests
-
-Policy-to-Test challenges a proposed investigation against native, manual and unknown synthetic origins using one existing policy packet. Exact passages and a narrow rule/title catalog determine supported, contradicted or HOLD; unknown context, retractions, expired guidance and incompatible regions hold. This new view makes no provider call and has not received a new live-model evaluation. See [contract and limitations](docs/POLICY-TO-TEST.md).
-
-**Download Policy-to-Test audit (JSON)** preserves the proposed action, three
-scenario judgments, HOLD reasons, exact received source text and dataset
-assumptions in a local snapshot. It makes no new request and excludes raw CSV,
-order records and product labels. Fingerprints detect differences and do not
-authenticate evidence. See [export contract](docs/POLICY-TEST-AUDIT.md).
-
-## Promo Preflight
-
-The isolated sandbox exhaustively evaluates bounded seller-authored promotion rules in integer cents, exposes the worst modeled contribution and exports replayable inputs. It is not a Shopify checkout emulator, store execution or a savings forecast. Hypothetical source attestations stay explicit; missing evidence holds. Workspace navigation preserves imported analysis and releases hidden dialog effects. See [model and limits](docs/PROMO-PREFLIGHT.md) and [audit corrections](docs/AUDIT-FOLLOWUP.md). The existing public Site is a separately versioned offline demonstration; source publication does not claim its deployment was updated.
-
-
-## Reviewed bridge and same-cart follow-up
-
-The local sponsor bridge now has a verified synthetic browser path through real
-Tavily Search/Extract and NVIDIA on Nebius, followed by explicit operator review
-and an integer-only simulation. The earlier HOLD observations remain preserved;
-HTTP success is never relabeled as a usable proposal. This is a local development
-observation, not a claim that the hosted offline demo makes live calls, that a
-human was authenticated, or that a real checkout is verified.
-
-The preflight reference catalog is deliberately narrow: the exact reviewed
-Shopify extraction must match its SHA-256 fingerprint. Changed or unreviewed
-source bytes HOLD pending review; eligibility conditions remain unverified.
-See [diagnosis and boundaries](docs/BRIDGE-DIAGNOSTICS.md).
-
-**Compare the same cart** locks one basket and its costs before comparing the
-original and an explicitly reviewed alternative. It reports conditional
-contribution difference, never realized savings. Source edits invalidate the
-lock. See [comparison contract](docs/SAME-CART-COMPARISON.md).
+MIT licensed; see [LICENSE](LICENSE).
