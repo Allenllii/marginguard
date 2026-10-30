@@ -1,0 +1,30 @@
+{
+  "scope": "LOCAL_INTEGRATED_OFFLINE_REGRESSION_NOT_FINAL_BENCHMARK",
+  "upstreamPatchCommit": "9ca950c57a4fc77b81da839f2fe4de90398b7da6",
+  "integrationBase": "5497ed8119d8bbded4acd91ff23bbd2b1efc4bff",
+  "publicMainBase": "9bade621874e08359b901b1fe03729619176334c",
+  "verifiedAtUtc": "2026-10-30T00:16:00Z",
+  "changesReviewed": [
+    "Local JSON download uses current action, packet and explicit financial metadata",
+    "Raw CSV, order records, product labels and filenames are outside the dataset export schema",
+    "Received policy text stays plain JSON data and is not described as redacted",
+    "Fixture retrieval is null; received live labels and fingerprints are explicitly unverified",
+    "Hashes are independently reproducible comparison aids, not signatures",
+    "No matching, verdict, financial-engine, provider or deployment behavior changed"
+  ],
+  "checks": {
+    "lint": "PASS",
+    "strictTypes": "PASS",
+    "frontendAndWorkerBuild": "PASS",
+    "unitApi": { "passed": 264, "failed": 0 },
+    "offlineHarnessSelfTests": { "passed": 65, "failed": 0 },
+    "syntheticRouting": { "passed": 12, "failed": 0 },
+    "forcedOfflineArtifact": { "passedRoutes": 13, "outboundAttempts": 0 },
+    "browserNode": { "passed": 57, "failed": 0 },
+    "browserOfflineWorker": { "passed": 57, "failed": 0 }
+  },
+  "newCallsOrCredentials": false,
+  "publicationAttempted": false,
+  "finalBenchmarkRun": false,
+  "upstreamRecords": "Other audit verification JSON files retain the isolated upstream run counts; this record identifies the newer combined integration."
+}

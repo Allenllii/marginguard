@@ -3,6 +3,7 @@ import { ArrowDownToLine, ArrowRight, FlaskConical, Plus, ShieldCheck, Trash2 } 
 import { PREFLIGHT_FIXTURE, runPreflight, type PreflightInput, type PreflightResult } from '../shared/preflight';
 import './promo-preflight.css';
 import PreflightSponsorBridge, { type BridgeAudit } from './PreflightSponsorBridge';
+import PreflightComparison from './PreflightComparison';
 
 type SkuDraft = { id: string; priceCents: string; unitCostCents: string };
 type RuleDraft = { id: string; type: 'percent' | 'fixed' | 'free_shipping'; scope: 'product' | 'order'; value: string; minSubtotalCents: string; minItems: string };
@@ -210,6 +211,7 @@ export default function PromoPreflight({ workspaceActive = true }: { workspaceAc
         </> : <div className="pf-report-placeholder"><div className="pf-placeholder-mark"><FlaskConical size={30} aria-hidden="true" /></div><h3>Your next campaign, under a microscope.</h3><p>Run the example or enter your assumptions to see the lowest contribution, exact basket, triggered rules and evidence gaps.</p><dl className="pf-preview-bounds"><div><dt>Current SKU count</dt><dd>{draft.skus.length}</dd></div><div><dt>Maximum nonempty baskets</dt><dd>{basketLimit}</dd></div><div><dt>Hard scenario cap</dt><dd>1,008</dd></div></dl><p className="pf-note">Taxes, returns, demand, fixed overhead, payment fixed fees and platform-specific execution are outside this model.</p></div>}
       </section>
     </main>
+    <PreflightComparison key={draftVersion} getInput={() => toInput(draft)} />
       <footer className="pf-footer">A deterministic preflight sandbox for MarginGuard. Local calculations, integer cents, bounded enumeration. Optional provider preparation requires explicit consent and a second rule-review confirmation; source and checkout applicability remain unverified.</footer>
   </div>;
 }

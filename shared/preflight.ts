@@ -159,6 +159,8 @@ function scenario(input: PreflightInput, quantities: number[], rules: PreflightR
   const contributionCents = revenueCents - cogsCents - input.shippingCostCents - paymentFeeCents;
   return { basket, ruleOrder: rules.map(rule => rule.id), triggeredRules, steps, subtotalCents, discountCents: subtotalCents - merchandiseCents, merchandiseCents, shippingChargedCents, cogsCents, shippingCostCents: input.shippingCostCents, paymentFeeCents, revenueCents, contributionCents, belowFloor: contributionCents < input.contributionFloorCents };
 }
+/** Internal calculation shared by validated preflight entry points; callers must validate inputs first. */
+export { scenario as calculatePreflightScenario };
 function orderedRuleSubsets(rules: PreflightRule[]): PreflightRule[][] {
   const sequences: PreflightRule[][] = [[]];
   function visit(prefix: PreflightRule[], remaining: PreflightRule[]) {

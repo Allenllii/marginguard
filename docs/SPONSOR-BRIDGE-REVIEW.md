@@ -98,3 +98,15 @@ compared against that main revision; it does not deploy a new Sites version.
 References: [Tavily Extract](https://docs.tavily.com/documentation/api-reference/endpoint/extract),
 [Shopify combination conditions](https://help.shopify.com/en/manual/discounts/discount-combinations),
 [RFC 9110 Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after).
+
+
+### Subsequent local diagnostic follow-up
+
+The historical failure above is retained. The follow-up isolated a conditional
+policy-denial false positive, a non-geographic merchant-eligibility qualifier,
+and Nebius null tool metadata. Each received a regression before its fix. A
+later controlled synthetic browser loop reached explicit simulation confirmation;
+the money engine remained deterministic and real checkout stayed HOLD. New raw
+logs and request observations stay local; see BRIDGE-DIAGNOSTICS.md for the narrow
+reference contract. Source publication and the separately versioned offline Site
+must be verified independently. Final benchmark and video remain unrun.

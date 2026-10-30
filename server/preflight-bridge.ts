@@ -24,6 +24,8 @@ export interface PreflightBridgeOptions {
   reserve: (service: LiveService) => Promise<boolean>;
   request: typeof fetch;
   now?: () => number;
+  /** Trusted test-fixture review dependency; never supplied by HTTP or env. */
+  reviewPreflightSource?: (text: string) => boolean;
   onRateLimit?: (service: LiveService, retryAfterSeconds: number) => void;
 }
 
@@ -78,7 +80,7 @@ export async function preparePreflightBridge(activity: unknown, options: Preflig
   const policy = await retrievePreflightPolicy(options.tavily, request, text => {
     contentRejected = [options.tavily.key, options.nebius.key].some(key => !!key && text.includes(key));
     return contentRejected;
-  });
+  }, options.reviewPreflightSource);
   if (contentRejected || [options.tavily.key, options.nebius.key].some(key => key && JSON.stringify(policy).includes(key))) return result('The policy response failed the data safety check. No proposal or response content is exposed.');
   if (policy.mode !== 'live' || policy.status !== 'REFERENCE_READY') return result(blocked ? 'The request budget or guard stopped the pipeline. No automatic retry was made.' : policy.reason, { policy });
   const intent = await parsePreflightIntent(normalized, options.nebius, request);

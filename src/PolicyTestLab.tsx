@@ -1,14 +1,15 @@
 import { useId, useState } from 'react';
 import type { ResearchPacket } from '../shared/types';
 import { buildPolicyTestSuite } from '../shared/policy-to-test';
+import { buildPolicyTestAudit, POLICY_TEST_SCENARIO_ASSUMPTIONS, serializePolicyTestAudit, type PolicyTestAuditDataset } from '../shared/policy-test-audit';
 import './PolicyTestLab.css';
 
 type ProposedAction = 'review-combination-settings' | 'audit-manual-overrides';
 
 const scenarioLabels = {
-  normal: { title: 'Normal / code', assumption: 'Assume an automatic or code discount.' },
-  manual: { title: 'Manual / POS / draft', assumption: 'Assume a confirmed manual override.' },
-  unknown: { title: 'Unknown', assumption: 'The discount origin is still missing.' },
+  normal: { title: 'Normal / code' },
+  manual: { title: 'Manual / POS / draft' },
+  unknown: { title: 'Unknown' },
 };
 
 const verdictLabels = {
@@ -18,13 +19,28 @@ const verdictLabels = {
 };
 
 /** An entirely local counterfactual view of an existing, server-issued packet. */
-export default function PolicyTestLab({ packet }: { packet: ResearchPacket }) {
+export default function PolicyTestLab({ packet, dataset }: { packet: ResearchPacket; dataset?: PolicyTestAuditDataset }) {
   const id = useId();
   const [action, setAction] = useState<ProposedAction>('review-combination-settings');
+  const [exportNotice, setExportNotice] = useState<{ packet: ResearchPacket; action: ProposedAction; message: string } | null>(null);
   const suite = buildPolicyTestSuite({ packet, action });
   const supportCount = suite.cards.filter(card => card.verdict === 'supported').length;
   const contradictionCount = suite.cards.filter(card => card.verdict === 'contradicted').length;
   const holdCount = suite.cards.filter(card => card.verdict === 'hold').length;
+
+  function exportAudit() {
+    try {
+      const audit = buildPolicyTestAudit({ packet, action, dataset });
+      const url = URL.createObjectURL(new Blob([serializePolicyTestAudit(audit)], { type: 'application/json;charset=utf-8' }));
+      const link = document.createElement('a');
+      link.href = url; link.download = 'marginguard-policy-to-test-audit.json';
+      try { document.body.append(link); link.click(); }
+      finally { link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+      setExportNotice({ packet, action, message: 'Audit JSON download prepared locally. No new retrieval or provider call.' });
+    } catch {
+      setExportNotice({ packet, action, message: 'The audit could not be exported. Refresh the source packet and check the dataset assumptions, then try again.' });
+    }
+  }
 
   return <section className="policy-test-lab" aria-labelledby={`${id}-heading`}>
     <header className="ptl-header">
@@ -50,6 +66,7 @@ export default function PolicyTestLab({ packet }: { packet: ResearchPacket }) {
 
     <p className="ptl-summary" role="status" aria-live="polite" aria-atomic="true">
       {supportCount} supported for investigation · {contradictionCount} challenged by an exception · {holdCount} on HOLD
+      {exportNotice?.packet === packet && exportNotice.action === action ? <>. {exportNotice.message}</> : null}
     </p>
 
     <ol className="ptl-cards" aria-label="Hypothetical discount-origin scenarios">
@@ -59,7 +76,7 @@ export default function PolicyTestLab({ packet }: { packet: ResearchPacket }) {
             <span className="ptl-number" aria-hidden="true">0{index + 1}</span>
             <h4 id={`${id}-${card.scenario}`}>{scenarioLabels[card.scenario].title}</h4>
           </div>
-          <p className="ptl-assumption">{scenarioLabels[card.scenario].assumption}</p>
+          <p className="ptl-assumption">{POLICY_TEST_SCENARIO_ASSUMPTIONS[card.scenario]}</p>
           <p className="ptl-verdict">{verdictLabels[card.verdict]}</p>
           <p className="ptl-reason">{card.reason}</p>
 
@@ -87,5 +104,9 @@ export default function PolicyTestLab({ packet }: { packet: ResearchPacket }) {
 
     <p className="ptl-notice">{suite.notice}</p>
     {suite.rejectedCandidates > 0 ? <p className="ptl-rejected">{suite.rejectedCandidates} candidate{suite.rejectedCandidates === 1 ? '' : 's'} rejected by the evidence checks.</p> : null}
+    <div className="ptl-export">
+      <button type="button" onClick={exportAudit} aria-describedby={`${id}-export-description`}>Download Policy-to-Test audit (JSON)</button>
+      <p id={`${id}-export-description`}>Local snapshot of the assumptions, three judgments, HOLD reasons, sources and fingerprints. No new retrieval or provider call. Exposure is not realized savings.</p>
+    </div>
   </section>;
 }

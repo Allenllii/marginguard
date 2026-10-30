@@ -1,0 +1,152 @@
+{
+  "dataset": {
+    "currency": "USD",
+    "finding": {
+      "exposureCents": 65808,
+      "formula": "Σ (discount − round(gross sales × 20%)), where promo_count ≥ 2 and refund = 0",
+      "id": "discount-stacking",
+      "kind": "discount",
+      "rowIds": [
+        260,
+        261,
+        278,
+        279,
+        296,
+        297,
+        314,
+        315,
+        332,
+        333,
+        350,
+        351,
+        368,
+        369,
+        386,
+        387,
+        404,
+        405,
+        422,
+        423,
+        440,
+        441,
+        458,
+        459,
+        476,
+        477,
+        494,
+        495
+      ]
+    },
+    "fingerprint": {
+      "algorithm": "sha256",
+      "hexCharacters": 16,
+      "scope": "original-csv-prefix",
+      "value": "69ea900eb51f81da"
+    },
+    "sellerAssumptions": {
+      "discountCeilingPercent": 20,
+      "shippingSubsidyCents": 300
+    },
+    "synthetic": true
+  },
+  "evaluation": {
+    "action": "review-combination-settings",
+    "notice": "Offline fixture: authored summaries; no provider call or current retrieval. Synthetic counterfactual scenarios, not tests executed against a real store. Source URL screening and narrow code rule matching do not prove semantic fidelity, eligibility, cause, effective date, or recovery.",
+    "rejectedCandidates": 0,
+    "rulesetVersion": "policy-to-test/v1",
+    "scenarios": [
+      {
+        "assumption": "Assume an automatic or code discount.",
+        "evidence": [],
+        "holdReason": "The packet does not provide a source-screened, applicable operative clause for this scenario. Hold the proposed action.",
+        "missingEvidence": [
+          "An operative native combination clause",
+          "Store eligibility, active configuration and policy effective date"
+        ],
+        "nextCheck": "Retrieve the applicable native discount combination clause; confirm store eligibility and the active code or automatic discount configuration.",
+        "reason": "The packet does not provide a source-screened, applicable operative clause for this scenario. Hold the proposed action.",
+        "scenario": "normal",
+        "verdict": "hold"
+      },
+      {
+        "assumption": "Assume a confirmed manual override.",
+        "evidence": [
+          {
+            "quote": "Saved-source paraphrase: Shopify lists manual POS/draft-order discounts and Scripts API discounts as exceptions that apply regardless of combination settings.",
+            "ruleId": "manual-exception",
+            "sourceId": "S1",
+            "url": "https://help.shopify.com/en/manual/discounts/discount-combinations"
+          }
+        ],
+        "holdReason": null,
+        "missingEvidence": [
+          "Actual override record, permissions, transaction scope, promotion intent and policy effective date"
+        ],
+        "nextCheck": "Audit staff/manual POS and draft-order overrides, permissions and promotion intent; confirm transaction scope and the effective policy before a controlled test.",
+        "reason": "A matching manual exception rebuts using a combination-settings change as an established remedy in this hypothetical manual-discount scenario.",
+        "scenario": "manual",
+        "verdict": "contradicted"
+      },
+      {
+        "assumption": "The discount origin is still missing.",
+        "evidence": [],
+        "holdReason": "The discount origin is unknown in this hypothetical scenario. Neither a citation nor a model candidate establishes its mechanism.",
+        "missingEvidence": [
+          "Seller-confirmed discount origin and application mechanism",
+          "Applicable policy and store eligibility"
+        ],
+        "nextCheck": "Identify the discount origin on a flagged order, then obtain the matching policy; hold any settings or override remedy until the mechanism is known.",
+        "reason": "The discount origin is unknown in this hypothetical scenario. Neither a citation nor a model candidate establishes its mechanism.",
+        "scenario": "unknown",
+        "verdict": "hold"
+      }
+    ],
+    "status": "ready"
+  },
+  "evidence": {
+    "context": {
+      "carrier": "USPS",
+      "discountOrigin": "manual",
+      "platform": "Shopify",
+      "region": "US"
+    },
+    "kind": "discount",
+    "mode": "fixture",
+    "note": "Offline source fixtures with authored summaries and reference URLs. No Tavily call; these are not current search results.",
+    "proof": null,
+    "provenance": "authored-offline-fixture",
+    "query": "Shopify official documentation manual POS draft order discounts bypass combination settings exceptions",
+    "reportedCheckedAt": null,
+    "researchId": "authored-offline-audit-example",
+    "retrievedAt": null,
+    "sources": [
+      {
+        "id": "S1",
+        "publishedDate": null,
+        "savedAt": "2026-10-27T20:11:32Z",
+        "snippet": "Saved-source paraphrase: Shopify lists manual POS/draft-order discounts and Scripts API discounts as exceptions that apply regardless of combination settings. Review the originating override or script; a combination-settings change is not established as a fix.",
+        "sourceRegion": "global",
+        "title": "Combining discounts · Shopify Help Center",
+        "url": "https://help.shopify.com/en/manual/discounts/discount-combinations"
+      }
+    ],
+    "status": "ok"
+  },
+  "exportedAt": "2026-10-29T23:57:51.045Z",
+  "fingerprints": {
+    "auditSha256": "b788f8e0c58fa1981d6305fba798a67f8590b576be062dc704b46453905274f0",
+    "packetSha256": "60f8c444993babb61252cee5a6c50e3b4b38f52bec0976ebe20ca649bc7a990d"
+  },
+  "limitations": [
+    "Synthetic counterfactual scenarios; no real-store test, transaction execution or approved change.",
+    "Export is local and performs no new provider call or retrieval. ExportedAt is the export clock, not a retrieval date.",
+    "A fixture is an authored summary with no current retrieval; savedAt is a recorded source-review date, not retrieval or policy effective date.",
+    "A live-mode label, request metadata, URL match or content fingerprint does not authenticate a packet or certify semantic fidelity.",
+    "Received source records are retained for inspection; only scenario evidence arrays identify matched clauses. Source inclusion does not establish applicability.",
+    "Store eligibility, actual discount mechanism, promotion intent and policy effective date remain unverified. Published dates do not establish effective dates.",
+    "Exposure is an assumption-based review amount in integer USD cents, not realized savings, profit, guaranteed recovery or customer impact.",
+    "Dataset fingerprint is the original CSV SHA-256 prefix (16 hex characters), not a full hash. Raw CSV, order records, product labels and filenames are outside the export schema. Received policy-source text is preserved as text, not redacted.",
+    "SHA-256 fingerprints detect snapshot differences; they are not signatures or proof of origin. Packet hash covers evidence; audit hash covers schemaVersion, dataset, evidence, evaluation and limitations, excluding exportedAt and fingerprints."
+  ],
+  "schemaVersion": "marginguard.policy-test-audit.v1"
+}

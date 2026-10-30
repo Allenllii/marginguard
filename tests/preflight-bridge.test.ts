@@ -29,7 +29,7 @@ function harness(options: { budget?: LiveBudget; env?: Record<string, string | u
   const queue = options.responses ?? replies();
   let clock = Date.parse('2026-10-29T23:00:00Z');
   const budget: LiveBudget = options.budget ?? { durable: true, async reserve(service) { reserved.push(service); return { allowed: true, reason: 'mock approved', retryAfterSeconds: 0 }; } };
-  const service = createService({ env: { ...env, ...options.env }, budget, now: () => clock, request: (async (url, init) => {
+  const service = createService({ reviewPreflightSource: value => value === content, env: { ...env, ...options.env }, budget, now: () => clock, request: (async (url, init) => {
     calls.push({ url: String(url), init });
     if (!options.budget) assert.equal(reserved.length, calls.length, 'reserve before each physical attempt');
     return options.transport ? options.transport(url, init) : queue.shift()!;
