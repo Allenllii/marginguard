@@ -62,11 +62,12 @@ model interprets a narrow normalized grammar; it cannot invent money or change
 the store. The JSON audit records preparation provenance separately from the
 integer calculation.
 
-The new bridge's one controlled actual probe made two successful Tavily HTTP
-requests, then **HOLD** after extraction. No NVIDIA request or proposal resulted.
-The browser success path is currently verified with mocks, not a successful
-actual bridge run. Existing live analyst evidence above belongs to its separate
-recorded workflow. See [bridge review and actual observations](docs/SPONSOR-BRIDGE-REVIEW.md).
+The earlier actual bridge probe held after extraction and remains documented.
+The subsequent controlled synthetic local browser loop completed Tavily
+Search/Extract, NVIDIA model discovery/completion, explicit operator confirmation
+and integer-engine parity. The public Site stays offline; real checkout is
+unverified. Existing live analyst evidence above belongs to its separate recorded
+workflow. See [bridge review and observations](docs/SPONSOR-BRIDGE-REVIEW.md).
 
 ## Synthetic data and calculation contract
 

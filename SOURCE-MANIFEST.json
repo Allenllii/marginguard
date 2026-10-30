@@ -1,6 +1,6 @@
 {
   "baselineMain": "7466e4fa8d63d3226210029cdd6c5abf5b933cf3",
-  "localCodeCommit": "63fd3c1e15d3e003b77602724478a202065d69c8",
+  "localCodeCommit": "e5ecc2c0dd768ef1721f0881986dd8b9c1055f9c",
   "sourceBranch": "codex/reviewed-bridge-comparison",
   "scope": "Reviewed policy diagnostics and conservative reference snapshot; nullable empty tool metadata; Policy-to-Test local audit export and same-basket comparison. Synthetic source and development verification only. No new request IDs/raw observations, credentials, private gold, raw logs, CI or deployment. Final benchmark not run.",
   "files": [
@@ -26,8 +26,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 14256,
-      "sha256": "9c5ffad3bf5ee10669420737f64457a3f39e0913679059c582f4524d442e4d18"
+      "bytes": 14314,
+      "sha256": "949361962c8685a7592d3426f97ed7e1ad7aa56c11986a38e0671d4d2d346acc"
     },
     {
       "path": "data/decision-cases.json",
