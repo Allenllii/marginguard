@@ -83,13 +83,19 @@ function termScorer(claim: string, query: string) {
   const terms = new Set((`${claim} ${query}`.toLowerCase().match(/[a-z]{4,}/gu) ?? []).filter(w => !STOP.has(w)).map(w => w.slice(0, 5)));
   return (text: string) => { const own = new Set((text.toLowerCase().match(/[a-z]{4,}/gu) ?? []).map(w => w.slice(0, 5))); return [...terms].filter(t => own.has(t)).length; };
 }
+// Help pages repeat a sentence with small edits ("5" vs "five"); keep the first.
+function nearDuplicate(a: string, b: string) {
+  const x = new Set(a.toLowerCase().match(/[a-z0-9]+/gu) ?? []), y = new Set(b.toLowerCase().match(/[a-z0-9]+/gu) ?? []);
+  const shared = [...x].filter(w => y.has(w)).length;
+  return shared / (x.size + y.size - shared || 1) >= 0.75;
+}
 /** Up to four highest-scoring sentences (page order, at most 1200 characters). */
 function pickPassage(sentences: string[], score: (t: string) => number): string {
   const scored = sentences.map((text, i) => ({ text, i, s: score(text) })).filter(u => u.s > 0 && !unsafeText.test(u.text)).sort((a, b) => b.s - a.s || a.i - b.i);
   const picked: typeof scored = [];
   for (const u of scored) {
     if (picked.length === 4) break;
-    if (picked.some(p => p.text === u.text) || [...picked, u].reduce((n, p) => n + p.text.length + 1, 0) > 1201) continue;
+    if (picked.some(p => nearDuplicate(p.text, u.text)) || [...picked, u].reduce((n, p) => n + p.text.length + 1, 0) > 1201) continue;
     picked.push(u);
   }
   return picked.sort((a, b) => a.i - b.i).map(u => u.text).join(' ');
