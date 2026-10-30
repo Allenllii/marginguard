@@ -64,7 +64,7 @@ for (const width of [1280, 393]) test(`contrast: ${width}px auxiliary text acros
   await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
   await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
   for (const summary of await page.locator('.policy-source summary').all()) await summary.click();
-  await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
+  await page.getByRole('button', { name: 'Show recorded Nemotron draft', exact: true }).click();
   await expect(page.locator('.remediation')).toBeVisible(); await measure('policy-expanded');
   await page.locator('.decision-card').screenshot({ path: `evidence/contrast-decision-${width}.png`, animations: 'disabled' });
   await nav('Scenario lab'); await measure('scenarios');
@@ -115,6 +115,52 @@ test('mobile menu: closed navigation is absent from keyboard focus and Escape re
   await page.keyboard.press('Tab');
   expect(await page.evaluate(() => document.querySelector('.sidebar')!.contains(document.activeElement))).toBe(false);
   await page.setViewportSize({ width: 1280, height: 800 }); await expect(nav).toBeVisible();
+});
+
+test('mobile menu: 375px drawer has a scrim and a visible close button, both return focus; small links are ≥24px', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
+  const nav = page.locator('.sidebar');
+  const toggle = page.getByRole('button', { name: 'Toggle navigation', exact: true });
+  const scrim = page.getByTestId('nav-scrim');
+  await expect(scrim).toHaveCount(0);
+  await toggle.click(); await expect(nav).toBeVisible(); await expect(scrim).toBeVisible();
+  const close = nav.getByRole('button', { name: 'Close navigation', exact: true });
+  await expect(close).toBeVisible();
+  const box = (await close.boundingBox())!; expect(box.width).toBeGreaterThanOrEqual(44); expect(box.height).toBeGreaterThanOrEqual(44);
+  await close.click(); await expect(nav).toBeHidden(); await expect(scrim).toHaveCount(0); await expect(toggle).toBeFocused();
+  await toggle.click(); await expect(scrim).toBeVisible();
+  await scrim.click({ position: { x: 340, y: 400 } }); await expect(nav).toBeHidden(); await expect(toggle).toBeFocused();
+  await toggle.click(); await page.keyboard.press('Escape'); await expect(nav).toBeHidden(); await expect(toggle).toBeFocused();
+  for (const target of [page.getByRole('button', { name: 'View all findings', exact: true }), page.getByRole('button', { name: 'Model a scenario', exact: true }), page.getByRole('link', { name: 'Source & version', exact: true })]) {
+    expect((await target.boundingBox())!.height).toBeGreaterThanOrEqual(24);
+  }
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(nav.getByRole('button', { name: 'Close navigation', exact: true })).toBeHidden();
+});
+
+test('case page: Policy-to-Test starts collapsed with a one-line verdict summary and the draft sits next to the decision', async ({ page }) => {
+  await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
+  await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
+  const lab = page.getByRole('region', { name: 'Policy-to-Test', exact: true });
+  const summary = lab.locator('summary.ptl-oneline');
+  await expect(summary).toHaveText('Same evidence, three origins: code → review · manual → fix challenged · unknown → on hold');
+  await expect(lab.getByRole('article')).toHaveCount(0);
+  await expect(lab.getByLabel('Choose the repair to challenge', { exact: true })).toBeHidden();
+  const draft = page.getByRole('button', { name: 'Show recorded Nemotron draft', exact: true });
+  await expect(draft).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Draft offline checks', exact: true })).toHaveCount(0);
+  expect(await draft.evaluate(node => Boolean(node.compareDocumentPosition(document.querySelector('.policy-source')!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+  expect(await draft.evaluate(node => Boolean(node.compareDocumentPosition(document.querySelector('.policy-test-lab')!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+  await summary.click();
+  await expect(lab.getByRole('article')).toHaveCount(3);
+  // The disclosure stays open when a context change reloads the saved packet.
+  await page.getByLabel('Discount origin').selectOption('unknown');
+  await expect(summary).toHaveText('Same evidence, three origins: code → review · manual → on hold · unknown → on hold');
+  await expect(lab.getByRole('article')).toHaveCount(3);
+  // Authored (not recorded) saved packets keep the offline-checks label.
+  await expect(page.getByRole('button', { name: 'Draft offline checks', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Show recorded Nemotron draft', exact: true })).toHaveCount(0);
 });
 
 for (const width of [1280, 390]) test(`case focus: ${width}px explicit entry reveals and focuses the asynchronous decision`, async ({ page }) => {
@@ -204,7 +250,7 @@ test('journey: policy evidence survives scenario navigation but a different data
   await page.getByRole('button', { name: /^Findings/ }).click();
   await page.getByLabel('Discount origin').selectOption('manual');
   await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
-  await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
+  await page.getByRole('button', { name: 'Show recorded Nemotron draft', exact: true }).click();
   await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
   await page.getByRole('button', { name: 'Scenario lab', exact: true }).click();
   await page.getByRole('button', { name: 'Set all to zero', exact: true }).click();
@@ -238,7 +284,7 @@ test('clarity: the evidence decision leads the draft and keeps assumptions, cita
   await expect(decision.getByRole('link', { name: '[S1]' })).toHaveAttribute('href', 'https://help.shopify.com/en/manual/discounts/discount-combinations');
   await expect(decision.getByRole('link', { name: '[S2]' })).toHaveAttribute('href', 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts');
   expect(await decision.evaluate(node => Boolean(node.compareDocumentPosition(document.querySelector('.policy-source')!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
-  await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
+  await page.getByRole('button', { name: 'Show recorded Nemotron draft', exact: true }).click();
   // The manual case replays the Nemotron draft recorded with this exact Tavily packet, labelled as model text.
   await expect(page.locator('.remediation').getByText('Recorded Nemotron draft', { exact: true })).toBeVisible();
   await expect(page.locator('.remediation')).toContainText('replayed offline');
@@ -418,7 +464,7 @@ test('policy exception redirects a manual-discount check and missing/wrong-regio
   await expect(page.locator('.assumption-bar>small')).toContainText('Applied: 30%');
   await page.getByRole('button', { name: /^Findings/ }).click(); await page.getByLabel('Discount origin').selectOption('manual'); await page.getByRole('button', { name: 'Show saved policy result' }).click();
   await expect(page.locator('.decision-status')).toHaveText('Policy says the suggested fix won’t work'); await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
-  await page.getByRole('button', { name: 'Draft offline checks' }).click(); await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
+  await page.getByRole('button', { name: 'Show recorded Nemotron draft', exact: true }).click(); await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
   await page.locator('.policy-card').screenshot({ path: 'evidence/policy-manual-exception.png' });
   await page.getByLabel('Discount origin').selectOption('unknown'); await page.getByRole('button', { name: 'Show saved policy result' }).click(); await expect(page.locator('.decision-status')).toHaveText('On hold — needs more evidence');
   await page.getByLabel('Operating region').selectOption('UK'); await page.getByRole('button', { name: 'Show saved policy result' }).click(); await expect(page.getByTestId('decision-next-check')).toContainText('Confirm the operating region');

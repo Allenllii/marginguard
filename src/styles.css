@@ -157,3 +157,12 @@ td small,
 /* WCAG 2.2 SC 2.5.8: small text controls keep a 24px tap target at phone widths. */
 .dataset-strip button,.policy-source a,.policy-export,.decision-origin{min-height:24px}
 .decision-origin{margin:-4px 0 12px}
+/* Mobile navigation drawer: scrim and a visible close button (phones only). */
+.nav-close,.nav-scrim{display:none}
+@media(max-width:680px){.nav-scrim{display:block;position:fixed;inset:0;z-index:24;background:#142b2559}.nav-close{display:grid;position:absolute;top:10px;right:10px;width:44px;height:44px;color:#244d5f}.sidebar{padding-top:60px}}
+/* SC 2.5.8: small text links keep a 24px tap target. */
+.findings-card .section-title>.text-button,.bottom-nudge>.text-button,.page-footer>a{min-height:24px;display:inline-flex;align-items:center}
+/* Policy-to-Test is collapsed by default; the summary line carries the three verdicts. */
+.policy-test-lab .ptl-oneline{cursor:pointer;min-height:44px;padding:10px 0;color:#1c5169;font-size:13px;font-weight:600;line-height:1.6}
+.policy-test-lab .ptl-oneline:focus-visible{outline:3px solid #83aa50;outline-offset:4px}
+.policy-test-lab .ptl-disclosure[open]>.ptl-oneline{margin-bottom:12px}
