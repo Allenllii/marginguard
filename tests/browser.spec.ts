@@ -235,13 +235,14 @@ test('clarity: the evidence decision leads the draft and keeps assumptions, cita
   await expect(decision.getByRole('heading', { name: 'Rule-based next check', exact: true })).toBeVisible();
   await expect(decision).toContainText('28 flagged rows; $658.08 modeled exposure.');
   await expect(decision).toContainText('20% discount ceiling');
-  await expect(decision.locator('.source-citation')).toHaveAttribute('href', 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts');
+  await expect(decision.getByRole('link', { name: '[S1]' })).toHaveAttribute('href', 'https://help.shopify.com/en/manual/discounts/discount-combinations');
+  await expect(decision.getByRole('link', { name: '[S2]' })).toHaveAttribute('href', 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts');
   expect(await decision.evaluate(node => Boolean(node.compareDocumentPosition(document.querySelector('.policy-source')!) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
   await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
-  // The manual case replays a recorded Nemotron response, so it is labelled as model text, not rules.
-  await expect(page.locator('.remediation').getByText('Recorded Nemotron draft', { exact: true })).toBeVisible();
-  await expect(page.locator('.remediation')).toContainText('Model hypothesis — unverified');
-  await expect(page.locator('.remediation')).not.toContainText('Rule-based rationale');
+  // Offline, the model never drafts from replayed sources, so the draft is labelled as rule-based checks.
+  await expect(page.locator('.remediation').getByText('Offline analyst checks', { exact: true })).toBeVisible();
+  await expect(page.locator('.remediation')).toContainText('Rule-based rationale');
+  await expect(page.locator('.remediation')).not.toContainText('Recorded Nemotron draft');
   await expect(page.locator('.remediation')).toContainText('A draft cannot approve a remedy or estimate recovery.');
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export policy evidence', exact: true }).click();
@@ -364,7 +365,7 @@ test('cancel, repeat evidence visits and navigation preserve the current dataset
   await expect(page.getByText('Live Tavily search runs locally with your keys.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Show saved policy result' }).click();
   await page.getByLabel('Policy finding').selectOption('shipping-overrun');
-  await expect(page.getByRole('link', { name: 'Open official source' })).toHaveAttribute('href', /usps\.com/);
+  await expect(page.getByRole('link', { name: 'Open official source' }).first()).toHaveAttribute('href', /usps\.com/);
   await page.getByLabel('Shipping carrier').selectOption('UPS');
   await page.getByRole('button', { name: 'Show saved policy result' }).click();
   await expect(page.getByRole('link', { name: 'Open official source' })).toHaveAttribute('href', /www.ups.com/);
@@ -544,7 +545,7 @@ test('live mode: a context change clears a live result and waits for an explicit
 test('provenance: Tavily Search → Extract steps and a changed-page notice render only when the packet carries them', async ({ page, baseURL }) => {
   const saved = await (await page.request.post('/api/research', { headers: { Origin: baseURL! }, data: { kind: 'discount', live: false, context: { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'manual' } } })).json() as ResearchPacket;
   let extra: object = {};
-  await page.route('**/api/research', route => route.fulfill({ json: { ...saved, ...extra } }));
+  await page.route('**/api/research', route => route.fulfill({ json: { ...saved, retrieval: undefined, policyChanged: undefined, ...extra } }));
   await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
   await page.getByRole('button', { name: /^Findings/ }).click();
   await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
