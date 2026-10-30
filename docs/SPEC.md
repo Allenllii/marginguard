@@ -1,5 +1,49 @@
 # MarginGuard development specification
 
+## 0. Submission spec v2 (2026-10-30, supersedes earlier sections where they conflict)
+
+**Deadline:** 2026-10-30 10:00 PT (17:00 UTC), per the [official rules](https://nebiusglobalaihackathon.devpost.com/rules). Entry: Best Apps and Agents track + Best Use of Tavily bonus prize (one track award and one bonus award are allowed per project).
+
+**User.** Owner or ops lead of a small US Shopify/WooCommerce store who exports order CSVs and has no analyst.
+
+**Problem.** Margin tools and AI assistants hand out generic fixes ("tighten discount combination settings"). Platform policy often makes the fix a no-op: Shopify manual POS and draft-order discounts apply regardless of combination settings. Acting on the wrong fix wastes the seller's time while the leak continues.
+
+**Differentiation.** Retrieval is used as a test the proposed fix must pass, not as decoration. Live official policy (Tavily) can contradict a fix and redirect the next check; missing context holds the recommendation. Money and eligibility stay in deterministic code; the model drafts and interprets, and code validates.
+
+**Sponsor technology, substantive roles.**
+- Tavily Search: domain-restricted official policy retrieval (advanced depth with relevant chunks), screened for domain, injection text, retractions, region, duplicates. The retrieved passage decides the verdict via `decidePolicy`.
+- Tavily Extract: full reviewed policy page in Promo Preflight before rules are proposed.
+- Nebius Token Factory + NVIDIA Nemotron: `Nemotron-3_5-Lightning` (fast) drafts the cited investigation check; a reasoning model (`nemotron-3-super-120b-a12b` by default) interprets free-form campaign text into structured promotion rules. Model IDs are verified with `GET /v1/models` before use.
+
+**Primary flow.** Load synthetic store or CSV → findings with formula and rows → choose finding + seller context → live policy (or recorded replay) → verdict and next check, same rows and dollars → Nemotron cited draft → Promo Preflight: describe a campaign, Nemotron proposes rules, seller confirms, integer simulation shows worst cart → export audit.
+
+**Functional requirements / acceptance.**
+| ID | Requirement | Acceptance |
+| --- | --- | --- |
+| A1 | Exact integer-cent findings with rows and formula | Golden values in `data/ground-truth.json` reproduce (`npm run evaluate`) |
+| A2 | One decision authority | Main decision card and Policy-to-Test agree on the same sources (regression test with the recorded live packet) |
+| A3 | Live policy changes action | Recorded live Shopify POS passage → manual scenario "fix challenged", unknown origin → hold |
+| A4 | Honest mode display | Header badge reflects `/api/health`; hosted demo labels recorded responses with request IDs |
+| A5 | Nemotron does real work | Free-form campaign text → validated rules; disagreement with grammar → hold; model never emits money results |
+| A6 | Failure handling | Provider errors, rate limits, timeouts and budget denials are visible; no silent retry or fallback relabelled as live |
+| A7 | Accessibility | Keyboard, visible focus, 320-375px without horizontal scroll, reduced motion |
+
+**Non-functional.** Per-provider caps (2/min, 20/day, 100 lifetime by default; durable store required for any hosted live mode); bounded request/response sizes and timeouts; same-origin JSON APIs; CSV ≤ 2 MiB / 10,000 rows.
+
+**Data and privacy.** Raw rows, order IDs, product names and file names never enter search queries or prompts. CSVs are processed in memory and not stored. All demo data is synthetic (seed 73021). Keys live only in server environment variables; never in client code, repo, logs or video.
+
+**Modules and interfaces.** `server/analysis.ts` (CSV → findings, pure) · `shared/policy-decision.ts` (sources + context → verdict, pure, single authority) · `shared/policy-to-test.ts` (scenarios over `decidePolicy`) · `server/tavily.ts` (search plan, transport, screening) · `server/nebius.ts` (fast drafts) · `server/preflight-intent.ts` (campaign text → rules via reasoning model, validated) · `shared/preflight.ts` (integer simulation) · `server/service.ts` (HTTP-agnostic orchestration, budgets) · `server/app.ts` / `worker/*` (adapters) · `src/*` (UI only; no money or eligibility logic).
+
+**Hosting.** Public demo is an offline build (no keys, no provider calls) that replays a recorded live run; live mode runs locally with the user's keys. A hosted live mode needs a durable budget store and provider caps and is out of scope for this deadline.
+
+**Risks.** Single real policy exception carries the story; seller must supply discount origin; synthetic data only, no merchant validation; recorded replay ages as policies change; fair benchmark with human blind review is not feasible before the deadline (any run is labelled with its limits).
+
+**Test and release plan.** `npm run check` (lint, types, builds, unit/API, framework tests, synthetic evaluations) + Playwright on Node and offline Worker builds; one bounded live run recorded with request IDs and usage; independent review against the four official criteria, fixes, re-review; freeze source commit, demo build and video together; submit by 09:00 PT with the user performing YouTube upload and final Devpost submit.
+
+---
+
+*Sections 1-12 below are the original v1 specification (2026-10-29), kept for history.*
+
 Version: 1.0, 2026-10-29. Status: implementation contract and release plan, not a claim of completed integration or an award prediction.
 
 ## 1. Outcome and audience
