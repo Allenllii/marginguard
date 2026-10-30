@@ -155,8 +155,9 @@ test('case page: Policy-to-Test starts collapsed with a one-line verdict summary
   await summary.click();
   await expect(lab.getByRole('article')).toHaveCount(3);
   // The disclosure stays open when a context change reloads the saved packet.
+  // Unknown reuses the same recorded packet, so only the origin changes the decision.
   await page.getByLabel('Discount origin').selectOption('unknown');
-  await expect(summary).toHaveText('Same evidence, three origins: code → review · manual → on hold · unknown → on hold');
+  await expect(summary).toHaveText('Same evidence, three origins: code → review · manual → fix challenged · unknown → on hold');
   await expect(lab.getByRole('article')).toHaveCount(3);
   // Authored (not recorded) saved packets keep the offline-checks label.
   await expect(page.getByRole('button', { name: 'Draft offline checks', exact: true })).toBeVisible();
@@ -221,7 +222,7 @@ test('judge entry: one click shows the manual-discount action change, honest mod
   await expect(page.getByLabel('Discount origin')).toHaveValue('unknown');
 });
 
-test('review: ordinary apps hold, confirmed Scripts API uses its own exception, and privacy says where CSVs are processed', async ({ page }) => {
+test('review: ordinary apps hold, retired Shopify Scripts hold, and privacy says where CSVs are processed', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /^Findings/ }).click();
   await expect(page.locator('.analyst-card')).toContainText('raw rows and product names never reach a prompt');
@@ -234,9 +235,11 @@ test('review: ordinary apps hold, confirmed Scripts API uses its own exception, 
   await expect(page.getByText('Live Nemotron drafts run locally with your keys.', { exact: true })).toBeVisible();
   await page.getByLabel('Discount origin').selectOption('scripts-api');
   await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
-  await expect(decision).toContainText('Audit the originating Scripts API');
-  await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
-  await expect(page.locator('.remediation')).toContainText('Scripts API exception');
+  await expect(decision).toContainText('Shopify Scripts were retired on June 30, 2026');
+  await expect(decision).toContainText('On hold');
+  await page.getByRole('button', { name: /^(Show recorded Nemotron draft|Draft offline checks)$/ }).click();
+  await expect(page.locator('.remediation')).toContainText('Shopify Function or an app');
+  await expect(page.locator('.remediation')).not.toContainText('Recorded Nemotron draft');
   await page.getByRole('button', { name: 'Data & method', exact: true }).click();
   await expect(page.locator('.method-card')).toContainText('on its server when you run it yourself, inside your browser on the hosted demo');
   await expect(page.locator('.method-card')).toContainText('never written to a database or analytics');

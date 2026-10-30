@@ -123,7 +123,7 @@ What this means for the product: MarginGuard does not rely on the model to decid
 
 ## Tests
 
-`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 338 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 88 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
+`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 343 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 90 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
 
 ## Limits
 
