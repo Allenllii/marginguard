@@ -1,6 +1,7 @@
 {
   "description": "Live Tavily Search + Extract recordings made through server/tavily.ts research() (branch v3/deep) with an injected reserveExtract that always allowed, from a local operator script. Keys came from an ignored local env file; no key, header or full page body is stored here. Raw response bodies are identified by SHA-256 only.",
   "recordedAtUtc": "2026-10-30T03:46:21Z to 2026-10-30T03:48:06Z",
+  "codeCommit": "d19d273 (branch v3/deep): research() with the fragment fix that preceded calls 7-8, plus the later fragment de-duplication in safeSources; replay constants in server/tavily.ts RECORDED_RETRIEVALS.",
   "budget": {
     "capCredits": 12,
     "searches": 4,
