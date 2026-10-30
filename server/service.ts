@@ -10,6 +10,7 @@ import { fixtureReference, parseFixtureReference, ResearchIdSchema } from './fix
 import { preparePreflightBridge } from './preflight-bridge.js';
 import { DEFAULT_REASONING_MODEL } from './preflight-intent.js';
 import { PreflightValidationError, runPreflight, validatePreflightInput, type PreflightRule } from '../shared/preflight.js';
+import { CHECK_FIX_EXAMPLES, CheckFixRequestSchema, checkFixLive, checkFixOffline, screenCheckFix } from './check-fix.js';
 
 export const AssumptionsSchema = z.object({ discountCeilingPercent: z.number().int().min(0).max(60), shippingSubsidyCents: z.number().int().min(0).max(2000) }).strict();
 const Payload = z.object({ csv: z.string().min(1).max(MAX_BYTES), live: z.boolean().optional(), assumptions: AssumptionsSchema.optional() }).strict();
@@ -88,6 +89,24 @@ export function createService(options: { env?: Record<string, string | undefined
         const simulation = runPreflight(input);
         proposals.delete(confirmation.proposalId);
         return { status: 200, body: { mode: 'offline', status: simulation.status, simulation, sellerConfirmed: true, providerRequests: 0, checkoutStatus: 'HOLD', checkoutVerified: false, note: 'Seller confirmation authorizes this bounded simulation only. Policy references do not verify store eligibility or checkout execution.' } };
+      }
+      // --- Check any fix (server/check-fix.ts) ---
+      if (method === 'GET' && path === '/api/check-fix/examples') return { status: 200, body: CHECK_FIX_EXAMPLES };
+      if (method === 'POST' && path === '/api/check-fix') {
+        const { fix, context, live } = CheckFixRequestSchema.parse(body);
+        const screened = screenCheckFix(fix, context);
+        if (screened) return { status: 200, body: screened };
+        const upstream = live && tavily.enabled && !!tavily.key && nvidia.enabled && !!nvidia.key;
+        if (!upstream) return { status: 200, body: checkFixOffline(fix, context) };
+        if (modelInFlight || searchInFlight || now() < Math.max(nextModel, nextSearch)) return { status: 429, body: { error: 'Wait before another live provider request.' }, headers: { 'Retry-After': String(Math.max(1, Math.ceil((Math.max(nextModel, nextSearch) - now()) / 1000))) } };
+        modelInFlight = true; searchInFlight = true;
+        let denial: Reply | null = null;
+        try {
+          const result = await checkFixLive(fix, context, { tavilyKey: tavily.key!, nebius: { key: nvidia.key!, planModel: nvidia.model, judgeModel: nvidia.reasoningModel }, request,
+            reserve: async services => { denial = await reserve(services); if (denial) return false; nextSearch = Math.max(nextSearch, now() + 10000); nextModel = Math.max(nextModel, now() + 10000); return true; },
+            onRateLimit: (service, seconds) => { if (service === 'tavily') nextSearch = Math.max(nextSearch, now() + seconds * 1000); else nextModel = Math.max(nextModel, now() + seconds * 1000); } });
+          return denial ?? { status: 200, body: result };
+        } finally { modelInFlight = false; searchInFlight = false; }
       }
       if (method === 'GET' && path === '/api/demo') { const csv = createDemoCsv(); return { status: 200, body: { csv, analysis: analyze(csv, 'Northstar Supply · synthetic demo', true) } }; }
       if (method === 'POST' && path === '/api/analyze') { const { csv, assumptions } = Payload.parse(body); const synthetic = csv === createDemoCsv(); return { status: 200, body: analyze(csv, synthetic ? 'Northstar Supply · synthetic demo' : 'Imported CSV', synthetic, assumptions) }; }
