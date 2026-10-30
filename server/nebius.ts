@@ -120,7 +120,7 @@ export function recordedRemediation(issue: Issue, packet: ResearchPacket): Remed
   const recorded = RECORDED_RETRIEVALS['shopify-discount-manual'].sources;
   if (issue.kind !== 'discount' || packet.mode !== 'fixture' || packet.proof || JSON.stringify(packet.sources) !== JSON.stringify(recorded)) return null;
   try {
-    return { ...validateRemediation(RECORDED_MANUAL_REMEDIATION.output, packet), mode: 'fixture', model: RECORDED_MANUAL_REMEDIATION.model, fallbackReason: 'Recorded Nemotron-3.5-Lightning draft (request 0e8fed4b…, 2026-10-30), replayed offline. No model runs on this hosted demo.' };
+    return { ...validateRemediation(RECORDED_MANUAL_REMEDIATION.output, packet), mode: 'fixture', model: RECORDED_MANUAL_REMEDIATION.model, fallbackReason: 'Recorded Nemotron-3.5-Lightning draft (request 0e8fed4b…, 2026-10-30), replayed; this replay makes no new model call.' };
   } catch { return null; }
 }
 // Token Factory enforces this shape (json_schema), so citations can only be permitted IDs.

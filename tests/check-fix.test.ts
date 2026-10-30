@@ -188,7 +188,7 @@ test('service: live run, then cooldown, one in flight; hosted without durable bu
 
 test('offline: unknown text holds; examples list matches the recorded runs', async () => {
   const r = checkFixOffline('Raise free shipping threshold for all customers', ctx);
-  assert.equal(r.status, 'hold'); assert.equal(r.mode, 'offline'); assert.match(r.holdReason!, /Live checking needs the live demo or local keys/u); assert.equal(r.proof, null);
+  assert.equal(r.status, 'hold'); assert.equal(r.mode, 'offline'); assert.match(r.holdReason!, /Recorded checks exist only for the example fixes/u); assert.equal(r.proof, null);
   const service = createService({ request: (() => { throw new Error('no calls offline'); }) as typeof fetch });
   const examples = await service.dispatch('GET', '/api/check-fix/examples');
   assert.equal(examples.status, 200); assert.deepEqual(examples.body, CHECK_FIX_EXAMPLES);
@@ -238,4 +238,10 @@ test('code decides the topic from the fix wording, and the planned claim must st
   assert.equal(fixTopic('Raise prices on our slowest-selling products'), null);
   assert.equal(claimFollowsFix('Shopify discount codes can require a minimum purchase amount.', 'Add a minimum purchase requirement to our free shipping code'), true);
   assert.equal(claimFollowsFix('USPS Ground Advantage is available for packages up to seventy pounds.', 'Add a minimum purchase requirement to our free shipping code'), false);
+});
+
+test('passage ranking keeps customer and order words (a one-use-per-customer fix finds its setting)', async () => {
+  const { termScorer } = await import('../server/check-fix.js');
+  const score = termScorer('Limit each discount code to one use per customer', 'Shopify discount codes can be limited to one use per customer.', 'Shopify limit discount code one use per customer');
+  assert.ok(score('Select Limit to one use per customer to stop repeat use of the code by the same customer.') > score('Setting a limit of 200 total uses applies to the whole code.'));
 });

@@ -26,7 +26,7 @@ test('two scoped generic search plans never require private CSV data', () => {
 test('offline fixtures make no request and never claim a retrieval timestamp', async () => {
   const r = await research('discount', { ...context, platform: 'WooCommerce' }, false, config, never);
   assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined);
-  assert.ok(r.note.includes('No search runs')); assert.ok(r.sources[0].savedAt); assert.equal(r.sources.length, 1);
+  assert.ok(r.note.includes('makes no search')); assert.ok(r.sources[0].savedAt); assert.equal(r.sources.length, 1);
 });
 test('live missing-key state has no invented sources', async () => {
   const r = await research('shipping', context, true, {}, never);
@@ -224,7 +224,7 @@ test('hosted replays are byte-identical to the recorded live Search + Extract ou
     for (const s of r.sources) assert.ok((recorded.liveSources ?? recorded.sources).some((l: unknown) => JSON.stringify(l) === JSON.stringify(s)), name);
     assert.equal(r.sources.length + (recorded.droppedFromReplay?.length ?? 0), (recorded.liveSources ?? recorded.sources).length);
     assert.equal(r.query, recorded.query); assert.equal(r.note, recorded.replayNote);
-    assert.match(r.note, /^Recorded live Tavily Search \+ Extract \(requests [0-9a-f]{8}… and [0-9a-f]{8}…, 2026-10-30\), replayed offline\./);
+    assert.match(r.note, /^Recorded live Tavily Search \+ Extract \(requests [0-9a-f]{8}… and [0-9a-f]{8}…, 2026-10-30\), replayed; this replay makes no new search./);
     assert.deepEqual(r.retrieval?.steps.map(s => s.op), ['search', ...recorded.steps.slice(1).map(() => 'extract')]);
     const decision = decidePolicy(kind, r);
     // The ledger records the decision at recording time. Since then the shipping rule cites only

@@ -98,11 +98,13 @@ export function decideStatus(verdict: 'supports' | 'contradicts' | 'insufficient
 
 // --- Retrieval ---------------------------------------------------------------------------
 const STOP = new Set('that this with from your their they them will would could should have does into than then also when what which only more most other about after before over under such these those there where while being been were each very just make made using used change changes switch store stores seller sellers customer customers order orders policy policies'.split(' '));
+// Ranking keeps customer/order words: "one use per customer" lives in exactly those sentences.
+const SCORE_STOP = new Set([...STOP].filter(w => !/^(?:customers?|orders?|policy|policies|store|stores)$/u.test(w)));
 // A fix is tested by its limits: exception and override wording decides contradictions.
 const LIMITING = /\b(?:regardless|even if|always appl|except|unless|cannot|can't|can not|isn't|aren't|doesn't|does not|don't|not eligible|no longer|only|instead|replac|retir|discontinu)/iu;
 /** ponytail: word-prefix overlap with the fix, claim and query, plus one for limiting wording; a ranking heuristic, not semantic search. */
-function termScorer(fix: string, claim: string, query: string) {
-  const terms = new Set((`${fix} ${claim} ${query}`.toLowerCase().match(/[a-z]{4,}/gu) ?? []).filter(w => !STOP.has(w)).map(w => w.slice(0, 5)));
+export function termScorer(fix: string, claim: string, query: string) {
+  const terms = new Set((`${fix} ${claim} ${query}`.toLowerCase().match(/[a-z]{4,}/gu) ?? []).filter(w => !SCORE_STOP.has(w)).map(w => w.slice(0, 5)));
   return (text: string) => {
     const own = new Set((text.toLowerCase().match(/[a-z]{4,}/gu) ?? []).map(w => w.slice(0, 5)));
     const overlap = [...terms].filter(t => own.has(t)).length;
@@ -115,13 +117,13 @@ function nearDuplicate(a: string, b: string) {
   const shared = [...x].filter(w => y.has(w)).length;
   return shared / (x.size + y.size - shared || 1) >= 0.75;
 }
-/** Up to four highest-scoring sentences (page order, at most 1200 characters). */
+/** Up to six highest-scoring sentences (page order, at most 1800 characters). */
 function pickPassage(sentences: string[], score: (t: string) => number): string {
   const scored = sentences.map((text, i) => ({ text, i, s: score(text) })).filter(u => u.s > 0 && !unsafeText.test(u.text)).sort((a, b) => b.s - a.s || a.i - b.i);
   const picked: typeof scored = [];
   for (const u of scored) {
-    if (picked.length === 4) break;
-    if (picked.some(p => nearDuplicate(p.text, u.text)) || [...picked, u].reduce((n, p) => n + p.text.length + 1, 0) > 1201) continue;
+    if (picked.length === 6) break;
+    if (picked.some(p => nearDuplicate(p.text, u.text)) || [...picked, u].reduce((n, p) => n + p.text.length + 1, 0) > 1801) continue;
     picked.push(u);
   }
   return picked.sort((a, b) => a.i - b.i).map(u => u.text).join(' ');
@@ -333,5 +335,5 @@ export function replayRecorded(recorded: (typeof RECORDED_CHECKS)[number]): Chec
 }
 export function checkFixOffline(fix: string, context: CheckFixContext): CheckFixResponse {
   const recorded = RECORDED_CHECKS.find(r => r.fix === fix && sameContext(r.context, context));
-  return recorded ? replayRecorded(recorded) : holdReply('OFFLINE_LIVE_REQUIRED', 'Live checking needs the live demo or local keys. Try one of the recorded examples.', 'offline', 'Offline: no provider was called.');
+  return recorded ? replayRecorded(recorded) : holdReply('OFFLINE_LIVE_REQUIRED', 'Recorded checks exist only for the example fixes. For your own wording use "Check with Tavily + Nemotron" (live demo) or run locally with your keys.', 'offline', 'Offline: no provider was called.');
 }

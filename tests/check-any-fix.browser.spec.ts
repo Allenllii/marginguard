@@ -93,14 +93,14 @@ test('live mode: no POST without consent; consent sends live:true and the pipeli
   expect(posts).toEqual([{ fix: 'Offer free shipping on every order to lift conversion', context, live: true }]);
 });
 
-test('429 shows the budget message and keeps the form', async ({ page }) => {
-  const posts = await setup(page, { live: true, respond: route => route.fulfill({ status: 429, json: { error: 'daily limit' } }) });
+test('429 shows the server reason with the retry time and keeps the form', async ({ page }) => {
+  const posts = await setup(page, { live: true, respond: route => route.fulfill({ status: 429, headers: { 'Retry-After': '12' }, json: { error: 'Wait before another live provider request.' } }) });
   await open(page);
   await page.getByRole('button', { name: /^Refuse all refunds/ }).click();
   await expect(page.getByLabel('Region', { exact: true })).toHaveValue('UK');
   await page.getByRole('checkbox', { name: /Send this fix text/ }).check();
   await page.getByRole('button', { name: 'Check with Tavily + Nemotron', exact: true }).click();
-  await expect(page.getByRole('alert')).toHaveText('Today’s live budget is used up. Try a recorded example.');
+  await expect(page.getByRole('alert')).toHaveText('Wait before another live provider request. Try again in 12 s. Recorded examples still work.');
   await expect(page.getByLabel('Proposed fix')).toHaveValue(examples[1].fix);
   await expect(page.getByLabel('Platform', { exact: true })).toHaveValue('WooCommerce');
   await expect(page.getByRole('button', { name: 'Show recorded check', exact: true })).toBeEnabled();

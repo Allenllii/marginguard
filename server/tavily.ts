@@ -151,7 +151,7 @@ type Recorded = { query: string; note: string; sources: PolicySource[]; steps: R
 export const RECORDED_RETRIEVALS: Record<'shopify-discount-manual' | 'shopify-discount-native' | 'usps-shipping', Recorded> = {
   "shopify-discount-manual": {
     "query": "Shopify how do manually applied POS and draft order discounts interact with discount combination settings",
-    "note": "Recorded live Tavily Search + Extract (requests 515542b8… and 9979922b…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+    "note": "Recorded live Tavily Search + Extract (requests 515542b8… and 9979922b…, 2026-10-30), replayed; this replay makes no new search.",
     "sources": [
       {
         "id": "S1",
@@ -201,7 +201,7 @@ export const RECORDED_RETRIEVALS: Record<'shopify-discount-manual' | 'shopify-di
   },
   "shopify-discount-native": {
     "query": "Shopify how do automatic discounts and discount codes interact with discount combination settings",
-    "note": "Recorded live Tavily Search + Extract (requests 76e93d77… and cf6f9793…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+    "note": "Recorded live Tavily Search + Extract (requests 76e93d77… and cf6f9793…, 2026-10-30), replayed; this replay makes no new search.",
     "sources": [
       {
         "id": "S1",
@@ -231,7 +231,7 @@ export const RECORDED_RETRIEVALS: Record<'shopify-discount-manual' | 'shopify-di
   },
   "usps-shipping": {
     "query": "USPS how are United States package shipping prices determined by weight, dimensions and service",
-    "note": "Recorded live Tavily Search + Extract (requests 8fadcea1… and ca2d8d4e…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+    "note": "Recorded live Tavily Search + Extract (requests 8fadcea1… and ca2d8d4e…, 2026-10-30), replayed; this replay makes no new search.",
     "sources": [
       {
         "id": "S1",
@@ -348,7 +348,7 @@ export async function research(kind: IssueKind, context: ResearchContext, live: 
   if (context.region !== 'US') return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'no-results', note: 'This demo covers US policy only, so the search was skipped and the recommendation is on hold.' };
   const recorded = live ? undefined : recordedRetrieval(kind, context);
   if (recorded) return { ...base, query: recorded.query, mode: 'fixture', checkedAt: null, sources: recorded.sources.map(s => ({ ...s })), status: 'ok', note: recorded.note, retrieval: { steps: recorded.steps.map(s => ({ ...s })) } };
-  if (!live) return { ...base, mode: 'fixture', checkedAt: null, sources: fixtureSources(kind, context), status: 'ok', note: 'Authored summaries of the official pages (not a recorded retrieval), shown offline. No search runs on this hosted demo.' };
+  if (!live) return { ...base, mode: 'fixture', checkedAt: null, sources: fixtureSources(kind, context), status: 'ok', note: 'Authored summaries of the official pages (not a recorded retrieval), this saved result makes no search.' };
   if (!config.enabled || !config.key) return { ...base, mode: 'fixture', checkedAt: null, sources: [], status: 'error', note: 'Live search runs in local mode with your own Tavily key; this demo replays a recorded result.' };
   const searched = await search(plan, kind, context, config, request, base);
   if ('status' in searched) return searched;

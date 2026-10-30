@@ -7,5 +7,5 @@ export default function Limits({ items, label = 'Limits' }: { items: ReactNode[]
 
 /** The single site-wide caveat, shown once at the top of each workspace. */
 export function DemoBanner() {
-  return <p className="demo-banner" role="note"><strong>Synthetic store data.</strong> No store connection. Without your own keys you see saved results; the manual-discount case replays recorded live Tavily Search + Extract runs and recorded Nemotron output from October 30.</p>;
+  return <p className="demo-banner" role="note"><strong>Synthetic store data.</strong> No store connection. Live Tavily and Nemotron calls run only when the header says Live and you click a live button; everything else is a labelled recorded run from October 30.</p>;
 }

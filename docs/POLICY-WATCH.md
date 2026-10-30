@@ -28,4 +28,4 @@ The first three come straight from `REVIEWED_OPERATIVE_SENTENCES` in `server/tav
 
 One Extract call, request `651f7607-3002-4c6b-bf5e-d12e4f52d6b4`, 194 ms, 0 credits reported (basic Extract bills 1 credit per 5 URLs; worst case 1). All three operative-sentence fingerprints were unchanged. The evidence file stores the request body, SHA-256 of the response and page bodies, and the exact `lastCheck`; no key, header or page text.
 
-Tests: `tests/policy-watch.test.ts`. There is no Playwright spec, because `playwright.config.ts` lists its specs explicitly and the panel is not mounted yet; the component is rendered server-side in the unit test instead.
+Tests: `tests/policy-watch.test.ts`. The panel is mounted in Data & method (`src/App.tsx`); its unit test renders the component server-side, and there is no dedicated Playwright spec.

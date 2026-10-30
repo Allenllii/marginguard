@@ -290,7 +290,7 @@ test('clarity: the evidence decision leads the draft and keeps assumptions, cita
   await page.getByRole('button', { name: 'Show recorded Nemotron draft', exact: true }).click();
   // The manual case replays the Nemotron draft recorded with this exact Tavily packet, labelled as model text.
   await expect(page.locator('.remediation').getByText('Recorded Nemotron draft', { exact: true })).toBeVisible();
-  await expect(page.locator('.remediation')).toContainText('replayed offline');
+  await expect(page.locator('.remediation')).toContainText('this replay makes no new model call');
   await expect(page.locator('.remediation')).not.toContainText('Rule-based rationale');
   // Code's decided check and Nemotron's own procedure sit side by side.
   const draft = page.locator('.remediation');
