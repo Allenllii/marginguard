@@ -15,7 +15,7 @@ Generic AI advice fails here because it never checks the platform's own rules ag
 ## What MarginGuard does
 
 1. **Finds the leak with exact math.** Import an order CSV. Deterministic code computes contribution in integer cents and flags discount stacking, shipping overruns and return spikes. Every finding shows its formula, its source rows and the seller assumptions behind it.
-2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard sends **Tavily Search** a neutral query (it names the topic, not the answer we expect) restricted to the platform's own domain, then **Tavily Extract** pulls the official page so the rule engine reads full sentences instead of a cut-off snippet. <!-- verify-after-merge --> The rule engine decides whether that text applies to the seller's context. If the official page has changed since we reviewed it, the result says so. <!-- verify-after-merge -->
+2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard sends **Tavily Search** a neutral query (it names the topic, not the answer we expect) restricted to the platform's own domain, then **Tavily Extract** pulls the official page so the rule engine reads full sentences instead of a cut-off snippet. The rule engine decides whether that text applies to the seller's context. If the official page has changed since we reviewed it, the result says so.
 3. **Changes the next action, not the numbers.** In the demo case Tavily returns Shopify's POS policy: *"Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions."* The settings fix is rebutted, and the next check becomes an audit of staff/manual overrides. Same 28 rows, same $658.08 modeled exposure, different action.
 4. **Holds when context is missing.** An unknown discount origin, a non-US region or an ordinary app mistaken for the Scripts API holds the recommendation whatever the sources say. A retracted or contrary passage also holds; no passage, or passages that conflict, return "not enough evidence".
 5. **Drafts the check with NVIDIA Nemotron on Nebius Token Factory.** Code supplies the policy statement behind each citation; Nemotron-3.5-Lightning writes the hypothesis, the validation step and the uncertainty. Code checks every citation against the returned sources and rejects numbers in the prose. A held or under-evidenced case never reaches the model.
@@ -41,8 +41,8 @@ flowchart LR
 
 | Technology | Where | What it does |
 | --- | --- | --- |
-| **Tavily Search** | `server/tavily.ts` | Fixed, neutral queries (never order data), `include_domains` restricted to help.shopify.com, woocommerce.com, usps.com or ups.com; results are screened and de-duplicated. The retrieved text decides the verdict.<!-- verify-after-merge --> |
-| **Tavily Extract** | `server/tavily.ts`, `server/preflight-policy.ts` | Pulls the full official page after Search so the decision reads complete sentences and can detect a changed page<!-- verify-after-merge -->; in Promo Preflight, pulls the reviewed policy page before any rule is proposed. |
+| **Tavily Search** | `server/tavily.ts` | Fixed, neutral queries (never order data), `include_domains` restricted to help.shopify.com, woocommerce.com, usps.com or ups.com; results are screened and de-duplicated. The retrieved text decides the verdict. |
+| **Tavily Extract** | `server/tavily.ts`, `server/preflight-policy.ts` | Pulls the full official page after Search so the decision reads complete sentences and can detect a changed page; in Promo Preflight, pulls the reviewed policy page before any rule is proposed. |
 | **Nebius Token Factory** | `server/nebius.ts`, `server/preflight-intent.ts` | OpenAI-compatible API; model IDs verified with `GET /v1/models` before each call. |
 | **NVIDIA Nemotron-3.5-Lightning** | cited policy draft, analyst brief | Fast structured drafts: the recorded policy draft took 1.0 s and 579 input / 100 output tokens. The last live brief failed the no-digits check and fell back; its prompt now sends no numbers, and that change has not been re-run live. |
 | **NVIDIA Nemotron 3 Super** | Promo Preflight | Reasoning model that turns free-form campaign text into rules; code checks each value against the text and a local parser before the seller confirms. |
@@ -61,7 +61,7 @@ Recorded from the local app on 2026-10-30 with synthetic data ([ledger](evidence
 
 ## Try it
 
-**Hosted demo (no account, no keys).** [Open the demo](https://allenllii.github.io/marginguard/), click **See the discount policy counterexample**, then switch the discount origin between *Manual / POS / draft* and *Unknown*: the next check changes as soon as you pick. The hosted build runs offline and makes no provider calls. It replays recorded Tavily Search + Extract responses for the manual, automatic/code and USPS cases<!-- verify-after-merge --> and the recorded Nemotron draft, and labels each as recorded.
+**Hosted demo (no account, no keys).** [Open the demo](https://allenllii.github.io/marginguard/), click **See the discount policy counterexample**, then switch the discount origin between *Manual / POS / draft* and *Unknown*: the next check changes as soon as you pick. The hosted build runs offline and makes no provider calls. It replays recorded Tavily Search + Extract responses for the manual, automatic/code and USPS cases and, in Promo Preflight, the recorded Nemotron 3 Super interpretation of a free-form campaign. Each is labelled as recorded.
 
 **Run locally (offline).**
 
@@ -113,11 +113,11 @@ We preregistered a small with- vs without-retrieval benchmark ([preregistration]
 
 **Result: the frozen Tavily package did not improve the model's decisions.** Nemotron answered "insufficient" in 93 of 96 outputs with or without sources; on the 8 applicable-policy cases the with-sources arm scored 0.875 vs 1.000 (p = 1.0, too few families to detect a difference). The main limit was retrieval coverage in the harness's fixed basic query: only 4 of 24 packages contained the page the gold relies on. All roles were AI agents; no human reviewed the gold. Cost: 24 Tavily credits and about 97k Nebius tokens (estimated USD 0.20; invoices not checked).
 
-What this means for the product: MarginGuard does not rely on the model to decide applicability. Code decides from the retrieved text; with no usable passage the answer is "not enough evidence", and missing context is a hold. The neutral-query Search → Extract design responds to the coverage problem above; it has not been re-benchmarked. <!-- verify-after-merge -->
+What this means for the product: MarginGuard does not rely on the model to decide applicability. Code decides from the retrieved text; with no usable passage the answer is "not enough evidence", and missing context is a hold. The neutral-query Search → Extract design responds to the coverage problem above; it has not been re-benchmarked.
 
 ## Tests
 
-`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 317 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation.<!-- verify-after-merge: counts --> Browser tests (`npm run start:qa`, then `npm run test:ui`) run 77 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.<!-- verify-after-merge: counts -->
+`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 331 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 86 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
 
 ## Limits
 

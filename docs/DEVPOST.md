@@ -13,7 +13,7 @@ Small online sellers get margin alerts and generic advice ("tighten your discoun
 ## What it does
 
 1. **Finds the leak with exact math.** Import an order CSV. Deterministic code computes contribution in integer cents and flags discount stacking, shipping overruns and return spikes. Every finding shows its formula and source rows; seller assumptions (discount ceiling, shipping allowance) are editable.
-2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard sends Tavily Search a neutral query for the seller's platform and context, domain-restricted to help.shopify.com, woocommerce.com, usps.com or ups.com, then Tavily Extract pulls the official page so the rule engine reads full sentences. <!-- verify-after-merge --> If the page has changed since our review, the result says so. <!-- verify-after-merge --> The rule engine checks whether the text applies. In the demo case, the passage "custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions" rebuts the settings fix and redirects the next check to auditing staff/manual overrides — same 28 rows, same $658.08 modeled exposure, different action.
+2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard sends Tavily Search a neutral query for the seller's platform and context, domain-restricted to help.shopify.com, woocommerce.com, usps.com or ups.com, then Tavily Extract pulls the official page so the rule engine reads full sentences. If the page has changed since our review, the result says so. The rule engine checks whether the text applies. In the demo case, the passage "custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions" rebuts the settings fix and redirects the next check to auditing staff/manual overrides — same 28 rows, same $658.08 modeled exposure, different action.
 3. **Holds when context is missing.** An unknown discount origin, a non-US region or an ordinary app mistaken for the Scripts API puts the recommendation on HOLD whatever the sources say. A retracted or contrary passage also holds; no passage, or conflicting passages, return "not enough evidence".
 4. **Drafts a cited check with NVIDIA Nemotron on Nebius Token Factory.** Code supplies the policy statement behind each citation; Nemotron-3.5-Lightning writes the hypothesis, the validation step and the uncertainty from aggregate figures and the retrieved passages. Code checks every citation and rejects numbers in the prose; a held case never reaches the model.
 5. **Tests a promotion before launch.** In Promo Preflight the seller describes a campaign in plain English; Nemotron 3 Super turns it into rules, code checks them, the seller confirms, and an integer-cent simulator evaluates every basket, shows the worst-case cart and compares it under the original and a reviewed alternative rule.
@@ -22,7 +22,7 @@ Small online sellers get margin alerts and generic advice ("tighten your discoun
 ## How we built it
 
 - **Tavily Search** retrieves official policy with fixed, neutral queries (never order data), `include_domains` restricted to the platform's official domain, and up to three sources. Results are screened for domain, relevance, prompt-injection text, retractions and regional scope.
-- **Tavily Extract** then pulls the top official page, so the decision reads full sentences, and a changed page is flagged against our reviewed copy. <!-- verify-after-merge --> The hosted demo replays recorded Search + Extract responses for the manual, automatic/code and USPS cases. <!-- verify-after-merge --> In Promo Preflight, Extract pulls the reviewed policy page before rules are proposed.
+- **Tavily Extract** then pulls the top official page, so the decision reads full sentences, and a changed page is flagged against our reviewed copy. The hosted demo replays recorded Search + Extract responses for the manual, automatic/code and USPS cases. In Promo Preflight, Extract pulls the reviewed policy page before rules are proposed.
 - **Nebius Token Factory** serves two NVIDIA models through its OpenAI-compatible API, each checked with `GET /v1/models` before the call:
   - **Nemotron 3 Super** (`nvidia/nemotron-3-super-120b-a12b`) turns free-form campaign text into promotion rules. Code then grounds every value in a number the seller wrote, cross-checks the rules against a local grammar parser where it can read the text, and holds on any disagreement; the seller confirms before simulation.
   - **Nemotron-3.5-Lightning** (`nvidia/Nemotron-3_5-Lightning`) drafts the cited policy check and the analyst brief in about a second. Inputs are bounded to aggregate figures and short cited passages; output is schema-validated and may not contain numbers.
@@ -31,7 +31,7 @@ Small online sellers get margin alerts and generic advice ("tighten your discoun
 
 ## Challenges we ran into
 
-Real retrieval is messier than fixtures: snippets truncate mid-sentence, two URLs return the same passage, and an early structured-output contract truncated model JSON. We bounded output, simplified the draft schema, de-duplicated sources and made every failure visible instead of silently falling back. Our own benchmark was a negative result: on 24 holdout cases the Tavily package did not improve Nemotron's decisions, mostly because the fixed query found the page the answer depends on in only 4 cases. That is why the policy check now uses neutral queries and Extract. <!-- verify-after-merge -->
+Real retrieval is messier than fixtures: snippets truncate mid-sentence, two URLs return the same passage, and an early structured-output contract truncated model JSON. We bounded output, simplified the draft schema, de-duplicated sources and made every failure visible instead of silently falling back. Our own benchmark was a negative result: on 24 holdout cases the Tavily package did not improve Nemotron's decisions, mostly because the fixed query found the page the answer depends on in only 4 cases. That is why the policy check now uses neutral queries and Extract.
 
 ## Accomplishments we're proud of
 
@@ -51,7 +51,7 @@ TypeScript, React, Vite, Node.js, Express, Zod, Tavily Search API, Tavily Extrac
 
 ## Try it
 
-- Public demo (synthetic data, no account): see README for the current URL. The hosted demo runs offline: it replays a recorded live Tavily + Nemotron run and makes no provider calls, so judges need no keys.
+- Public demo (synthetic data, no account): see README for the current URL. The hosted demo runs offline: it replays recorded live Tavily Search + Extract runs and a recorded Nemotron 3 Super campaign interpretation, and makes no provider calls, so judges need no keys.
 - Live mode: clone the repo, add your own `TAVILY_API_KEY` and `NEBIUS_API_KEY`, set the two enable flags, `npm run dev`. See README.
 
 ## Data and limits
