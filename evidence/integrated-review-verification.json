@@ -1,0 +1,47 @@
+{
+  "scope": "Combined local development regressions; synthetic fixtures and injected transports, not final benchmark or generalized model-quality evaluation.",
+  "codeCommit": "a82e5de7cc0e83244d2fa7717968bd2c1cd546fa",
+  "verifiedBridgeCommit": "3cabd0d2bdf478458128287c9ea6fb52338c207c",
+  "checks": {
+    "lint": "PASS",
+    "strictTypes": "PASS",
+    "frontendBuild": "PASS",
+    "workerBuild": "PASS",
+    "unitApi": {
+      "passed": 316,
+      "failed": 0
+    },
+    "evaluationHarnessSelfTests": {
+      "passed": 65,
+      "failed": 0
+    },
+    "syntheticPolicyRouting": {
+      "passed": 12,
+      "failed": 0
+    },
+    "offlineArtifactRoutes": {
+      "passed": 13,
+      "failed": 0,
+      "outboundAttempts": 0
+    },
+    "browserNode": {
+      "passed": 72,
+      "failed": 0
+    },
+    "browserForcedOfflineWorker": {
+      "passed": 72,
+      "failed": 0
+    }
+  },
+  "controlledLocalRealSyntheticLoop": "VERIFIED_SEPARATELY; explicit operator simulation confirmation, no authenticated-human or checkout claim. Raw request observations remain local.",
+  "publicLive": "DISABLED",
+  "deploymentPerformed": false,
+  "finalBenchmark": "NOT_RUN",
+  "video": "NOT_MADE",
+  "gitHubActions": "NO_RUN_CLAIM",
+  "notes": [
+    "Changed policy snapshot bytes HOLD pending review.",
+    "Same-basket comparison is conditional contribution difference, never realized savings.",
+    "Policy audit export and comparison make no provider calls."
+  ]
+}

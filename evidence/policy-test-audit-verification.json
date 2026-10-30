@@ -1,0 +1,29 @@
+{
+  "scope": "LOCAL_OFFLINE_DEVELOPMENT_REGRESSION_NOT_FINAL_BENCHMARK",
+  "baseCommit": "70759199ea11395284e952bfc37054f48c19edf1",
+  "feature": "Policy-to-Test self-contained local JSON audit export",
+  "testFirst": {
+    "firstUnitRun": "failed with ERR_MODULE_NOT_FOUND for shared/policy-test-audit.js before implementation",
+    "newUnitCases": 8,
+    "newBrowserCases": 3
+  },
+  "checks": {
+    "lint": "passed",
+    "strictTypescriptAndFrontendBuild": "passed",
+    "allUnitAndApi": { "passed": 217, "failed": 0 },
+    "allOfflineBrowserScenarios": { "passed": 46, "failed": 0 },
+    "finalFocusedAuditAndPolicyBrowserScenarios": { "passed": 6, "failed": 0 },
+    "isolatedComponentChecks": { "passed": 14, "pageErrors": [], "externalOrNonGetRequests": 0 },
+    "forcedOfflineArtifact": { "passedRoutes": 13, "embeddedAssetChecks": 2, "outboundAttempts": 0, "runtimeCredentialAccess": false },
+    "syntheticExample": { "exposureCents": 65808, "verdicts": ["hold", "contradicted", "hold"], "outboundAttempts": 0 }
+  },
+  "accessibility": ["320px layout without horizontal overflow", "keyboard Enter download", "focus retained on export button", "44px minimum target", "3px focus-visible outline", "accessible description", "one polite status region", "reduced-motion respected"],
+  "localLogs": ["evidence/policy-test-audit-unit.log", "evidence/policy-test-audit-all-browser.log", "evidence/policy-test-audit-browser.log", "evidence/policy-test-audit-component.log", "evidence/policy-test-audit-offline-build.log"],
+  "limitations": [
+    "No external paid call, deployment, upload, final benchmark or video performed.",
+    "Live-labelled and hostile packets are authored offline regression inputs, not observed live retrievals.",
+    "Source/evaluator fingerprints are unsigned comparison aids, not authenticity proof.",
+    "CSV identity is the existing 16-hex SHA-256 prefix; original CSV is not bundled.",
+    "Fixed-basket Preflight A/B is not included."
+  ]
+}

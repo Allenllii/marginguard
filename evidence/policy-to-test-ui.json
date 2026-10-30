@@ -1,0 +1,53 @@
+{
+  "scope": "OFFLINE_SYNTHETIC_COMPONENT_REGRESSION_NOT_FINAL_BENCHMARK",
+  "startedAt": "2026-10-29T23:58:48.312Z",
+  "outcome": "passed",
+  "fixture": "tests/fixtures/policy-to-test.tsx",
+  "providerCalls": 0,
+  "csvAccess": false,
+  "externalRequestsBlocked": 0,
+  "checks": [
+    "three-labeled-scenarios",
+    "initial-supported-contradicted-hold",
+    "visible-synthetic-and-fixture-boundaries",
+    "keyboard-first-control-and-visible-focus",
+    "keyboard-source-disclosure-and-exact-quote",
+    "keyboard-action-change",
+    "manual-audit-supported-native-held",
+    "unknown-remains-held",
+    "distinct-next-checks",
+    "no-overflow-320-768-1440",
+    "44px-select-target",
+    "reduced-motion-respected",
+    "no-browser-errors",
+    "no-external-or-non-get-browser-requests"
+  ],
+  "focus": {
+    "visible": true,
+    "style": "solid",
+    "width": 3
+  },
+  "layouts": [
+    {
+      "width": 320,
+      "documentWidth": 320,
+      "maxElementRight": 308
+    },
+    {
+      "width": 768,
+      "documentWidth": 768,
+      "maxElementRight": 744
+    },
+    {
+      "width": 1440,
+      "documentWidth": 1440,
+      "maxElementRight": 1316
+    }
+  ],
+  "reducedMotion": {
+    "prefersReducedMotion": true,
+    "animatedElements": 0
+  },
+  "pageErrors": [],
+  "finishedAt": "2026-10-29T23:58:49.895Z"
+}
