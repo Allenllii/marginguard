@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { research, safeSources, searchPlan, selectPassage } from '../server/tavily.js';
-import { remediate, remediationFixture, validateRemediation } from '../server/nebius.js';
+import { RECORDED_MANUAL_SOURCE, research, safeSources, searchPlan, selectPassage } from '../server/tavily.js';
+import { RECORDED_MANUAL_REMEDIATION, remediate, remediationFixture, validateRemediation } from '../server/nebius.js';
 import { analyze } from '../server/analysis.js';
 import { createDemoCsv } from '../server/demo.js';
 import type { ResearchPacket } from '../shared/types.js';
@@ -24,7 +24,7 @@ test('two scoped generic search plans never require private CSV data', () => {
 test('offline fixtures make no request and never claim a retrieval timestamp', async () => {
   const r = await research('discount', context, false, config, never);
   assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined);
-  assert.ok(r.note.includes('No Tavily call')); assert.equal(r.sources.length, 1);
+  assert.ok(r.note.includes('No search runs')); assert.ok(r.sources[0].savedAt); assert.equal(r.sources.length, 1);
 });
 test('live missing-key state has no invented sources', async () => {
   const r = await research('shipping', context, true, {}, never);
@@ -34,7 +34,7 @@ test('live search restricts official domains, requests no generated answer, and 
   const request = (async (url: string | URL | Request, init?: RequestInit) => {
     assert.equal(url, 'https://api.tavily.com/search');
     const payload = JSON.parse(String(init?.body));
-    assert.equal(payload.search_depth, 'basic'); assert.equal(payload.max_results, 3);
+    assert.equal(payload.search_depth, 'advanced'); assert.equal(payload.chunks_per_source, 3); assert.equal(payload.max_results, 3);
     assert.equal(payload.include_domains_mode, 'restrict'); assert.equal(payload.include_answer, false);
     assert.equal(payload.auto_parameters, false); assert.equal(payload.include_usage, true);
     assert.ok(!JSON.stringify(payload).includes('CLOUD-HOODIE'));
@@ -160,5 +160,53 @@ test('model remediation receives only supporting passages and cannot cite an unr
     assert.deepEqual(provided, [{ sourceId: 'S2', excerpt: p.sources[1].snippet }]);
     assert.equal(result.mode, sourceId === 'S2' ? 'live' : 'fixture');
     if (sourceId === 'S1') assert.equal(result.proof, undefined);
+  }
+});
+
+// Shapes recorded from real Tavily runs (evidence/tavily-live-proof.json): two
+// draft-order URLs returned the same passage.
+const draftPassage = 'If the Automatic discounts setting is turned off in More actions, then any automatic discount is removed from the draft order. #### Steps: 1. From Shopify POS, tap the Order icon. 2. Tap Load Drafts. 3. Tap the draft order that you want to edit. 4. Tap Load to cart. 5. Take one of the following steps to apply an admin discount: [...] Tap the Apply discount tile on the';
+const recordedResults = [
+  { title: RECORDED_MANUAL_SOURCE.title, url: RECORDED_MANUAL_SOURCE.url, content: RECORDED_MANUAL_SOURCE.snippet, score: 0.8 },
+  { title: 'Shopify Help Center | Managing draft orders on Shopify POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/save-retrieve-order', content: draftPassage, score: 0.7 },
+  { title: 'Shopify Help Center | Managing draft orders on Shopify POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/order-management/draft-orders', content: draftPassage.replace('From Shopify POS', 'From  Shopify POS'), score: 0.7 },
+];
+const manual = { ...context, discountOrigin: 'manual' } as const;
+test('identical passages from different URLs are accepted once, keeping the first', () => {
+  const sources = safeSources({ results: recordedResults }, 'discount', manual);
+  assert.deepEqual(sources.map(s => [s.id, s.url]), [['S1', recordedResults[0].url], ['S2', recordedResults[1].url]]);
+});
+test('passage selection uses the best Tavily chunk and falls back to the keyword window', () => {
+  const chunks = ['Navigation overview for the Help Center and its many sections of documentation.', 'Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.', 'Shipping labels and packing slips can be printed from the orders page.'];
+  assert.equal(selectPassage(chunks.join(' [...] '), 'discount', manual), chunks[1]);
+  // No chunk mentions a context term: fall back to the bounded keyword window.
+  const plain = 'General store setup information. '.repeat(60);
+  assert.ok(selectPassage(plain, 'discount', manual).split(' ').length <= 70);
+});
+test('hosted manual fixture replays the recorded live Tavily S1 and routes to contradicted', async () => {
+  const r = await research('discount', manual, false, config, never);
+  assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined);
+  assert.deepEqual(r.sources, [RECORDED_MANUAL_SOURCE]);
+  assert.equal(r.sources[0].title, 'Shopify Help Center | Discount combinations on POS');
+  assert.ok(r.note.startsWith('Recorded live Tavily result (request 19444728'));
+  const decision = decidePolicy('discount', r);
+  assert.equal(decision.status, 'contradicted'); assert.deepEqual(decision.sourceIds, ['S1']);
+  // Other contexts keep their saved summaries.
+  for (const other of [{ ...context, discountOrigin: 'scripts-api' as const }, context, { ...manual, platform: 'WooCommerce' as const }]) {
+    assert.match((await research('discount', other, false, config, never)).sources[0].snippet, /^Saved-source paraphrase/);
+  }
+});
+test('hosted manual remediation replays the recorded Nemotron output, labeled, without proof', async () => {
+  const p = { ...await research('discount', manual, false, config, never), researchId: 'fixture' };
+  const r = await remediate(issue, p, false, config, never);
+  const { output } = RECORDED_MANUAL_REMEDIATION;
+  assert.equal(r.mode, 'fixture'); assert.equal(r.proof, undefined); assert.equal(r.model, 'nvidia/Nemotron-3_5-Lightning');
+  assert.deepEqual(r.documentedPolicy, output.documentedPolicy);
+  assert.equal(r.inference, output.inference); assert.equal(r.nextStep, output.nextStep); assert.equal(r.uncertainty, output.uncertainty);
+  assert.match(r.fallbackReason ?? '', /^Recorded Nemotron-3\.5-Lightning response \(request 31354285/);
+  // A live packet or an edited passage never receives the recorded response.
+  for (const other of [{ ...p, mode: 'live' as const }, { ...p, sources: [{ ...p.sources[0], snippet: p.sources[0].snippet + ' Edited.' }] }]) {
+    const fallback = await remediate(issue, other, false, config, never);
+    assert.equal(fallback.model, null); assert.notEqual(fallback.nextStep, output.nextStep);
   }
 });

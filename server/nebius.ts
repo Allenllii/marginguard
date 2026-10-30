@@ -3,6 +3,7 @@ import type { Analysis, Explanation, Issue, ProviderStatus, Remediation, Researc
 import { boundedJson } from './http.js';
 import { decidePolicy } from '../shared/policy-decision.js';
 import { permittedPolicyStatements, validatePolicyDraft } from './policy-draft.js';
+import { RECORDED_MANUAL_SOURCE } from './tavily.js';
 
 export const BASE_URL = 'https://api.tokenfactory.nebius.com/v1/';
 // Exact hosted Lightning profile, confirmed by Nebius' own client and NVIDIA's
@@ -26,9 +27,9 @@ export function providerStatus(config = settings()): ProviderStatus {
 export function fixture(analysis: Analysis, fallbackReason?: string): Explanation {
   return {
     mode: 'fixture', model: null,
-    summary: analysis.issues.length ? 'Start with the largest modeled exposure, verify the source rows, then run a small corrective test. These rules highlight review candidates; the scenarios do not predict realized savings.' : 'No configured rules were triggered. That does not prove that every order is profitable. Review your business assumptions and the data coverage.',
+    summary: analysis.issues.length ? 'Start with the largest modeled exposure, check its source rows, then run a small corrective test.' : 'No configured rule fired on this dataset; review your assumptions and data coverage.',
     priorities: analysis.issues.map(issue => ({ issueId: issue.id, reason: issue.kind === 'returns' ? 'The recent refund rate crossed the baseline thresholds. Investigate product quality and expectations before changing policy.' : issue.kind === 'discount' ? 'Combined promotions exceeded the assumed ceiling on kept orders. Review whether the extra discount was intentional.' : 'Carrier costs exceeded customer shipping fees plus the allowed subsidy. Package and rate checks are concrete first steps.', nextStep: issue.action })),
-    caveat: 'Offline deterministic guidance. No model was called. Modeled exposures depend on policy assumptions and are not guaranteed recoveries.',
+    caveat: 'Offline guidance from the rule engine; exposures are modeled from your assumptions.',
     ...(fallbackReason ? { fallbackReason } : {}),
   };
 }
@@ -47,9 +48,9 @@ export function modelEvidence(analysis: Analysis) {
 }
 export async function explain(analysis: Analysis, live: boolean, config = settings(), request: typeof fetch = fetch, context?: import('../shared/types.js').ResearchContext): Promise<Explanation> {
   if (!live) return fixture(analysis);
-  if (!config.enabled || !config.key || !config.model) return fixture(analysis, 'Live inference is not enabled or the server is missing its API key/model.');
-  if (!/^nvidia\/[a-zA-Z0-9._/-]+$/i.test(config.model)) return fixture(analysis, 'Choose a verified NVIDIA model identifier; this app does not substitute another provider.');
-  if (analysis.issues.length > 24) return fixture(analysis, 'Live brief supports at most 24 findings. Narrow this dataset first.');
+  if (!config.enabled || !config.key || !config.model) return fixture(analysis, 'Live NVIDIA inference runs in local mode with your own Nebius key; this is the offline brief.');
+  if (!/^nvidia\/[a-zA-Z0-9._/-]+$/i.test(config.model)) return fixture(analysis, 'The configured model is not an NVIDIA model, so the offline brief is shown.');
+  if (analysis.issues.length > 24) return fixture(analysis, 'Live briefs handle up to 24 findings; narrow the dataset to request one.');
   const start = performance.now();
   const requestedAt = new Date().toISOString();
   try {
@@ -57,7 +58,7 @@ export async function explain(analysis: Analysis, live: boolean, config = settin
     const catalogResponse = await request(`${BASE_URL}models`, { headers, signal: AbortSignal.timeout(15000), redirect: 'error' });
     if (!catalogResponse.ok) throw new Error('catalog');
     const catalog = z.object({ data: z.array(z.object({ id: z.string().max(512) })).max(2000) }).parse(await boundedJson(catalogResponse, 512000));
-    if (!catalog.data.some(m => m.id === config.model)) return fixture(analysis, 'The configured NVIDIA model was not returned by GET /models.');
+    if (!catalog.data.some(m => m.id === config.model)) return fixture(analysis, 'The configured NVIDIA model is not available on Nebius right now.');
     const evidence = modelEvidence(analysis);
     const response = await request(`${BASE_URL}chat/completions`, {
       method: 'POST', headers, redirect: 'error', signal: AbortSignal.timeout(45000),
@@ -76,7 +77,7 @@ export async function explain(analysis: Analysis, live: boolean, config = settin
     mapped.priorities = mapped.priorities.map(p => ({ ...p, issueId: analysis.issues[evidence.findIndex(e => e.evidence_id === p.issueId)]?.id ?? 'unknown' }));
     const valid = validateOutput(mapped, analysis);
     return { ...valid, mode: 'live', model: config.model, proof: { requestedAt, requestId: response.headers.get('x-request-id') || raw.id || null, latencyMs: Math.round(performance.now() - start), inputTokens: raw.usage?.prompt_tokens ?? null, outputTokens: raw.usage?.completion_tokens ?? null } };
-  } catch { return fixture(analysis, 'Live request failed, timed out, or returned an invalid evidence-grounded response. Offline guidance is shown. No live success is claimed.'); }
+  } catch { return fixture(analysis, 'The live NVIDIA request failed or returned an invalid brief, so the offline brief is shown.'); }
 }
 
 export function validateRemediation(raw: unknown, packet: ResearchPacket) {
@@ -84,17 +85,38 @@ export function validateRemediation(raw: unknown, packet: ResearchPacket) {
 }
 export function remediationFixture(issue: Issue, packet: ResearchPacket, fallbackReason?: string): Remediation {
   const decision = decidePolicy(issue.kind, packet);
-  return { mode: 'fixture', model: null, documentedPolicy: permittedPolicyStatements(packet).slice(0, 1), inference: decision.constraint, nextStep: decision.nextCheck, uncertainty: 'The source does not establish the cause of this anomaly or the applicability of a particular fee. Verify the full policy, effective date, contract, and store configuration. No savings are guaranteed.', ...(fallbackReason ? { fallbackReason } : {}) };
+  return { mode: 'fixture', model: null, documentedPolicy: permittedPolicyStatements(packet).slice(0, 1), inference: decision.constraint, nextStep: decision.nextCheck, uncertainty: 'Confirm the policy effective date and your store configuration before changing anything.', ...(fallbackReason ? { fallbackReason } : {}) };
+}
+// Real Nemotron-3.5-Lightning output for the recorded Tavily packet (evidence/live-run-20261030.json).
+export const RECORDED_MANUAL_REMEDIATION = {
+  model: 'nvidia/Nemotron-3_5-Lightning',
+  // Recorded proof: request 31354285bac744de81d06e20979fcac4, 1006 ms, 579 in / 100 out tokens.
+  // Not attached as `proof`, which is reserved for requests made by this server.
+  output: {
+    documentedPolicy: [{ sourceId: 'S1', statement: 'The returned passage describes a manual-discount exception to combination settings.' }],
+    inference: 'The manual discount exception to combination settings may apply to the affected orders, but the policy effective date and store eligibility have not been verified.',
+    nextStep: 'Audit store/plan eligibility, transaction scope, and the effective policy before adjusting combination settings.',
+    uncertainty: 'Policy effective dates and account terms are unverified; an exception does not establish the cause of the exposure.',
+  },
+};
+// Replays the recorded response only for the recorded Tavily packet, after the
+// same validator a live response must pass.
+export function recordedRemediation(issue: Issue, packet: ResearchPacket): Remediation | null {
+  const source = packet.sources[0];
+  if (issue.kind !== 'discount' || packet.mode !== 'fixture' || packet.proof || packet.sources.length !== 1 || source.url !== RECORDED_MANUAL_SOURCE.url || source.snippet !== RECORDED_MANUAL_SOURCE.snippet) return null;
+  try {
+    return { ...validateRemediation(RECORDED_MANUAL_REMEDIATION.output, packet), mode: 'fixture', model: RECORDED_MANUAL_REMEDIATION.model, fallbackReason: 'Recorded Nemotron-3.5-Lightning response (request 31354285…, 2026-10-30), replayed offline. No model runs on this hosted demo.' };
+  } catch { return null; }
 }
 export async function remediate(issue: Issue, packet: ResearchPacket, live: boolean, config = settings(), request: typeof fetch = fetch): Promise<Remediation> {
-  if (!live) return remediationFixture(issue, packet);
-  if (packet.mode !== 'live' || packet.status !== 'ok' || !packet.sources.length) return remediationFixture(issue, packet, 'A successful live Tavily search with relevant official sources is required before a source-grounded live model call.');
+  if (!live) return recordedRemediation(issue, packet) ?? remediationFixture(issue, packet);
+  if (packet.mode !== 'live' || packet.status !== 'ok' || !packet.sources.length) return remediationFixture(issue, packet, 'Run a live Tavily search first; the model drafts only from live official sources.');
   const decision = decidePolicy(issue.kind, packet);
-  if (decision.status === 'hold' || decision.status === 'insufficient') return remediationFixture(issue, packet, 'Resolve missing context, conflicting passages and applicability constraints before requesting a live synthesis. No model request was made.');
+  if (decision.status === 'hold' || decision.status === 'insufficient') return remediationFixture(issue, packet, 'The policy check is on hold, so no model request was made.');
   const sources = packet.sources.filter(source => decision.sourceIds.includes(source.id));
-  if (!sources.length) return remediationFixture(issue, packet, 'No supporting policy passage is available for a live synthesis. No model request was made.');
+  if (!sources.length) return remediationFixture(issue, packet, 'No source passage supports this check, so no model request was made.');
   const supportedPacket = { ...packet, sources };
-  if (!config.enabled || !config.key || !config.model || !/^nvidia\/[a-zA-Z0-9._/-]+$/i.test(config.model)) return remediationFixture(issue, packet, 'An explicitly enabled NVIDIA/Nebius connection is required.');
+  if (!config.enabled || !config.key || !config.model || !/^nvidia\/[a-zA-Z0-9._/-]+$/i.test(config.model)) return remediationFixture(issue, packet, 'Live NVIDIA drafting runs in local mode with your own Nebius key.');
   const start = performance.now(), requestedAt = new Date().toISOString();
   try {
     const headers = { Authorization: `Bearer ${config.key}`, 'Content-Type': 'application/json' };
@@ -109,5 +131,5 @@ export async function remediate(issue: Issue, packet: ResearchPacket, live: bool
     if (raw.choices[0].finish_reason !== 'stop' || raw.choices[0].message.refusal || !raw.choices[0].message.content) throw new Error('refused');
     const valid = validateRemediation(JSON.parse(raw.choices[0].message.content), supportedPacket);
     return { ...valid, mode: 'live', model: config.model, proof: { requestedAt, requestId: response.headers.get('x-request-id') || raw.id || null, latencyMs: Math.round(performance.now() - start), inputTokens: raw.usage?.prompt_tokens ?? null, outputTokens: raw.usage?.completion_tokens ?? null } };
-  } catch { return remediationFixture(issue, packet, 'The live model request failed or its citations/claims were invalid. Offline analyst checks are shown; no live model success is claimed.'); }
+  } catch { return remediationFixture(issue, packet, 'The live NVIDIA draft failed or did not pass validation, so the offline checks are shown.'); }
 }
