@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import { decidePolicy } from '../shared/policy-decision.js';
 import { permittedPolicyStatements } from '../server/policy-draft.js';
 import { research } from '../server/tavily.js';
+import { remediate } from '../server/nebius.js';
+import { analyze } from '../server/analysis.js';
+import { createDemoCsv } from '../server/demo.js';
 import type { ResearchContext, ResearchPacket } from '../shared/types.js';
 const context: ResearchContext = { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'app-script' };
 const passage = 'Shopify Scripts API discounts can bypass combination settings and apply regardless of those settings.';
@@ -17,16 +20,48 @@ test('generic app origin cannot inherit a Scripts API exception', () => {
   assert.equal(decidePolicy('discount', packet('app' as ResearchContext['discountOrigin'])).status, 'hold');
   assert.deepEqual(permittedPolicyStatements(packet('app' as ResearchContext['discountOrigin'])), []);
 });
-test('explicit Scripts API origin uses only a matching Scripts API passage', () => {
-  const p = packet('scripts-api' as ResearchContext['discountOrigin']);
-  assert.equal(decidePolicy('discount', p).status, 'contradicted');
-  assert.match(permittedPolicyStatements(p)[0].statement, /Scripts API exception/);
-  p.sources[0].snippet = 'An ordinary app discount can bypass combination settings according to this synthetic claim.';
-  assert.equal(decidePolicy('discount', p).status, 'hold');
+test('Shopify Scripts origin holds even on a matching Scripts exception passage, because Scripts were retired', () => {
+  const p = packet('scripts-api');
+  for (const snippet of [passage, 'An ordinary app discount can bypass combination settings according to this synthetic claim.', 'Scripts API discounts can bypass combination settings. Scripts API discounts can never bypass combination settings.']) {
+    p.sources[0].snippet = snippet;
+    const decision = decidePolicy('discount', p);
+    assert.equal(decision.status, 'hold', snippet); assert.deepEqual(decision.sourceIds, []);
+    assert.equal(decision.constraint, 'Shopify Scripts were retired on June 30, 2026; check whether the discount now comes from a Shopify Function or app, then retrieve that mechanism’s policy.');
+    assert.match(decision.nextCheck, /Shopify Function or an app/);
+    assert.deepEqual(permittedPolicyStatements(p), []);
+  }
+  // Region and injection screens still come first.
+  assert.match(decidePolicy('discount', { ...p, context: { ...p.context, region: 'UK' } }).constraint, /Region applicability/);
 });
-test('offline ordinary app fixture holds without asserting the Scripts API exception applies to it', async () => {
-  const p = await research('discount', { ...context, discountOrigin: 'app' as ResearchContext['discountOrigin'] }, false, {}, (() => { throw Error('No provider'); }) as typeof fetch);
-  assert.equal(decidePolicy('discount', p).status, 'hold');
+
+// --- Offline origin selection: same recorded evidence, different origin ----
+const noProvider = (() => { throw Error('No provider'); }) as typeof fetch;
+const offline = async (discountOrigin: ResearchContext['discountOrigin']) => ({ ...await research('discount', { ...context, discountOrigin }, false, {}, noProvider), researchId: 'test' }) as ResearchPacket;
+test('offline Shopify unknown, app and Scripts origins reuse the recorded manual Search + Extract packet and hold on the origin alone', async () => {
+  const manual = await offline('manual');
+  assert.equal(decidePolicy('discount', manual).status, 'contradicted');
+  const holds = { unknown: /Identify the discount origin/, app: /app discount application mechanism/, 'app-script': /app discount application mechanism/, 'scripts-api': /Shopify Function or an app/ } as const;
+  for (const [origin, nextCheck] of Object.entries(holds) as [NonNullable<ResearchContext['discountOrigin']>, RegExp][]) {
+    const p = await offline(origin);
+    assert.equal(p.mode, 'fixture'); assert.equal(p.checkedAt, null); assert.equal(p.proof, undefined); assert.equal(p.status, 'ok');
+    assert.equal(p.context.discountOrigin, origin);
+    assert.deepEqual(p.sources, manual.sources, origin); assert.deepEqual(p.retrieval, manual.retrieval, origin); assert.equal(p.query, manual.query, origin);
+    assert.ok(p.note.startsWith(manual.note), origin);
+    assert.match(p.note, /recorded run for manual POS\/draft-order discounts, reused unchanged for the selected origin/);
+    const decision = decidePolicy('discount', p);
+    assert.equal(decision.status, 'hold', origin); assert.match(decision.nextCheck, nextCheck, origin); assert.deepEqual(decision.sourceIds, []);
+    // The recorded Nemotron draft is for the manual decision; a held origin gets the rule-based checks.
+    assert.equal((await remediate(analyze(createDemoCsv()).issues.find(i => i.kind === 'discount')!, p, false, {}, noProvider)).model, null, origin);
+  }
+  assert.doesNotMatch(manual.note, /reused/);
+});
+test('offline native keeps its own recorded packet and WooCommerce keeps its labelled authored summary', async () => {
+  const native = await offline('native');
+  assert.equal(native.sources.length, 1); assert.match(native.note, /^Recorded live Tavily Search \+ Extract \(requests 76e93d77…/); assert.doesNotMatch(native.note, /reused/);
+  assert.equal(decidePolicy('discount', native).status, 'review');
+  const woo = await research('discount', { ...context, platform: 'WooCommerce', discountOrigin: 'unknown' }, false, {}, noProvider);
+  assert.match(woo.note, /^Authored summaries/); assert.equal(woo.retrieval, undefined); assert.equal(decidePolicy('discount', woo).status, 'hold');
+  for (const s of [...native.sources, ...(await offline('manual')).sources]) assert.doesNotMatch(s.snippet, /Scripts/);
 });
 
 test('manual exception is judged per sentence and only for Shopify', () => {

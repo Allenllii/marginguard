@@ -101,8 +101,8 @@
       "region": "US",
       "origin": "scripts-api",
       "passage": "Scripts API discounts are an exception that can bypass combination settings. The originating Scripts API discount application path needs inspection before a settings recommendation.",
-      "expected": "contradicted",
-      "nextCheck": "Audit the originating Scripts API",
+      "expected": "hold",
+      "nextCheck": "Shopify Function or an app",
       "abstain": true
     },
     {

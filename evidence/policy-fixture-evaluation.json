@@ -1,5 +1,5 @@
 {
-  "executedAt": "2026-10-30T04:31:20.129Z",
+  "executedAt": "2026-10-30T04:56:24.411Z",
   "scope": "Twelve predeclared synthetic decision-routing cases. Passages are fixture paraphrases or deliberately adversarial examples, not actual Tavily search results. Structural/routing success is not semantic fidelity or real-world accuracy.",
   "fixtureCases": 12,
   "passed": 12,
@@ -65,9 +65,9 @@
       "id": "M4",
       "group": "context-or-exception",
       "status": "PASS",
-      "expected": "contradicted",
-      "observed": "contradicted",
-      "nextCheck": "Audit the originating Scripts API logic and its discount application path before changing combination settings."
+      "expected": "hold",
+      "observed": "hold",
+      "nextCheck": "Check whether the discount now comes from a Shopify Function or an app, then retrieve that mechanism’s policy before proposing a settings fix."
     },
     {
       "id": "I1",
