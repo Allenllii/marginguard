@@ -156,7 +156,10 @@ export default function CheckAnyFix({ live }: { live: boolean }) {
     setBusy(useLive ? 'live' : 'recorded'); setError(''); setOutcome(null);
     try {
       const response = await fetch('/api/check-fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fix: text, context, live: useLive }), signal: abort.signal });
-      if (response.status === 429) throw new Error('Today’s live budget is used up. Try a recorded example.');
+      if (response.status === 429) {
+        const wait = Number(response.headers.get('Retry-After')) || 0, body = await response.json().catch(() => null);
+        throw new Error(`${body?.error || 'The live budget is busy.'}${wait ? ` Try again in ${wait} s.` : ''} Recorded examples still work.`);
+      }
       if (response.status === 503) throw new Error('Live checks are unavailable right now. Try a recorded example.');
       const data = await response.json().catch(() => null);
       if (!response.ok || !data?.status) throw new Error(data?.error || 'The check could not complete. Please try again.');

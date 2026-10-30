@@ -68,7 +68,7 @@ It took six end-to-end attempts. Tavily returned byte-identical sources every ti
 
 ## Try it
 
-**Live demo (no account, no keys).** [Open the live demo](https://marginguard.marginguard-demo.workers.dev). It runs on Cloudflare Workers with real Tavily and Nemotron calls behind a durable budget: each provider allows 4 calls a minute, 40 a day and 300 in total, recorded in a D1 ledger before every call, until December 24, 2026. Click **See the discount policy counterexample**, tick the consent box, then **Search official policies** (Tavily Search + Extract) and **Draft with Nemotron**; switch the discount origin between *Manual / POS / draft* and *Unknown* to watch the next check change. In Promo Preflight, type your own campaign and let Nemotron 3 Super turn it into rules. When the daily budget is used up, the app says so and the recorded runs remain available.
+**Live demo (no account, no keys).** [Open the live demo](https://marginguard.marginguard-demo.workers.dev). It runs on Cloudflare Workers with real Tavily and Nemotron calls behind a durable budget: each provider allows 8 calls a minute, 60 a day and 300 in total, recorded in a D1 ledger before every call, until December 24, 2026. Click **See the discount policy counterexample**, tick the consent box, then **Search official policies** (Tavily Search + Extract) and **Draft with Nemotron**; switch the discount origin between *Manual / POS / draft* and *Unknown* to watch the next check change. In Promo Preflight, type your own campaign and let Nemotron 3 Super turn it into rules. When the daily budget is used up, the app says so and the recorded runs remain available.
 
 **Offline mirror.** [allenllii.github.io/marginguard](https://allenllii.github.io/marginguard/) runs the same build entirely in your browser with no provider calls. It replays recorded Tavily Search + Extract responses for the manual, automatic/code and USPS cases, the recorded Nemotron draft, and the recorded Nemotron 3 Super campaign interpretation, each labelled as recorded.
 
@@ -90,7 +90,7 @@ NEBIUS_MODEL=nvidia/Nemotron-3_5-Lightning
 NEBIUS_REASONING_MODEL=nvidia/nemotron-3-super-120b-a12b
 ```
 
-Then `npm run dev`, open the counterexample, tick the consent box and click **Search official policies**, then **Draft with Nemotron**. Each provider is capped at 2 calls/minute, 20/day and 100 per process by default.
+Then `npm run dev`, open the counterexample, tick the consent box and click **Search official policies**, then **Draft with Nemotron**. Set `LIVE_MINUTE_LIMIT=4` or more (Check a fix needs three Nebius calls in one go); by default each provider is capped at 2 calls/minute, 20/day and 100 per process by default.
 
 Requires Node.js 24.19+.
 

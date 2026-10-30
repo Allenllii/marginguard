@@ -250,7 +250,7 @@
       },
       "query": "Shopify how do manually applied POS and draft order discounts interact with discount combination settings",
       "liveNote": "Live Tavily advanced search of help.shopify.com, screened for safety. Tavily Extract read 2 official pages in full; S1, S2 are complete operative sentences from the page, S3 is a search chunk.",
-      "replayNote": "Recorded live Tavily Search + Extract (requests bd7ee08e… and 2a6642be…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+      "replayNote": "Recorded live Tavily Search + Extract (requests bd7ee08e… and 2a6642be…, 2026-10-30), replayed; this replay makes no new search.",
       "sources": [
         {
           "id": "S1",
@@ -315,7 +315,7 @@
       },
       "query": "Shopify how do automatic discounts and discount codes interact with discount combination settings",
       "liveNote": "Live Tavily advanced search of help.shopify.com, screened for safety. Tavily Extract read 1 official page in full; S1 is complete operative sentences from the page, S2 is a search chunk.",
-      "replayNote": "Recorded live Tavily Search + Extract (requests 76e93d77… and cf6f9793…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+      "replayNote": "Recorded live Tavily Search + Extract (requests 76e93d77… and cf6f9793…, 2026-10-30), replayed; this replay makes no new search.",
       "sources": [
         {
           "id": "S1",
@@ -382,7 +382,7 @@
       },
       "query": "USPS how are United States package shipping prices determined by weight, dimensions and service",
       "liveNote": "Live Tavily advanced search of usps.com, screened for safety. Tavily Extract read 2 official pages in full; S1, S2 are complete operative sentences from the page, S3 is a search chunk.",
-      "replayNote": "Recorded live Tavily Search + Extract (requests 8fadcea1… and ca2d8d4e…, 2026-10-30), replayed offline. No search runs on this hosted demo.",
+      "replayNote": "Recorded live Tavily Search + Extract (requests 8fadcea1… and ca2d8d4e…, 2026-10-30), replayed; this replay makes no new search.",
       "sources": [
         {
           "id": "S1",
