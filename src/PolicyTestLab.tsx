@@ -102,12 +102,12 @@ export default function PolicyTestLab({ packet, dataset }: { packet: ResearchPac
 
     <details className="advanced">
       <summary>Advanced: audit details and JSON download</summary>
-      <p className="ptl-boundary"><strong>Synthetic what-if tests.</strong> These cards vary an assumed origin against the same sources. They do not execute a change or test a real store. A match supports a review; store eligibility and the effective policy still need checking.</p>
+      <p className="ptl-boundary"><strong>Synthetic what-if tests.</strong> These cards vary an assumed origin against the same sources; they do not execute a change or test a real store.</p>
       <p className="ptl-notice">{suite.notice}</p>
       {suite.rejectedCandidates > 0 ? <p className="ptl-rejected">{suite.rejectedCandidates} candidate{suite.rejectedCandidates === 1 ? '' : 's'} rejected by the evidence checks.</p> : null}
       <div className="ptl-export">
         <button type="button" onClick={exportAudit} aria-describedby={`${id}-export-description`}>Download Policy-to-Test audit (JSON)</button>
-        <p id={`${id}-export-description`}>Local snapshot of the assumptions, three judgments, on-hold reasons, sources and fingerprints. No new retrieval or provider call. Exposure is not realized savings.</p>
+        <p id={`${id}-export-description`}>Local snapshot of the assumptions, three judgments, hold reasons, sources and fingerprints. No new retrieval or provider call.</p>
       </div>
     </details>
   </section>;
