@@ -117,3 +117,10 @@ test('bare citation IDs are accepted as references, and a next step that repeats
   assert.throws(() => validatePolicyDraft({ ...base, documentedPolicy: ['S1'], nextStep: 'Audit the store discount combination settings for overlapping promotions.' }, packet), /contradicts the policy decision/);
   assert.throws(() => validatePolicyDraft({ ...base, documentedPolicy: ['S9'], nextStep: 'Review staff manual POS discount overrides on a few flagged orders.' }, packet), /Unknown citation/);
 });
+
+test('a draft that says the exception explains the exposure is rejected as a causal claim', async () => {
+  const { validatePolicyDraft } = await import('../server/policy-draft.js');
+  const packet = { kind: 'discount', mode: 'live', status: 'ok', checkedAt: null, query: 'q', note: '', researchId: 'r', context: { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'manual' }, sources: [{ id: 'S1', title: 'Shopify Help Center | Discount combinations on POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts', snippet: 'Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.', publishedDate: null }] } as never;
+  // Observed live (request a13f50e7…, 2026-10-30).
+  assert.throws(() => validatePolicyDraft({ documentedPolicy: ['S1'], inference: 'The manual discount applied to the order bypasses combination restrictions, which explains the exposure amount across the affected rows.', nextStep: 'Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings.', uncertainty: 'Policy effective dates and specific account terms for this store have not been verified.' }, packet), /Unsupported claim/);
+});

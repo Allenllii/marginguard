@@ -52,7 +52,8 @@ export function validatePolicyDraft(raw: unknown, packet: ResearchPacket) {
   // "Audit the combination settings" repeats it; "... before adjusting combination settings" does not.
   if (decidePolicy(packet.kind, packet).status === 'contradicted' && /(?<!\bbefore\s)\b(?:audit|review|check|inspect|chang|adjust|tighten|updat|fix|modif|correct)\w*\s+(?:(?:the|your|its|store|discount)\s+)*combination settings?\b/iu.test(value.nextStep) && !/\b(?:manual|POS|draft|override|Scripts?)\b/iu.test(value.nextStep)) throw new Error('Next step contradicts the policy decision');
   const prose = [...value.documentedPolicy.flatMap(item => item.statement === undefined ? [] : [item.statement]), value.inference, value.nextStep, value.uncertainty];
-  if (prose.some(text => /[\d$%]|https?:|<[^>]+>|guaranteed savings|definitely caused|proves.{0,20}(cause|defect)/iu.test(text))) throw new Error('Unsupported claim');
+  // "...which explains the exposure" was observed live: a policy exception does not establish the cause.
+  if (prose.some(text => /[\d$%]|https?:|<[^>]+>|guaranteed savings|definitely caused|proves.{0,20}(cause|defect)|\b(?:explains?|caused?|causes|accounts? for)\s+(?:the|this|that|all)\s+(?:\w+\s+){0,2}(?:exposure|loss|leak|margin)/iu.test(text))) throw new Error('Unsupported claim');
   // Reproduce the observed determiner/account-number mismatch specifically.
   // Do not rewrite model prose or claim this is a general grammar checker.
   if (prose.some(text => /\b(?:this\s+(?:(?:specific|particular|selected)\s+)?accounts|these\s+(?:(?:specific|particular|selected)\s+)?account|an\s+accounts)\b/iu.test(text))) throw new Error('Observed policy prose agreement error');
