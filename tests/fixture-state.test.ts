@@ -17,7 +17,19 @@ test('saved-source fixture can be drafted by a different cold service instance w
   const reply = await cold.dispatch('POST', '/api/remediate', { csv: createDemoCsv(), issueId: 'discount-stacking', researchId: packet.researchId, live: false });
   assert.equal(reply.status, 200);
   const result = reply.body as { mode: string; proof?: unknown; nextStep: string };
-  assert.equal(result.mode, 'fixture'); assert.equal(result.proof, undefined); assert.match(result.nextStep, /Audit staff\/manual POS/);
+  assert.equal(result.mode, 'fixture'); assert.equal(result.proof, undefined); assert.match(result.nextStep, /filter for flagged orders/);
+});
+test('a cold instance rebuilds the reused manual packet for a held origin and never replays the manual model draft', async () => {
+  const first = createService({ env, request: never });
+  const manual = (await first.dispatch('POST', '/api/research', { kind: 'discount', context, live: false })).body as ResearchPacket;
+  for (const discountOrigin of ['unknown', 'app', 'scripts-api'] as const) {
+    const packet = (await first.dispatch('POST', '/api/research', { kind: 'discount', context: { ...context, discountOrigin }, live: false })).body as ResearchPacket;
+    assert.deepEqual(packet.sources, manual.sources); assert.match(packet.note, /reused unchanged for the selected origin/);
+    const reply = await createService({ env, request: never }).dispatch('POST', '/api/remediate', { csv: createDemoCsv(), issueId: 'discount-stacking', researchId: packet.researchId, live: false });
+    assert.equal(reply.status, 200);
+    const result = reply.body as { mode: string; model: string | null; nextStep: string };
+    assert.equal(result.mode, 'fixture'); assert.equal(result.model, null); assert.doesNotMatch(result.nextStep, /Audit staff\/manual POS/);
+  }
 });
 test('fixture references accept only complete enumerated context, never source text', () => {
   const id = fixtureReference('discount', context);

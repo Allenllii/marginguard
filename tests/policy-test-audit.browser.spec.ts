@@ -53,6 +53,8 @@ async function openLab(page: Page) {
   const lab = page.getByRole('region', { name: 'Policy-to-Test', exact: true });
   await expect(lab).toBeVisible();
   await expect(lab.getByRole('button', { name: exportName, exact: true })).toBeHidden();
+  await lab.locator('summary.ptl-oneline').click();
+  await expect(lab.getByRole('button', { name: exportName, exact: true })).toBeHidden();
   await lab.getByText('Advanced: audit details and JSON download', { exact: true }).click();
   await expect(lab.getByRole('button', { name: exportName, exact: true })).toBeVisible();
   return lab;

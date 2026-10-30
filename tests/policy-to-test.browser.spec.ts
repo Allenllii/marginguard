@@ -9,6 +9,7 @@ test('Policy-to-Test reuses one fixture packet, changes only the hypothesis, and
   await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
   const lab = page.getByRole('region', { name: 'Policy-to-Test', exact: true });
   await expect(lab).toBeVisible();
+  await lab.locator('summary.ptl-oneline').click();
   const native = lab.getByRole('article', { name: 'Normal / code', exact: true });
   const manual = lab.getByRole('article', { name: 'Manual / POS / draft', exact: true });
   const unknown = lab.getByRole('article', { name: 'Unknown', exact: true });
@@ -67,6 +68,7 @@ test('Policy-to-Test stays readable at 320px with keyboard targets and reduced m
   const lab = page.getByRole('region', { name: 'Policy-to-Test', exact: true });
   await lab.scrollIntoViewIfNeeded();
   await expect(lab).toBeVisible();
+  await lab.locator('summary.ptl-oneline').click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const selector = lab.getByLabel('Choose the repair to challenge', { exact: true });
   expect(await selector.evaluate(element => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);

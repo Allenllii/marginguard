@@ -8,13 +8,13 @@ Check the fix before you ship it: MarginGuard tests AI margin advice against liv
 
 ## Inspiration
 
-Small online sellers get margin alerts and generic advice ("tighten your discount combination settings"). On Shopify that advice is sometimes wrong: manual POS and draft-order discounts apply regardless of combination settings, so the toggle changes nothing and the leak continues. An assistant that sounds confident but ignores the platform's own rules costs money. We wanted an agent that treats official policy as a test the proposed fix has to pass.
+Small online sellers get margin alerts and generic advice ("tighten your discount combination settings"). On Shopify that advice is sometimes wrong: custom discounts that staff apply manually in POS or on a draft order apply regardless of combination settings, so the toggle changes nothing and the leak continues. An assistant that sounds confident but ignores the platform's own rules costs money. We wanted an agent that treats official policy as a test the proposed fix has to pass.
 
 ## What it does
 
 1. **Finds the leak with exact math.** Import an order CSV. Deterministic code computes contribution in integer cents and flags discount stacking, shipping overruns and return spikes. Every finding shows its formula and source rows; seller assumptions (discount ceiling, shipping allowance) are editable.
 2. **Challenges the proposed fix with live policy.** For the flagged issue, MarginGuard sends Tavily Search a neutral query for the seller's platform and context, domain-restricted to help.shopify.com, woocommerce.com, usps.com or ups.com, then Tavily Extract pulls the official page so the rule engine reads full sentences. On the Shopify discount-combination pages we reviewed, the result also says if the page has changed since our review. The rule engine checks whether the text applies. In the demo case, the passage "custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions" rebuts the settings fix and redirects the next check to auditing staff/manual overrides — same 28 rows, same $658.08 modeled exposure, different action.
-3. **Holds when context is missing.** An unknown discount origin, a non-US region or an ordinary app mistaken for the Scripts API puts the recommendation on HOLD whatever the sources say. A retracted or contrary passage also holds; no passage, or conflicting passages, return "not enough evidence".
+3. **Holds when context is missing.** An unknown discount origin, a non-US region, an app whose discount mechanism is unknown, or Shopify Scripts (retired by Shopify on 2026-06-30) puts the recommendation on HOLD whatever the sources say. A retracted or contrary passage also holds; no passage, or conflicting passages, return "not enough evidence".
 4. **Drafts a cited check with NVIDIA Nemotron on Nebius Token Factory.** Code supplies the policy statement behind each citation; Nemotron-3.5-Lightning writes the hypothesis, the validation step and the uncertainty from aggregate figures and the retrieved passages. Code checks every citation and rejects numbers in the prose; a held case never reaches the model.
 5. **Tests a promotion before launch.** In Promo Preflight the seller describes a campaign in plain English; Nemotron 3 Super turns it into rules, code checks them, the seller confirms, and an integer-cent simulator evaluates every basket, shows the worst-case cart and compares it under the original and a reviewed alternative rule.
 6. **Exports an audit.** Findings, assumptions, sources, decision status and what would disprove the hypothesis export as a report.
@@ -25,7 +25,7 @@ Small online sellers get margin alerts and generic advice ("tighten your discoun
 - **Tavily Extract** then pulls the top official page, so the decision reads full sentences; on the reviewed Shopify discount-combination pages, a changed page is flagged against our reviewed copy. The hosted demo replays recorded Search + Extract responses for the manual, automatic/code and USPS cases. In Promo Preflight, Extract pulls the reviewed policy page before rules are proposed.
 - **Nebius Token Factory** serves two NVIDIA models through its OpenAI-compatible API, each checked with `GET /v1/models` before the call:
   - **Nemotron 3 Super** (`nvidia/nemotron-3-super-120b-a12b`) turns free-form campaign text into promotion rules. Code then grounds every value in a number the seller wrote, cross-checks the rules against a local grammar parser where it can read the text, and holds on any disagreement; the seller confirms before simulation.
-  - **Nemotron-3.5-Lightning** (`nvidia/Nemotron-3_5-Lightning`) drafts the cited policy check in about a second (the recorded draft: 1.0 s). Inputs are bounded to aggregate figures and short cited passages; output is schema-validated and may not contain numbers. It can also write the optional analyst brief, which code validates the same way and replaces with offline guidance when it fails; the one live brief we recorded failed the no-digits check and fell back.
+  - **Nemotron-3.5-Lightning** (`nvidia/Nemotron-3_5-Lightning`) drafts the cited policy check in about a second. Inputs are bounded to aggregate figures and short cited passages; output is schema-validated and may not contain numbers. It can also write the optional analyst brief, which code validates the same way and replaces with offline guidance when it fails; the one live brief we recorded failed the no-digits check and fell back.
 - **Deterministic core** (TypeScript, shared by an Express server and a Cloudflare-style Worker build): integer-cent arithmetic, policy applicability rules, request budgets (per-minute, daily and lifetime caps per provider), and same-origin JSON APIs. The model never computes money or decides eligibility.
 - React + Vite front end with keyboard support, 320px layouts and reduced-motion handling.
 
@@ -35,7 +35,7 @@ Real retrieval is messier than fixtures: snippets truncate mid-sentence, two URL
 
 ## Accomplishments we're proud of
 
-Retrieval changes the decision, not just the citations list. For Shopify discounts, the recorded live retrieval for manual/POS discounts rebuts the settings fix and turns the next check into an override audit, while the recorded retrieval for automatic/code discounts keeps the settings fix as a review candidate. USPS shipping reaches review only on cited passages that state a pricing mechanism (dimensional weight, a noncompliance fee). An unknown or app origin holds regardless of the sources.
+Retrieval changes the decision, not just the citations list. For Shopify discounts, the recorded live retrieval for manual/POS discounts rebuts the settings fix and turns the next check into an override audit, while the recorded retrieval for automatic/code discounts keeps the settings fix as a review candidate. USPS shipping reaches review only on cited passages that state a pricing mechanism (dimensional weight, a noncompliance fee). An unknown origin, an app origin or retired Shopify Scripts holds regardless of the sources.
 
 ## What we learned
 
@@ -61,7 +61,7 @@ All demo orders are synthetic. Modeled exposure is a review candidate, not reali
 ## Feedback on Nebius Token Factory and NVIDIA models
 
 - The OpenAI-compatible endpoint made integration a drop-in; `GET /v1/models` let us verify the exact NVIDIA model ID at runtime instead of hard-coding a guess.
-- Nemotron-3.5-Lightning returned short structured drafts in about one second (579 input / 100 output tokens in our run), fast enough to sit inside an interactive click.
+- Nemotron-3.5-Lightning returned short structured drafts in about one second, fast enough to sit inside an interactive click.
 - Model IDs mix conventions (`Nemotron-3_5-Lightning`, `nemotron-3-super-120b-a12b`, `NVIDIA-Nemotron-3-Nano-30B-A3B`); a stable alias per family would reduce configuration errors.
 - Early on, long JSON outputs truncated at the token limit without a clear finish-reason signal in our parsing path; documenting recommended max-token settings for structured output per model would help.
 - Per-request cost is not returned in the response; returning usage cost (or a link to it) would make budget enforcement in apps easier.

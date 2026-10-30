@@ -114,7 +114,7 @@ test('regression: real live POS packet agrees with decidePolicy (manual challeng
   assert.equal(suite.cards[1].verdict, 'contradicted');
   assert.deepEqual(suite.cards[1].evidence.map(item => item.sourceId), main.sourceIds);
   assert.equal(suite.cards[1].evidence[0].quote, 'Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.');
-  assert.match(suite.cards[1].reason, /Shopify says manual POS and draft-order discounts ignore combination settings/);
+  assert.match(suite.cards[1].reason, /Shopify says custom discounts applied manually in POS or on draft orders ignore combination settings, so a settings change is not the established fix here/);
   assert.equal(suite.cards[2].verdict, 'hold');
   assert.equal(card(p, 'manual', 'audit-manual-overrides').verdict, 'supported');
   for (const item of suite.cards) for (const evidence of item.evidence) assert.ok(p.sources[0].snippet.includes(evidence.quote));
@@ -143,6 +143,23 @@ test('existing offline Tavily fixtures agree with decidePolicy without modifying
     assert.equal(suite.cards[origin === 'native' ? 0 : 1].verdict, origin === 'native' ? 'supported' : 'contradicted');
     assertAgreesWithDecidePolicy(p);
     assert.equal(JSON.stringify(p.sources), before);
+  }
+});
+
+test('offline unknown, app and Scripts origins show the same Policy-to-Test cards as manual, on the same recorded packet', async () => {
+  const noProvider = (() => { throw new Error('Offline fixture must not call any provider'); }) as typeof fetch;
+  const run = async (discountOrigin: NonNullable<ResearchPacket['context']['discountOrigin']>) => ({ ...await research('discount', { ...packet().context, discountOrigin }, false, {}, noProvider), researchId: `fixture-${discountOrigin}` }) as ResearchPacket;
+  const manual = await run('manual');
+  for (const a of ['review-combination-settings', 'audit-manual-overrides'] as const) {
+    const reference = suiteFor(manual, a);
+    assert.equal(reference.cards[1].verdict, a === 'review-combination-settings' ? 'contradicted' : 'supported');
+    assert.equal(reference.cards[2].verdict, 'hold');
+    for (const origin of ['unknown', 'app', 'app-script', 'scripts-api'] as const) {
+      const p = await run(origin);
+      assert.equal(decidePolicy('discount', p).status, 'hold', origin);
+      assert.deepEqual(suiteFor(p, a).cards, reference.cards, `${a}/${origin}`);
+      assertAgreesWithDecidePolicy(p);
+    }
   }
 });
 

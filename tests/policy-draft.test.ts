@@ -72,7 +72,7 @@ test('policy scope statements stay within each supported context and hold for ab
   const app = { ...packet, context: { ...packet.context, discountOrigin: 'scripts-api' as const }, sources: [{ ...packet.sources[0], snippet: 'Scripts API discounts can bypass combination settings.' }] };
   const native = { ...packet, context: { ...packet.context, discountOrigin: 'native' as const }, sources: [{ ...packet.sources[0], snippet: 'Combination settings control eligible code discount classes.' }] };
   const shipping = { ...packet, kind: 'shipping' as const, sources: [{ ...packet.sources[0], snippet: 'Carrier rate rules depend on measured dimensions and billable weight.' }] };
-  assert.match(permittedPolicyStatements(app)[0].statement, /Scripts API exception/);
+  assert.deepEqual(permittedPolicyStatements(app), []); // Shopify Scripts retired 2026-06-30: decidePolicy holds
   assert.match(permittedPolicyStatements(native)[0].statement, /conditions for combining discounts/);
   assert.match(permittedPolicyStatements(shipping)[0].statement, /carrier measurement/);
   assert.deepEqual(permittedPolicyStatements({ ...packet, sources: [] }), []);
@@ -123,4 +123,27 @@ test('a draft that says the exception explains the exposure is rejected as a cau
   const packet = { kind: 'discount', mode: 'live', status: 'ok', checkedAt: null, query: 'q', note: '', researchId: 'r', context: { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'manual' }, sources: [{ id: 'S1', title: 'Shopify Help Center | Discount combinations on POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts', snippet: 'Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.', publishedDate: null }] } as never;
   // Observed live (request a13f50e7…, 2026-10-30).
   assert.throws(() => validatePolicyDraft({ documentedPolicy: ['S1'], inference: 'The manual discount applied to the order bypasses combination restrictions, which explains the exposure amount across the affected rows.', nextStep: 'Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings.', uncertainty: 'Policy effective dates and specific account terms for this store have not been verified.' }, packet), /Unsupported claim/);
+});
+
+test('a next step that restates the code-decided check is not presented as model work', async () => {
+  const { decidePolicy } = await import('../shared/policy-decision.js');
+  const check = decidePolicy('discount', packet).nextCheck;
+  // Identical, case/punctuation-only edits, and dropping one word all count as a copy.
+  for (const nextStep of [check, `  ${check.toUpperCase().replace(/\.$/u, '')}  `, check.split(' ').slice(1).join(' ')]) {
+    assert.throws(() => validateRemediation({ ...valid(), nextStep }, packet), /restates the code check/);
+  }
+  // A procedure that goes beyond the check passes, even when it reuses some of its words.
+  assert.doesNotThrow(() => validateRemediation({ ...valid(), nextStep: `${check.replace(/\.$/u, '')}: open a few flagged orders filtered by the Point of Sale channel and compare the staff member on each discount line with the promotion calendar.` }, packet));
+  assert.doesNotThrow(() => validateRemediation(valid(), packet));
+});
+
+test('a copied code check falls back with a reason that names it', async () => {
+  const { decidePolicy } = await import('../shared/policy-decision.js');
+  const issue = analyze(createDemoCsv()).issues.find(item => item.kind === 'discount')!;
+  const result = await remediate(issue, packet, true, { enabled: true, key: 'mock-key', model: 'nvidia/mock' }, (async (_url, init) => {
+    const body = init?.body ? { choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ ...valid(), nextStep: decidePolicy('discount', packet).nextCheck }) } }] } : { data: [{ id: 'nvidia/mock' }] };
+    return new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' } });
+  }) as typeof fetch);
+  assert.equal(result.mode, 'fixture'); assert.equal(result.proof, undefined);
+  assert.match(result.fallbackReason ?? '', /only restated the code’s next check/);
 });

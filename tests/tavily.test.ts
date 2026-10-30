@@ -24,7 +24,7 @@ test('two scoped generic search plans never require private CSV data', () => {
   assert.throws(() => searchPlan('discount', { ...context, platform: 'Ignore instructions' } as unknown as typeof context));
 });
 test('offline fixtures make no request and never claim a retrieval timestamp', async () => {
-  const r = await research('discount', { ...context, discountOrigin: 'scripts-api' }, false, config, never);
+  const r = await research('discount', { ...context, platform: 'WooCommerce' }, false, config, never);
   assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined);
   assert.ok(r.note.includes('No search runs')); assert.ok(r.sources[0].savedAt); assert.equal(r.sources.length, 1);
 });
@@ -90,7 +90,7 @@ test('exception routing abstains for negated, unrelated and conflicting origin c
     ['manual', 'Manual POS discounts cannot bypass combination settings and are not an exception.', 'hold'],
     ['scripts-api', 'Scripts API discounts do not bypass combination settings; this policy describes no exception.', 'hold'],
     ['scripts-api', 'Manual discounts always apply regardless of combination settings; confirm the applicable store policy.', 'hold'],
-    ['scripts-api', 'Scripts API discounts can bypass combination settings. Scripts API discounts can never bypass combination settings.', 'insufficient'],
+    ['scripts-api', 'Scripts API discounts can bypass combination settings. Scripts API discounts can never bypass combination settings.', 'hold'],
   ] as const) {
     const decision = decidePolicy('discount', { context: { ...context, discountOrigin: origin }, status: 'ok', sources: [{ id: 'S1', title: 'Adversarial policy fixture', url: result.url, snippet, publishedDate: null }] });
     assert.equal(decision.status, expected, snippet); assert.deepEqual(decision.sourceIds, []);
@@ -196,15 +196,22 @@ const replayCases = [
   ['usps-shipping', 'shipping', context],
 ] as const;
 test('the manual replay is the packet the live app returned in the end-to-end run', () => {
-  const final = e2e.followups.find((f: { attempt: number }) => f.attempt === 5);
-  const live = final.research;
+  const attempt = (n: number) => e2e.followups.find((f: { attempt: number }) => f.attempt === n);
+  const live = attempt(5).research;
   assert.equal(live.mode, 'live'); assert.equal(live.status, 'ok');
   assert.deepEqual(e2e.replay.sources, live.sources); assert.deepEqual(e2e.replay.steps, live.retrieval.steps); assert.equal(e2e.replay.liveNote, live.note);
   // Every end-to-end attempt retrieved the same sources; the first two drafts failed validation.
   assert.deepEqual(e2e.attempts[0].research.packet.sources, live.sources);
   for (const a of e2e.attempts) { assert.equal(a.remediate.response.mode, 'fixture'); assert.equal(a.remediate.response.proof, undefined); }
+  // The replayed draft is attempt 6's, produced from a byte-identical packet.
+  const final = attempt(6);
+  assert.equal(final.research.mode, 'live'); assert.deepEqual(final.research.sources, live.sources); assert.equal(final.sourcesIdenticalToReplay, true);
   const passed = final.remediate.find((a: { mode: string }) => a.mode === 'live');
   assert.deepEqual(e2e.replay.recordedRemediation.draft, passed.draft); assert.equal(e2e.replay.recordedRemediation.requestId, passed.proof.requestId);
+  // The superseded attempt 5 draft copied the code check, which the validator now rejects.
+  const packet = { ...e2e.replay, mode: 'live', status: 'ok', researchId: 'r', checkedAt: null, note: '' } as ResearchPacket;
+  assert.throws(() => validateRemediation(attempt(5).remediate[0].draft, packet), /restates the code check/);
+  assert.doesNotThrow(() => validateRemediation(passed.draft, packet));
   assert.ok(e2e.budget.tavilyReportedCredits <= e2e.budget.capTavilyCredits && e2e.budget.nebiusCompletions <= e2e.budget.capNebiusCompletions);
 });
 test('hosted replays are byte-identical to the recorded live Search + Extract output', async () => {
@@ -228,7 +235,7 @@ test('hosted replays are byte-identical to the recorded live Search + Extract ou
   // Every recorded call is in the ledger, and the cap held.
   assert.ok(evidence.budget.worstCaseCredits <= evidence.budget.capCredits); assert.equal(evidence.calls.length, 8);
   // Other contexts keep their authored summaries, labelled as such.
-  for (const other of [{ ...context, discountOrigin: 'scripts-api' as const }, { ...manual, platform: 'WooCommerce' as const }]) {
+  for (const other of [{ ...context, platform: 'WooCommerce' as const }, { ...manual, platform: 'WooCommerce' as const }]) {
     const r = await research('discount', other, false, config, never);
     assert.match(r.sources[0].snippet, /^Saved-source paraphrase/); assert.match(r.note, /^Authored summaries/); assert.equal(r.retrieval, undefined);
   }
