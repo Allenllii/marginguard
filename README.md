@@ -2,7 +2,7 @@
 
 **Check the fix before you ship it.** MarginGuard finds where a small online store is losing margin, then tests the suggested fix against live official policy before the seller acts on it.
 
-[Live demo](__DEMO_URL__) · [Demo video](__VIDEO_URL__) · [Spec](docs/SPEC.md) · [Architecture](docs/ARCHITECTURE.md)
+[Live demo](https://allenllii.github.io/marginguard/) · [Demo video](__VIDEO_URL__) · [Spec](docs/SPEC.md) · [Architecture](docs/ARCHITECTURE.md)
 
 Built for the Nebius x NVIDIA Global AI Hackathon: **Best Apps and Agents** track, **Best Use of Tavily** prize.
 
@@ -59,7 +59,7 @@ Recorded from the local app on 2026-10-30 with synthetic data ([ledger](evidence
 
 ## Try it
 
-**Hosted demo (no account, no keys).** [Open the demo](__DEMO_URL__), click **See the discount policy counterexample**, then switch the discount origin between *Manual / POS / draft* and *Unknown* to watch the next check change. The hosted build runs offline: it replays the recorded live Tavily and Nemotron responses above and labels them as recorded. It makes no provider calls.
+**Hosted demo (no account, no keys).** [Open the demo](https://allenllii.github.io/marginguard/), click **See the discount policy counterexample**, then switch the discount origin between *Manual / POS / draft* and *Unknown* to watch the next check change. The hosted build runs offline: it replays the recorded live Tavily and Nemotron responses above and labels them as recorded. It makes no provider calls.
 
 **Run locally (offline).**
 
@@ -115,7 +115,7 @@ What this means for the product: MarginGuard does not rely on the model to decid
 
 ## Tests
 
-`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, __UNIT_TESTS__ unit/API tests, __FRAMEWORK_TESTS__ benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run __BROWSER_TESTS__ Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
+`npm run check` runs lint, strict TypeScript, the frontend and Worker builds, 317 unit/API tests, 65 benchmark-harness tests and the synthetic routing evaluation. Browser tests (`npm run start:qa`, then `npm run test:ui`) run 77 Playwright scenarios covering keyboard use, 320-375px layouts, reduced motion, failure states and privacy.
 
 ## Limits
 
