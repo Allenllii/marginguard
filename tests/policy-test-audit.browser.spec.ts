@@ -52,6 +52,8 @@ async function openLab(page: Page) {
   await page.getByRole('button', { name: 'See the discount policy counterexample', exact: true }).click();
   const lab = page.getByRole('region', { name: 'Policy-to-Test', exact: true });
   await expect(lab).toBeVisible();
+  await expect(lab.getByRole('button', { name: exportName, exact: true })).toBeHidden();
+  await lab.getByText('Advanced: audit details and JSON download', { exact: true }).click();
   await expect(lab.getByRole('button', { name: exportName, exact: true })).toBeVisible();
   return lab;
 }
@@ -143,7 +145,7 @@ test('audit download captures the current dataset, source provenance and all sce
   expect(second.dataset).toEqual(first.dataset);
   expect(second.evidence).toEqual(first.evidence);
   await expect(lab.getByRole('status')).toHaveCount(1);
-  await expect(lab.getByRole('status')).toContainText('2 on HOLD');
+  await expect(lab.getByRole('status')).toContainText('2 on hold');
   await expect(lab.getByRole('status')).toContainText(/download|export/i);
   expect(requests).toEqual([]);
   expect(blocked).toEqual([]);

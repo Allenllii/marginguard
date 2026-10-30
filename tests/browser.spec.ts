@@ -60,7 +60,7 @@ for (const width of [1280, 393]) test(`contrast: ${width}px auxiliary text acros
   await page.getByRole('button', { name: 'Generate offline brief', exact: true }).click();
   await expect(page.locator('.brief-result').getByText('No model called', { exact: true })).toBeVisible(); await measure('offline-brief');
   await page.getByLabel('Discount origin').selectOption('manual');
-  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
   await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
   for (const summary of await page.locator('.policy-source summary').all()) await summary.click();
   await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
@@ -135,9 +135,9 @@ test('visual: case comparison is readable at mobile width and keyboard works wit
   await page.setViewportSize({ width: 320, height: 800 });
   await page.goto('/');
   const hero = page.getByRole('region', { name: 'Policy counterexample demo', exact: true });
-  await expect(hero).toContainText('Initial hypothesis');
-  await expect(hero).toContainText('Changed next check');
-  await expect(hero).toContainText('Offline source preview');
+  await expect(hero).toContainText('Suggested fix');
+  await expect(hero).toContainText('Next check after policy');
+  await expect(hero).toContainText('Saved Shopify policy result');
   const contrast = await hero.evaluate(node => {
     const luminance = (color: string) => { const rgb = color.match(/\d+/g)!.slice(0, 3).map(Number).map(v => { const s = v / 255; return s <= .04045 ? s / 12.92 : ((s + .055) / 1.055) ** 2.4; }); return rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722; };
     const description = getComputedStyle(node.querySelector('.case-description')!);
@@ -160,11 +160,11 @@ test('judge entry: one click shows the manual-discount action change, honest mod
   const decision = page.getByRole('region', { name: 'Evidence and next check', exact: true });
   await expect(decision).toContainText('28 flagged rows; $658.08 modeled exposure.');
   await expect(decision).toContainText('20% discount ceiling');
-  await expect(decision).toContainText('Initial settings fix contradicted');
+  await expect(decision).toContainText('Policy says the suggested fix won’t work');
   await expect(decision.locator('.decision-change')).toContainText('Same 28 CSV rows. Same $658.08 modeled exposure.');
-  await expect(decision.locator('.decision-change')).toContainText('Offline authored summary');
+  await expect(decision.locator('.decision-change')).toContainText('Saved policy summary');
   await expect(decision).toContainText('Audit staff/manual POS');
-  await expect(page.locator('.policy-card')).toContainText('Offline fixture');
+  await expect(page.locator('.policy-card')).toContainText('Saved result');
   await expect(page.getByRole('link', { name: 'Source & version', exact: true })).toHaveAttribute('href', 'https://github.com/Allenllii/marginguard/blob/main/docs/RELEASE.md');
   await page.locator('.policy-card').screenshot({ path: 'evidence/judge-case-entry.png', animations: 'disabled' });
   await page.getByRole('button', { name: 'Overview', exact: true }).click();
@@ -180,12 +180,13 @@ test('review: ordinary apps hold, confirmed Scripts API uses its own exception, 
   await expect(page.locator('.analyst-card')).toContainText("CSV uploads are sent to this app's server");
   await expect(page.locator('.analyst-card')).not.toContainText('stay local');
   await page.getByLabel('Discount origin').selectOption('app');
-  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
   const decision = page.getByRole('region', { name: 'Evidence and next check', exact: true });
   await expect(decision).toContainText('An app is not necessarily using the Scripts API');
-  await expect(page.getByRole('button', { name: 'Draft with NVIDIA', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Draft with Nemotron', exact: true })).toHaveCount(0);
+  await expect(page.getByText('Live Nemotron drafts run locally with your keys.', { exact: true })).toBeVisible();
   await page.getByLabel('Discount origin').selectOption('scripts-api');
-  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
   await expect(decision).toContainText('Audit the originating Scripts API');
   await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
   await expect(page.locator('.remediation')).toContainText('Scripts API exception');
@@ -197,10 +198,10 @@ test('review: ordinary apps hold, confirmed Scripts API uses its own exception, 
 
 test('journey: policy evidence survives scenario navigation but a different dataset clears it', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByText("CSV uploads are sent to this app's server for validation and calculation; use synthetic or non-sensitive data.", { exact: true })).toBeVisible();
+  await expect(page.getByText("CSV uploads are sent to this app's server for validation and calculation only. They are not stored, and raw rows are never sent to Tavily or Nebius. Use synthetic or non-sensitive data.", { exact: true })).toBeVisible();
   await page.getByRole('button', { name: /^Findings/ }).click();
   await page.getByLabel('Discount origin').selectOption('manual');
-  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
   await page.getByRole('button', { name: 'Draft offline checks', exact: true }).click();
   await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
   await page.getByRole('button', { name: 'Scenario lab', exact: true }).click();
@@ -213,7 +214,7 @@ test('journey: policy evidence survives scenario navigation but a different data
   await expect(page.getByRole('alert')).toBeVisible();
   await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Export policy evidence & provenance', exact: true }).click();
+  await page.getByRole('button', { name: 'Export policy evidence', exact: true }).click();
   await (await download).saveAs('evidence/navigation-policy-export.md');
   expect(await readFile('evidence/navigation-policy-export.md', 'utf8')).toContain('discount origin manual');
   await page.getByLabel('Import order CSV').setInputFiles(path.resolve('data/template.csv'));
@@ -227,7 +228,7 @@ test('clarity: the evidence decision leads the draft and keeps assumptions, cita
   await page.goto('/');
   await page.getByRole('button', { name: /^Findings/ }).click();
   await page.getByLabel('Discount origin').selectOption('manual');
-  await page.getByRole('button', { name: 'Preview source fixtures', exact: true }).click();
+  await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();
   const decision = page.getByRole('region', { name: 'Evidence and next check', exact: true });
   await expect(decision.getByRole('heading', { name: 'Rule-based next check', exact: true })).toBeVisible();
   await expect(decision).toContainText('28 flagged rows; $658.08 modeled exposure.');
@@ -239,7 +240,7 @@ test('clarity: the evidence decision leads the draft and keeps assumptions, cita
   await expect(page.locator('.remediation')).toContainText('Rule-based rationale');
   await expect(page.locator('.remediation')).toContainText('A draft cannot approve a remedy or estimate recovery.');
   const download = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Export policy evidence & provenance', exact: true }).click();
+  await page.getByRole('button', { name: 'Export policy evidence', exact: true }).click();
   const file = await download; await file.saveAs('evidence/decision-clarity-export.md');
   const text = await readFile('evidence/decision-clarity-export.md', 'utf8');
   expect(text).toContain('Decision authority: Rule-based policy check');
@@ -281,8 +282,8 @@ test('desktop: overview, evidence, scenario, report, offline brief, valid and in
   const report = await reportDownload; await report.saveAs('evidence/exported-report.md');
   expect(await readFile('evidence/exported-report.md', 'utf8')).toContain('Modeled contribution uplift: $1,918.58');
   await page.getByRole('button', { name: /^Findings/ }).click();
-  await page.getByRole('button', { name: 'Preview source fixtures' }).click();
-  await expect(page.getByText('Offline fixture · no retrieval occurred', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'Show saved policy result' }).click();
+  await expect(page.getByText('Saved result · no live search ran', { exact: false })).toBeVisible();
   await page.getByRole('button', { name: 'Draft offline checks' }).click();
   await expect(page.getByText('Offline analyst checks', { exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Open official source' })).toHaveAttribute('href', 'https://help.shopify.com/en/manual/discounts/discount-combinations');
@@ -290,10 +291,11 @@ test('desktop: overview, evidence, scenario, report, offline brief, valid and in
   await page.screenshot({ path: 'evidence/desktop-policy-evidence.png', fullPage: true });
   await page.locator('.policy-card').screenshot({ path: 'evidence/policy-feature.png' });
   const policyDownload = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Export policy evidence & provenance' }).click();
+  await page.getByRole('button', { name: 'Export policy evidence' }).click();
   await (await policyDownload).saveAs('evidence/exported-policy-evidence.md');
   expect(await readFile('evidence/exported-policy-evidence.md', 'utf8')).toContain('Search mode: fixture');
-  await expect(page.getByRole('button', { name: 'Generate NVIDIA brief' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Generate NVIDIA brief' })).toHaveCount(0);
+  await expect(page.getByTestId('mode-badge')).toHaveText('Demo: saved results');
   await page.getByRole('button', { name: 'Generate offline brief' }).click();
   await expect(page.getByText('Offline deterministic guidance', { exact: true })).toBeVisible();
   await expect(page.locator('.brief-result').getByText('No model called', { exact: true })).toBeVisible();
@@ -328,7 +330,7 @@ test('mobile: navigation, evidence, and layout stay usable', async ({ page }) =>
   await page.screenshot({ path: 'evidence/mobile-evidence.png', fullPage: true });
   await page.getByRole('button', { name: 'Close evidence' }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
-  await page.getByRole('button', { name: 'Preview source fixtures' }).click();
+  await page.getByRole('button', { name: 'Show saved policy result' }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: 'evidence/mobile-policy-evidence.png', fullPage: true });
@@ -354,14 +356,15 @@ test('cancel, repeat evidence visits and navigation preserve the current dataset
   await expect(page.getByRole('alert')).toContainText('2 MB limit');
   await expect(page.getByText('504 validated orders')).toBeVisible();
   await page.getByRole('button', { name: /^Findings/ }).click();
-  await expect(page.getByRole('button', { name: 'Search official policies' })).toBeDisabled();
-  await page.getByRole('button', { name: 'Preview source fixtures' }).click();
+  await expect(page.getByRole('button', { name: 'Search official policies' })).toHaveCount(0);
+  await expect(page.getByText('Live Tavily search runs locally with your keys.', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Show saved policy result' }).click();
   await page.getByLabel('Policy finding').selectOption('shipping-overrun');
-  await expect(page.getByText('EXACT GENERIC QUERY')).not.toBeVisible();
+  await expect(page.getByText('SEARCH QUERY · NO STORE DATA')).not.toBeVisible();
   await page.getByLabel('Shipping carrier').selectOption('UPS');
-  await page.getByRole('button', { name: 'Preview source fixtures' }).click();
+  await page.getByRole('button', { name: 'Show saved policy result' }).click();
   await expect(page.getByRole('link', { name: 'Open official source' })).toHaveAttribute('href', /www.ups.com/);
-  await expect(page.getByRole('button', { name: 'Draft with NVIDIA' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Draft with Nemotron' })).toHaveCount(0);
 });
 
 async function ignoreAbortForTest(page: Page) {
@@ -397,23 +400,23 @@ test('delayed policy search and remediation cannot survive a same-dataset reset'
   await ignoreAbortForTest(page); await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
   for (const endpoint of ['/api/research', '/api/remediate']) {
     await page.getByRole('button', { name: /^Findings/ }).click();
-    if (endpoint.endsWith('remediate')) { await page.getByRole('button', { name: 'Preview source fixtures' }).click(); await expect(page.getByText('EXACT GENERIC QUERY')).toBeVisible(); }
+    if (endpoint.endsWith('remediate')) { await page.getByRole('button', { name: 'Show saved policy result' }).click(); await expect(page.getByText('SEARCH QUERY · NO STORE DATA')).toBeVisible(); }
     const held = await holdResponse(page, endpoint);
-    await page.getByRole('button', { name: endpoint.endsWith('research') ? 'Preview source fixtures' : 'Draft offline checks' }).click(); await held.entered;
+    await page.getByRole('button', { name: endpoint.endsWith('research') ? 'Show saved policy result' : 'Draft offline checks' }).click(); await held.entered;
     await page.getByRole('button', { name: 'Reset demo' }).click(); await expect(page.getByRole('status').filter({ hasText: 'Synthetic demo loaded' })).toBeVisible(); await held.finish();
-    await expect(page.getByText('EXACT GENERIC QUERY')).toHaveCount(0); await expect(page.getByText('Offline analyst checks', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('SEARCH QUERY · NO STORE DATA')).toHaveCount(0); await expect(page.getByText('Offline analyst checks', { exact: true })).toHaveCount(0);
   }
 });
 test('policy exception redirects a manual-discount check and missing/wrong-region context holds', async ({ page }) => {
   await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
   await page.getByLabel('Discount ceiling percent').fill('30'); await page.getByLabel('Shipping subsidy USD').fill('5'); await page.getByRole('button', { name: 'Recalculate' }).click();
   await expect(page.locator('.assumption-bar>small')).toContainText('Applied: 30%');
-  await page.getByRole('button', { name: /^Findings/ }).click(); await page.getByLabel('Discount origin').selectOption('manual'); await page.getByRole('button', { name: 'Preview source fixtures' }).click();
-  await expect(page.locator('.decision-status')).toHaveText('Initial settings fix contradicted'); await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
+  await page.getByRole('button', { name: /^Findings/ }).click(); await page.getByLabel('Discount origin').selectOption('manual'); await page.getByRole('button', { name: 'Show saved policy result' }).click();
+  await expect(page.locator('.decision-status')).toHaveText('Policy says the suggested fix won’t work'); await expect(page.getByTestId('decision-next-check')).toContainText('Audit staff/manual POS');
   await page.getByRole('button', { name: 'Draft offline checks' }).click(); await expect(page.locator('.remediation')).toContainText('Audit staff/manual POS');
   await page.locator('.policy-card').screenshot({ path: 'evidence/policy-manual-exception.png' });
-  await page.getByLabel('Discount origin').selectOption('unknown'); await page.getByRole('button', { name: 'Preview source fixtures' }).click(); await expect(page.locator('.decision-status')).toHaveText('Hold · context needed');
-  await page.getByLabel('Operating region').selectOption('UK'); await page.getByRole('button', { name: 'Preview source fixtures' }).click(); await expect(page.getByTestId('decision-next-check')).toContainText('Confirm the operating region');
+  await page.getByLabel('Discount origin').selectOption('unknown'); await page.getByRole('button', { name: 'Show saved policy result' }).click(); await expect(page.locator('.decision-status')).toHaveText('On hold — needs more evidence');
+  await page.getByLabel('Operating region').selectOption('UK'); await page.getByRole('button', { name: 'Show saved policy result' }).click(); await expect(page.getByTestId('decision-next-check')).toContainText('Confirm the operating region');
 });
 test('a slower earlier import cannot overwrite a newer import', async ({ page }) => {
   await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
@@ -464,4 +467,23 @@ test('client-rejected files can be selected again after dismissing the error', a
       await expect(page.locator('.dataset-strip')).toContainText('504 validated orders');
     }
   }
+});
+
+test('mode badge reports /api/health and live controls appear only when configured', async ({ page }) => {
+  const posts: string[] = [];
+  page.on('request', request => { if (request.method() === 'POST') posts.push(new URL(request.url()).pathname); });
+  const health = (nvidia: boolean, tavily: boolean) => ({ ok: true, provider: { mode: nvidia ? 'configured' : 'fixture', model: nvidia ? 'mock/nemotron' : null, endpoint: 'mock' }, tavily: { mode: tavily ? 'configured' : 'fixture', endpoint: 'mock' } });
+  for (const [nvidia, tavily, label] of [[true, true, 'Live: Tavily + Nemotron'], [false, true, 'Live: Tavily · Nemotron off'], [true, false, 'Live: Nemotron · Tavily off'], [false, false, 'Demo: saved results']] as const) {
+    await page.unroute('**/api/health');
+    await page.route('**/api/health', route => route.fulfill({ json: health(nvidia, tavily) }));
+    await page.goto('/'); await expect(page.getByText('504 validated orders')).toBeVisible();
+    await expect(page.getByTestId('mode-badge')).toHaveText(label);
+    await page.getByRole('button', { name: /^Findings/ }).click();
+    const search = page.getByRole('button', { name: 'Search official policies', exact: true });
+    const brief = page.getByRole('button', { name: 'Generate NVIDIA brief', exact: true });
+    if (tavily) await expect(search).toBeDisabled(); else await expect(search).toHaveCount(0);
+    if (nvidia) await expect(brief).toBeDisabled(); else await expect(brief).toHaveCount(0);
+  }
+  // Rendering live controls never sends a provider request on its own.
+  expect(posts).toEqual([]);
 });

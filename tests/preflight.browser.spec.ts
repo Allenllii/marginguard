@@ -15,10 +15,10 @@ test('golden collision is offline, auditable, held and keyboard focus reaches th
   await page.getByRole('button', { name: 'Run collision test', exact: true }).focus();
   await page.keyboard.press('Enter');
   await expect(worst(page)).toHaveText('-$6.00');
-  await expect(page.getByTestId('preflight-status')).toHaveText('HOLD');
+  await expect(page.getByTestId('preflight-status')).toHaveText('On hold');
   await expect(page.getByTestId('preflight-scenario-count')).toHaveText('16 / 1008');
   await expect(page.getByRole('region', { name: 'What is left in the worst basket?' })).toBeFocused();
-  await expect(page.getByRole('heading', { name: 'Why this stays on HOLD' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Why this is on hold' })).toBeVisible();
   await expect(page.locator('.pf-trace')).toContainText('$40.00');
   await expect(page.locator('.pf-trace')).toContainText('$32.00');
   expect(requests.filter(url => url.includes('/api/'))).toEqual([]);
@@ -34,7 +34,7 @@ test('seller omits the order rule, stale results disappear, and the fixture stay
   await expect(page.getByRole('status')).toContainText('previous result has been cleared');
   await run(page);
   await expect(worst(page)).toHaveText('$2.00');
-  await expect(page.getByTestId('preflight-status')).toHaveText('HOLD');
+  await expect(page.getByTestId('preflight-status')).toHaveText('On hold');
 });
 
 test('noninteger and malicious inputs fail closed with an accessible error', async ({ page }) => {
@@ -78,14 +78,14 @@ test('seller attestations and explicit semantics gate model labels; a missing re
   await page.getByLabel('Price / cost evidence reference', { exact: true }).fill('Seller worksheet revision A');
   await page.getByLabel('Rule eligibility / sequence evidence reference', { exact: true }).fill('Seller combination experiment revision B');
   await page.getByLabel('Shipping / payment fee evidence reference', { exact: true }).fill('Seller shipping and fee schedule revision C');
-  await run(page); await expect(page.getByTestId('preflight-status')).toHaveText('HOLD');
+  await run(page); await expect(page.getByTestId('preflight-status')).toHaveText('On hold');
   await page.getByRole('checkbox', { name: /I explicitly confirm this simulation/ }).check();
-  await run(page); await expect(page.getByTestId('preflight-status')).toHaveText('REVIEW');
+  await run(page); await expect(page.getByTestId('preflight-status')).toHaveText('Review risk');
   await page.getByRole('button', { name: 'Remove rule 2', exact: true }).click();
-  await run(page); await expect(page.getByTestId('preflight-status')).toHaveText('MODEL_CLEAR');
+  await run(page); await expect(page.getByTestId('preflight-status')).toHaveText('Clear in model');
   await expect(page.locator('.pf-result-bound')).toContainText('not actual savings or a launch approval');
   await page.getByLabel('Shipping / payment fee evidence reference', { exact: true }).fill('');
-  await run(page); await expect(page.getByTestId('preflight-status')).toHaveText('HOLD');
+  await run(page); await expect(page.getByTestId('preflight-status')).toHaveText('On hold');
 });
 
 test('JSON export contains replayable inputs, formula, trace, bounds and evidence gaps', async ({ page }) => {
