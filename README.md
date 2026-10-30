@@ -4,7 +4,7 @@
 
 **Check the fix before you ship it.** MarginGuard finds where a small online store is losing margin, then tests the suggested fix against live official policy before the seller acts on it.
 
-[Live demo](https://marginguard.marginguard-demo.workers.dev) · [Offline mirror](https://allenllii.github.io/marginguard/) · [Demo video](__VIDEO_URL__) · [Spec](docs/SPEC.md) · [Architecture](docs/ARCHITECTURE.md)
+[Live demo](https://marginguard.marginguard-demo.workers.dev) · [Offline mirror](https://allenllii.github.io/marginguard/) · [Demo video](https://youtu.be/nk1KyK8QZ9E) · [Spec](docs/SPEC.md) · [Architecture](docs/ARCHITECTURE.md)
 
 Built for the Nebius x NVIDIA Global AI Hackathon: **Best Apps and Agents** track, **Best Use of Tavily** prize.
 
