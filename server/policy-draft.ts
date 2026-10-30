@@ -2,8 +2,11 @@ import { z } from 'zod';
 import { decidePolicy } from '../shared/policy-decision.js';
 import type { ResearchPacket } from '../shared/types.js';
 
+// Nemotron sometimes returns bare citation IDs ("S1") instead of {sourceId}.
+// Both shapes carry only an ID; the IDs are still checked against permitted sources below.
+const Citation = z.preprocess(value => typeof value === 'string' ? { sourceId: value } : value, z.object({ sourceId: z.string().max(8), statement: z.string().min(10).max(500).optional() }).strict());
 const Output = z.object({
-  documentedPolicy: z.array(z.object({ sourceId: z.string().max(8), statement: z.string().min(10).max(500).optional() }).strict()).min(1).max(3),
+  documentedPolicy: z.array(Citation).min(1).max(3),
   inference: z.string().min(10).max(600), nextStep: z.string().min(10).max(600), uncertainty: z.string().min(20).max(600),
 }).strict();
 
@@ -45,6 +48,9 @@ export function validatePolicyDraft(raw: unknown, packet: ResearchPacket) {
   const ids = value.documentedPolicy.map(item => item.sourceId);
   if (ids.some(id => !packet.sources.some(source => source.id === id))) throw new Error('Unknown citation');
   if (new Set(ids).size !== ids.length || value.documentedPolicy.some(item => !allowed.has(item.sourceId) || (item.statement !== undefined && normalizeStatement(item.statement) !== normalizeStatement(allowed.get(item.sourceId)!)))) throw new Error('Unsupported policy statement');
+  // A draft must not recommend the remedy the evidence just rebutted.
+  // "Audit the combination settings" repeats it; "... before adjusting combination settings" does not.
+  if (decidePolicy(packet.kind, packet).status === 'contradicted' && /(?<!\bbefore\s)\b(?:audit|review|check|inspect|chang|adjust|tighten|updat|fix|modif|correct)\w*\s+(?:(?:the|your|its|store|discount)\s+)*combination settings?\b/iu.test(value.nextStep) && !/\b(?:manual|POS|draft|override|Scripts?)\b/iu.test(value.nextStep)) throw new Error('Next step contradicts the policy decision');
   const prose = [...value.documentedPolicy.flatMap(item => item.statement === undefined ? [] : [item.statement]), value.inference, value.nextStep, value.uncertainty];
   if (prose.some(text => /[\d$%]|https?:|<[^>]+>|guaranteed savings|definitely caused|proves.{0,20}(cause|defect)/iu.test(text))) throw new Error('Unsupported claim');
   // Reproduce the observed determiner/account-number mismatch specifically.

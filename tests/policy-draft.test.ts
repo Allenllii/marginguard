@@ -107,3 +107,13 @@ test('observed agreement error returns complete offline checks without a live pr
   assert.equal(calls, 2); assert.equal(result.mode, 'fixture'); assert.equal(result.proof, undefined);
   assert.ok(!JSON.stringify(result).includes('this specific accounts'));
 });
+
+test('bare citation IDs are accepted as references, and a next step that repeats the rebutted remedy is rejected', async () => {
+  const { validatePolicyDraft } = await import('../server/policy-draft.js');
+  const packet = { kind: 'discount', mode: 'live', status: 'ok', checkedAt: null, query: 'q', note: '', researchId: 'r', context: { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'manual' }, sources: [{ id: 'S1', title: 'Shopify Help Center | Discount combinations on POS', url: 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts', snippet: 'Custom discounts that you apply manually in Shopify POS always apply to the order, even if other discounts have combination restrictions.', publishedDate: null }] } as never;
+  const base = { inference: 'Staff may be applying manual discounts that ignore the configured combination rules.', uncertainty: 'The policy effective date and store configuration are unverified for this selected store.' };
+  const ok = validatePolicyDraft({ ...base, documentedPolicy: ['S1'], nextStep: 'Review staff manual POS discount overrides on a few flagged orders.' }, packet);
+  assert.equal(ok.documentedPolicy[0].sourceId, 'S1');
+  assert.throws(() => validatePolicyDraft({ ...base, documentedPolicy: ['S1'], nextStep: 'Audit the store discount combination settings for overlapping promotions.' }, packet), /contradicts the policy decision/);
+  assert.throws(() => validatePolicyDraft({ ...base, documentedPolicy: ['S9'], nextStep: 'Review staff manual POS discount overrides on a few flagged orders.' }, packet), /Unknown citation/);
+});
