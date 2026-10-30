@@ -183,7 +183,7 @@ test('offline: unknown text holds; examples list matches the recorded runs', asy
   assert.equal(examples.status, 200); assert.deepEqual(examples.body, CHECK_FIX_EXAMPLES);
   assert.deepEqual(CHECK_FIX_EXAMPLES.map(e => e.id), RECORDED_CHECKS.map(e => e.id));
   for (const e of CHECK_FIX_EXAMPLES) {
-    const replay = await service.dispatch('POST', '/api/check-fix', { ...e, live: true });
+    const replay = await service.dispatch('POST', '/api/check-fix', { fix: e.fix, context: e.context, live: true });
     assert.equal((replay.body as CheckFixResponse).mode, 'recorded', 'no keys: live request replays the recording');
     const other = await service.dispatch('POST', '/api/check-fix', { fix: e.fix, context: { ...e.context, platform: e.context.platform === 'Shopify' ? 'WooCommerce' : 'Shopify' }, live: false });
     assert.equal((other.body as CheckFixResponse).status, 'hold', 'a recording applies only to its own context');
