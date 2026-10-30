@@ -147,8 +147,9 @@ fixture preservation and end-to-end mock integer-engine parity. Real provider
 verification is separate from mock pass counts. The controlled October 29 probe
 returned HOLD after HTTP-200 Search and Extract; no usable proposal, confirmation
 or model completion resulted. See the request observations and remaining gates
-in [SPONSOR-BRIDGE-REVIEW.md](SPONSOR-BRIDGE-REVIEW.md). This slice makes no
-full-pipeline live-success or production-readiness claim.
+in [SPONSOR-BRIDGE-REVIEW.md](SPONSOR-BRIDGE-REVIEW.md). That historical probe did not establish a successful bridge. The subsequent
+local diagnostic follow-up verified the controlled synthetic UI loop; see
+[BRIDGE-DIAGNOSTICS.md](BRIDGE-DIAGNOSTICS.md). No production-readiness claim is made.
 
 Protocol references inspected for this implementation:
 [Tavily Search](https://docs.tavily.com/documentation/api-reference/endpoint/search),

@@ -55,3 +55,18 @@ Main also integrated the one-click follow-up through PR #12 at `f5a264e1e05c86e8
 ## Interaction QA follow-up
 
 Follow-up source branch: https://github.com/Allenllii/marginguard/tree/codex/interaction-accessibility, based on PR #13 source `18f4fdadf0f1f55fec510860441e8b7e3fa27830`. This fixes explicit case-entry result focus/scroll, stale case navigation, keyboard access to a closed mobile menu, Escape/trigger focus and small assumption/finding/KPI/footer text. It does not change calculations or provider consent. Full current counts are pinned in the source manifest. New raw QA logs stay local. PR #13 was initially approval-blocked, then explicitly authorized and merged to main at `ccfd2bca55a1c9a21455a1a8b879b70e27eaaef0`. This interaction follow-up remains separate. The proposed CI files remain local and are excluded from this follow-up until separately authorized. Final benchmark is NOT RUN.
+
+
+## Local integrated follow-up, October 30
+
+Public baseline: main `7466e4fa8d63d3226210029cdd6c5abf5b933cf3` (PR #21).
+Local follow-up commits preserve static diagnostics, exact reviewed-source scope,
+merchant eligibility versus geography, nullable tool metadata, Policy-to-Test
+JSON export and fixed-basket A/B comparison. The verified bridge code at
+`3cabd0d2bdf478458128287c9ea6fb52338c207c` completed the controlled synthetic
+local UI loop. Export integration is `68940cbc38c3b98f626557dc941f6668aa6c5645`;
+comparison integration is `a82e5de7cc0e83244d2fa7717968bd2c1cd546fa`.
+These identities are local code commits, not a deployment claim. Final combined
+verification, remote tree identity and next Sites version must be recorded by
+the release owner. The public runtime remains forced offline; final benchmark
+and video remain unrun. The original deadline freeze still applies.
