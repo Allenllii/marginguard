@@ -1,0 +1,2 @@
+# Synthetic CSV bytes are fingerprinted and must match the LF generator on Windows.
+data/*.csv text eol=lf
