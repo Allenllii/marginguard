@@ -40,3 +40,10 @@ test('manual exception is judged per sentence and only for Shopify', () => {
   assert.equal(one('Do manual POS discounts always apply regardless of combination settings?'), 'hold');
   assert.equal(one(live, 'WooCommerce'), 'hold');
 });
+
+test('ordinary coupon prose is not mistaken for a retracted policy, while real retractions still hold', async () => {
+  const { unresolvedPolicyStatement } = await import('../shared/policy-source-scope.js');
+  // Observed on woocommerce.com/document/coupon-management (Tavily request 228a3088…, 2026-10-30).
+  assert.equal(unresolvedPolicyStatement('Coupon management', 'Usage limit per coupon — how many times a coupon can be used by all customers before it becomes invalid.'), false);
+  for (const text of ['It is not true.', 'That is incorrect.', 'It no longer applies.', 'This policy is outdated.', 'This guidance has expired.']) assert.equal(unresolvedPolicyStatement('', text), true, text);
+});

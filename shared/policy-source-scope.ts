@@ -28,7 +28,11 @@ export function inferredSourceRegion(title: string, content: string): PolicySour
 
 export function unresolvedPolicyStatement(title: string, content: string): boolean {
   const text = `${title} ${content}`;
-  return /\b(?:this|that|it|these|those|guidance|policy|rule|claim|statement|sentence|exception)\b.{0,120}\b(?:not true|false|untrue|incorrect|invalid|outdated|expired|no longer applies|withdrawn|retracted|obsolete|superseded|hypothetical example)\b/iu.test(text)
+  // A bare pronoun must be the direct subject ("It is not true", "That is
+  // incorrect"); otherwise ordinary coupon prose such as "use it before it
+  // becomes invalid" would discard an official page.
+  return /\b(?:guidance|policy|rule|claim|statement|sentence|exception)\b.{0,120}\b(?:not true|false|untrue|incorrect|invalid|outdated|expired|no longer applies|withdrawn|retracted|obsolete|superseded|hypothetical example)\b/iu.test(text)
+    || /\b(?:this|that|it|these|those)\s+(?:(?:is|was|are|were|has been|have been)(?:\s+now)?\s+(?:\w+\s+){0,2}(?:not true|false|untrue|incorrect|invalid|outdated|expired|withdrawn|retracted|obsolete|superseded|a hypothetical example)|no longer applies)\b/iu.test(text)
     || /\bmanual\b.{0,100}\bdiscounts?\b.{0,60}\b(?:must|shall|have to|are required to)\b.{0,40}\b(?:follow|obey|respect|comply with)\b.{0,40}\bcombination settings\b/iu.test(text)
     || /\bdiscount combinations?\b.{0,50}\b(?:prohibited|forbidden|disallowed|not permitted)\b/iu.test(text);
 }
