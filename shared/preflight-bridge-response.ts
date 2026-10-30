@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { PREFLIGHT_FIXTURE, validatePreflightInput } from './preflight.js';
+import { PolicyReviewDossierSchema } from './policy-review-dossier.js';
 
 export const PREFLIGHT_POLICY_URL = 'https://help.shopify.com/en/manual/discounts/discount-combinations';
 export const SYNTHETIC_CAMPAIGN = '20% product discount then 20% order discount then free shipping';
@@ -11,6 +12,7 @@ const Reply = z.object({
   rules: z.array(z.unknown()).max(3), model: z.string().max(256).nullable(),
   policy: z.object({ mode: z.enum(['fixture', 'live']), status: z.enum(['HOLD', 'REFERENCE_READY']), reason: Text,
     sources: z.array(z.object({ id: z.literal('S1'), title: Text, url: z.literal(PREFLIGHT_POLICY_URL), snippet: Text }).strict()).max(1),
+    reviewEvidence: PolicyReviewDossierSchema.optional(),
   }).strict().nullable(),
   requiresSellerConfirmation: z.literal(true), applyAutomatically: z.literal(false), checkoutVerified: z.literal(false),
   http: z.object({ maximumAttempts: z.literal(4), attempted: z.number().int().min(0).max(4), blocked: z.boolean(), unknownOutcomes: z.number().int().min(0).max(4), traces: z.array(Trace).max(4) }).strict(),
@@ -19,6 +21,10 @@ const Reply = z.object({
 
 export function parsePreflightBridgeReply(value: unknown) {
   const reply = Reply.parse(value), trace = reply.http;
+  if (reply.policy?.reviewEvidence) {
+    if (reply.mode !== 'live' || reply.policy.mode !== 'live' || reply.status !== 'HOLD' || reply.policy.status !== 'HOLD' || reply.policy.sources.length || reply.model !== null || trace.attempted !== 2 || trace.unknownOutcomes || trace.blocked) throw Error('Unreviewed evidence cannot authorize a proposal');
+    if (trace.traces.some((item, index) => item.endpoint !== ['search', 'extract'][index] || item.provider !== 'tavily' || item.outcome !== 'response' || !item.status || item.status < 200 || item.status >= 300)) throw Error('Unproven review evidence retrieval');
+  }
   if (trace.attempted !== trace.traces.length || trace.unknownOutcomes !== trace.traces.filter(item => item.outcome === 'unknown').length) throw Error('Inconsistent attempt report');
   const rules = validatePreflightInput({ ...PREFLIGHT_FIXTURE, rules: reply.rules }).rules;
   if (reply.status === 'NEEDS_CONFIRMATION') {

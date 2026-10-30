@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { boundedJson } from './http.js';
 import { inferredSourceRegion, unresolvedPolicyStatement } from '../shared/policy-source-scope.js';
 import { inspectCombinationRestrictions, isReviewedPreflightSource } from './preflight-policy-scope.js';
+import { policyReviewDossier } from './preflight-policy-dossier.js';
+import type { PolicyReviewDossier } from '../shared/policy-review-dossier.js';
 
 // This is a deliberately small source catalog, not a general URL import API.
 // Official page inspected 2026-10-29:
@@ -25,6 +27,8 @@ export interface PreflightPolicyResult {
   status: 'HOLD' | 'REFERENCE_READY';
   sources: { id: string; title: string; url: string; snippet: string }[];
   reason: string;
+  /** Unreviewed evidence is never a usable policy source or proposal permit. */
+  reviewEvidence?: PolicyReviewDossier;
 }
 
 function hold(mode: PreflightPolicyResult['mode'], reason: string, code?: string): PreflightPolicyResult {
@@ -37,7 +41,7 @@ function allowedUrl(value: string): boolean {
 }
 
 function safeText(value: string): boolean {
-  return !directives.test(value) && !/[\p{Cc}\p{Cf}]/u.test(value.replace(/[\t\n\r]/g, ''));
+  return !directives.test(value.replace(/\s+/gu, ' ')) && !/[\p{Cc}\p{Cf}]/u.test(value.replace(/[\t\n\r]/g, ''));
 }
 
 function policyFailure(value: string): string | null {
@@ -124,12 +128,20 @@ export async function retrievePreflightPolicy(config: { enabled?: boolean; key?:
     if (body.results[0].url !== selectedUrl || !allowedUrl(body.results[0].url)) return hold('live', 'Extraction returned an unapproved source URL.', 'EXTRACT_SOURCE_URL_MISMATCH');
     if (rejected(body.results[0].raw_content)) return hold('live', 'Extracted content failed the credential-echo check.', 'EXTRACT_CREDENTIAL_ECHO');
     const extractFailure = policyFailure(body.results[0].raw_content);
-    if (extractFailure) return hold('live', 'Extracted policy evidence is incomplete, conflicting or outside the supported source scope.', `EXTRACT_${extractFailure}`);
+    if (extractFailure) {
+      const held = hold('live', 'Extracted policy evidence is incomplete, conflicting or outside the supported source scope.', `EXTRACT_${extractFailure}`);
+      // A safe contradiction can be inspected without being treated as support.
+      // Unsafe, credential-bearing, retracted or out-of-region bodies stay empty.
+      return extractFailure === 'SCOPED_CONTRADICTION' ? { ...held, reviewEvidence: policyReviewDossier(body.results[0].raw_content) } : held;
+    }
     // A finite prose blacklist cannot establish that an arbitrary policy is
     // coherent. Runtime accepts only the exact independently reviewed snapshot.
     // Tests may inject an authored-fixture reviewer as a trusted code dependency;
     // no request field or runtime environment can override this boundary.
-    if (!reviewSource(body.results[0].raw_content)) return hold('live', 'This policy snapshot has not been reviewed. Source changes require a new review before hypothetical preparation; checkout remains HOLD.', 'EXTRACT_SOURCE_REVIEW_REQUIRED');
+    if (!reviewSource(body.results[0].raw_content)) return {
+      ...hold('live', 'This policy snapshot has not been reviewed. Source changes require a new review before hypothetical preparation; checkout remains HOLD.', 'EXTRACT_SOURCE_REVIEW_REQUIRED'),
+      reviewEvidence: policyReviewDossier(body.results[0].raw_content),
+    };
     const snippet = supportingExcerpt(body.results[0].raw_content);
     if (!snippet) return hold('live', 'No complete bounded passage supports the selected reference. Review the source conditions before preparing a proposal.', 'EXTRACT_EXCERPT_MISSING');
     return {
