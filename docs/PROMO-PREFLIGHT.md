@@ -132,11 +132,16 @@ providers. Public entry points are `runPreflight(unknown)`,
   claims semantic support merely because a source ID exists. A future transport
   adapter must preserve those boundaries and be tested separately.
 
-No new endpoint, server handler, database change or provider transport was added.
-The two existing-file changes are the lazy `#preflight` entry in `src/main.tsx`
-and one sidebar link in `src/App.tsx`. Original data and APIs are unchanged.
-Integrate by cherry-picking the feature commit or applying its format-patch from
-the pinned base `868ff2e813ff21f33edf713bd46eebae506ca865`.
+The original offline slice added no endpoint, server handler, database change or
+provider transport. Its existing-file changes were the lazy `#preflight` entry
+in `src/main.tsx` and one sidebar link in `src/App.tsx`.
+
+An additive [sponsor bridge API slice](PREFLIGHT-SPONSOR-BRIDGE.md) now implements
+restricted Tavily Search/Extract and NVIDIA intent validation behind existing
+service guards, with an explicit confirmation endpoint. It does not wire the
+browser sandbox to providers or change its local calculation and privacy claims.
+See that document for the exact interfaces, supported grammar and mock-only
+verification boundaries.
 
 ## Regressions
 
