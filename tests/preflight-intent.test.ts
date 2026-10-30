@@ -17,6 +17,17 @@ function harness(output: unknown = completion(valid)) {
   return { calls, request };
 }
 
+for (const [code, output] of [
+  ['MODEL_COMPLETION_SCHEMA_INVALID', completion(valid, 'length')],
+  ['MODEL_ACTION_SCHEMA_INVALID', completion({ actions: [{ type: 'percent', scope: 'product', rateRef: 'N1', amount: 50 }] })],
+  ['MODEL_ACTION_MISMATCH', completion({ actions: [{ type: 'free_shipping' }] })],
+] as const) test(`diagnostics: ${code} is static and exposes no model output`, async () => {
+  const h = harness(output); const result = await parsePreflightIntent(activity(), config, h.request);
+  assert.equal(result.status, 'HOLD'); assert.deepEqual(result.rules, []);
+  assert.match(result.reason, new RegExp(`\\[${code}\\]`));
+  assert.ok(!result.reason.includes('rateRef')); assert.ok(!result.reason.includes(config.key));
+});
+
 test('normalization keeps literal values private and accepts only the supported English grammar', () => {
   const normalized = activity();
   assert.deepEqual(normalized, { text: 'N1 percent product discount then N2 percent order discount then free shipping', rateReferences: ['N1', 'N2'] });
@@ -139,6 +150,18 @@ test('HTTP failures at either stage consume one attempt per call and never retry
     const result = await parsePreflightIntent(activity(), config, request);
     assert.equal(count, stage); assert.equal(result.status, 'HOLD'); assert.equal(result.mode, 'fixture');
     assert.deepEqual(result.rules, []); assert.ok(!JSON.stringify(result).includes(config.key));
+  }
+});
+
+test('observed Nebius null tool metadata represents no tools, while actual tool payloads still HOLD', async () => {
+  const value = completion(valid);
+  const message = { ...value.choices[0].message, refusal: null, tool_calls: null, function_call: null };
+  const mock = harness({ choices: [{ finish_reason: 'stop', message }] });
+  const result = await parsePreflightIntent(activity(), config, mock.request);
+  assert.equal(result.status, 'NEEDS_CONFIRMATION'); assert.equal(mock.calls.length, 2);
+  for (const replacement of [{ tool_calls: {} }, { tool_calls: [{ type: 'function' }] }, { function_call: { name: 'execute' } }]) {
+    const bad = harness({ choices: [{ finish_reason: 'stop', message: { ...message, ...replacement } }] });
+    assert.equal((await parsePreflightIntent(activity(), config, bad.request)).status, 'HOLD');
   }
 });
 

@@ -173,6 +173,17 @@ test('bridge mocked no-evidence HOLD never becomes a proposal or silently substi
   expect(mock.preparations).toHaveLength(1); expect(mock.confirmations).toHaveLength(0);
 });
 
+test('bridge mocked diagnostics preserve the exact static HOLD code without exposing source data', async ({ page }) => {
+  const stopped = { ...held('[EXTRACT_SCOPED_CONTRADICTION] Evidence did not pass the policy checks.'),
+    http: { ...proposal().http, attempted: 2, traces: proposal().http.traces.slice(0, 2) } };
+  const mock = await mockBackend(page, { prepare: route => fulfill(route, stopped) });
+  await openBridge(page); await allowLive(page); await prepareButton(page).click();
+  await expect(page.getByText('[EXTRACT_SCOPED_CONTRADICTION]', { exact: false })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Proposed campaign rules', exact: true })).toHaveCount(0);
+  await noEnabledConfirmation(page);
+  expect(mock.preparations).toHaveLength(1); expect(mock.confirmations).toHaveLength(0);
+});
+
 test('bridge mocked delayed confirmation cannot display old money after a cost edit', async ({ page }) => {
   await ignoreAbortForGenerationTest(page);
   let enter!: () => void, release!: () => void, finish!: () => void;
