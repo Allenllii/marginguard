@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from 'react';
 import { ArrowDownToLine, ArrowRight, FlaskConical, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 import { PREFLIGHT_FIXTURE, runPreflight, type PreflightInput, type PreflightResult } from '../shared/preflight';
 import './promo-preflight.css';
+import PreflightSponsorBridge, { type BridgeAudit } from './PreflightSponsorBridge';
 
 type SkuDraft = { id: string; priceCents: string; unitCostCents: string };
 type RuleDraft = { id: string; type: 'percent' | 'fixed' | 'free_shipping'; scope: 'product' | 'order'; value: string; minSubtotalCents: string; minItems: string };
@@ -56,10 +57,11 @@ function toInput(draft: Draft): PreflightInput {
   };
 }
 
-function exportAudit(result: PreflightResult) {
+function exportAudit(result: PreflightResult, bridge: BridgeAudit | null) {
   const report = {
     reportVersion: 'promo-preflight-sandbox-v1', generatedAt: new Date().toISOString(),
-    boundary: 'User-specified simulation only. No Shopify checkout validation, store connection, order, configuration change, model call or realized savings.',
+    boundary: 'User-specified simulation only. Provider preparation, when present, is recorded separately. No checkout validation, store connection, order, configuration change or realized savings.',
+    bridge,
     ...result,
   };
   const url = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' }));
@@ -72,16 +74,19 @@ function NumberField({ label, value, onChange, hint, signed = false }: { label: 
   return <label className="pf-field"><span>{label}</span><input type="text" inputMode={signed ? 'text' : 'numeric'} value={value} onChange={event => onChange(event.target.value)} autoComplete="off" spellCheck={false} maxLength={15} />{hint ? <small>{hint}</small> : null}</label>;
 }
 
-export default function PromoPreflight() {
+export default function PromoPreflight({ workspaceActive = true }: { workspaceActive?: boolean }) {
   const [draft, setDraft] = useState<Draft>(fixtureDraft);
   const [result, setResult] = useState<PreflightResult | null>(null);
   const [error, setError] = useState('');
+  const [draftVersion, setDraftVersion] = useState(0);
+  const [bridgeAudit, setBridgeAudit] = useState<BridgeAudit | null>(null);
   const [notice, setNotice] = useState('Synthetic example loaded. Run the collision test to inspect its full audit.');
   const errorRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLElement>(null);
 
   function edit(change: (previous: Draft) => Draft) {
     setDraft(change); setResult(null); setError('');
+    setDraftVersion(previous => previous + 1); setBridgeAudit(null);
     setNotice('Inputs changed. Run the collision test to recalculate; the previous result has been cleared.');
   }
   function scalar(key: 'maxQuantity' | 'shippingChargedCents' | 'shippingCostCents' | 'paymentFeeBps' | 'contributionFloorCents' | 'costsReference' | 'rulesReference' | 'operationsReference', value: string) {
@@ -109,6 +114,7 @@ export default function PromoPreflight() {
   }
   function loadFixture() {
     setDraft(fixtureDraft()); setResult(null); setError('');
+    setDraftVersion(previous => previous + 1); setBridgeAudit(null);
     setNotice('Synthetic example restored. Run the collision test to calculate its audit.');
   }
   const worst = result?.worst;
@@ -118,10 +124,10 @@ export default function PromoPreflight() {
     <nav className="pf-back" aria-label="Return to analysis"><a href="#">← Back to analysis</a><span>MarginGuard / Promo Preflight</span></nav>
     <header className="pf-hero">
       <div className="pf-hero-copy">
-        <p className="pf-eyebrow"><FlaskConical size={15} aria-hidden="true" /> PROMO PREFLIGHT <span>OFFLINE SANDBOX</span></p>
+        <p className="pf-eyebrow"><FlaskConical size={15} aria-hidden="true" /> PROMO PREFLIGHT <span>LOCAL MONEY ENGINE</span></p>
         <h1>Collision-test a promotion<br className="pf-wide-break" /> before launch.</h1>
         <p className="pf-intro">Start with a basket. Stack your proposed rules. Inspect the contribution left behind before anyone checks out.</p>
-        <div className="pf-bound"><ShieldCheck size={17} aria-hidden="true" /><p>Explicit seller simulations. No store connection, checkout validation, orders or configuration changes. No live Nemotron call.</p></div>
+        <div className="pf-bound"><ShieldCheck size={17} aria-hidden="true" /><p>Explicit seller simulations. No store connection, checkout validation, orders or configuration changes. Policy/model preparation requires separate consent; money comes from your inputs.</p></div>
       </div>
       <aside className="pf-golden" aria-label="Synthetic example walkthrough">
         <p className="pf-kicker">SYNTHETIC EXAMPLE · 1 ITEM</p>
@@ -132,6 +138,12 @@ export default function PromoPreflight() {
       </aside>
     </header>
 
+    <PreflightSponsorBridge key={`${draftVersion}:${workspaceActive}`} active={workspaceActive} getInput={() => toInput(draft)} onConfirmed={(confirmed, audit) => {
+      setDraft(previous => ({ ...previous, rules: confirmed.input.rules.map(rule => ({ id: rule.id, type: rule.type, scope: rule.type === 'percent' ? rule.scope : 'order', value: String(rule.type === 'percent' ? rule.basisPoints : rule.type === 'fixed' ? rule.amountCents : 0), minSubtotalCents: String(rule.minSubtotalCents), minItems: String(rule.minItems) })) }));
+      setDraftVersion(previous => previous + 1); setResult(confirmed); setBridgeAudit(audit); setError(''); setNotice(`Rules explicitly confirmed for simulation. ${confirmed.searchSpace.scenarios} bounded scenarios; ${confirmed.status}.`);
+      requestAnimationFrame(() => { resultRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); resultRef.current?.focus({ preventScroll: true }); });
+    }} />
+    {bridgeAudit ? <div className="pf-notice" data-testid="preflight-bridge-provenance">{bridgeAudit.mode === 'fixture' ? 'Offline fixture confirmed' : 'Live preparation confirmed'} · {bridgeAudit.providerAttempts} provider attempts · Money calculated by the integer engine. Checkout remains HOLD.</div> : null}
     <main className="pf-layout" aria-label="Promotion collision sandbox">
       <form className="pf-form" onSubmit={run} noValidate aria-label="Promotion simulation inputs">
         <section className="pf-card" aria-labelledby="pf-basket-title">
@@ -194,10 +206,10 @@ export default function PromoPreflight() {
           })}</ol></div>
           <dl className="pf-ledger"><div><dt>Merchandise after discount</dt><dd>{usd(worst.merchandiseCents)}</dd></div><div><dt>Shipping collected</dt><dd>+{usd(worst.shippingChargedCents)}</dd></div><div><dt>COGS</dt><dd>-{usd(worst.cogsCents)}</dd></div><div><dt>Shipping cost</dt><dd>-{usd(worst.shippingCostCents)}</dd></div><div><dt>Payment fee</dt><dd>-{usd(worst.paymentFeeCents)}</dd></div><div className="pf-ledger-total"><dt>Contribution</dt><dd>{usd(worst.contributionCents)}</dd></div></dl>
           <details className="pf-details"><summary>Assumptions, formula & supplied evidence</summary><p className="pf-formula">{result.formula}</p><ul>{result.assumptions.map(assumption => <li key={assumption}>{assumption}</li>)}</ul><dl className="pf-reference-list"><div><dt>Prices / costs</dt><dd>{result.input.evidence.costsReference || 'Missing'}</dd></div><div><dt>Rules / eligibility</dt><dd>{result.input.evidence.rulesReference || 'Missing'}</dd></div><div><dt>Shipping / fees</dt><dd>{result.input.evidence.operationsReference || 'Missing'}</dd></div></dl></details>
-          <button type="button" className="pf-export" onClick={() => exportAudit(result)}><ArrowDownToLine size={16} aria-hidden="true" /> Download JSON audit</button>
+          <button type="button" className="pf-export" onClick={() => exportAudit(result, bridgeAudit)}><ArrowDownToLine size={16} aria-hidden="true" /> Download JSON audit</button>
         </> : <div className="pf-report-placeholder"><div className="pf-placeholder-mark"><FlaskConical size={30} aria-hidden="true" /></div><h3>Your next campaign, under a microscope.</h3><p>Run the example or enter your assumptions to see the lowest contribution, exact basket, triggered rules and evidence gaps.</p><dl className="pf-preview-bounds"><div><dt>Current SKU count</dt><dd>{draft.skus.length}</dd></div><div><dt>Maximum nonempty baskets</dt><dd>{basketLimit}</dd></div><div><dt>Hard scenario cap</dt><dd>1,008</dd></div></dl><p className="pf-note">Taxes, returns, demand, fixed overhead, payment fixed fees and platform-specific execution are outside this model.</p></div>}
       </section>
     </main>
-    <footer className="pf-footer">A deterministic preflight sandbox for MarginGuard. Local calculations, integer cents, bounded enumeration. Provider proposals or policy packets require separate adapters; no live capability is claimed here.</footer>
+      <footer className="pf-footer">A deterministic preflight sandbox for MarginGuard. Local calculations, integer cents, bounded enumeration. Optional provider preparation requires explicit consent and a second rule-review confirmation; source and checkout applicability remain unverified.</footer>
   </div>;
 }
