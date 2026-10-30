@@ -94,10 +94,11 @@ export function remediationFixture(issue: Issue, packet: ResearchPacket, fallbac
   return { mode: 'fixture', model: null, documentedPolicy: permittedPolicyStatements(packet).slice(0, 1), inference: decision.constraint, nextStep: decision.nextCheck, uncertainty: 'Confirm the policy effective date and your store configuration before changing anything.', ...(fallbackReason ? { fallbackReason } : {}) };
 }
 // Real Nemotron-3.5-Lightning draft from the end-to-end live run whose Tavily
-// packet is the hosted manual replay (evidence/live-e2e-20261030.json, attempt 5).
+// packet is the hosted manual replay (evidence/live-e2e-20261030.json, attempt 6;
+// its sources are byte-identical to the attempt 5 packet replayed by server/tavily.ts).
 export const RECORDED_MANUAL_REMEDIATION = {
   model: 'nvidia/Nemotron-3_5-Lightning',
-  // Recorded proof: request dde827435f59ed6bbcba7c3e7aed671d, 1063 ms, 760 in / 110 out tokens.
+  // Recorded proof: request 0e8fed4b58636dcfe3c7410ed03a85e3, 1287 ms, 892 in / 188 out tokens.
   // Not attached as `proof`, which is reserved for requests made by this server.
   output: {
     "documentedPolicy": [
@@ -108,9 +109,9 @@ export const RECORDED_MANUAL_REMEDIATION = {
         "sourceId": "S2"
       }
     ],
-    "inference": "The manual discount exception to combination settings applies to the affected rows, but the specific store/plan eligibility and effective date require verification.",
-    "nextStep": "Audit staff/manual POS and draft-order overrides, permissions, and promotion intent before changing combination settings.",
-    "uncertainty": "Policy effective dates and account-specific terms have not been confirmed; an exception does not establish the cause of the exposure."
+    "inference": "Manual discounts applied outside the standard promotion system bypass combination restrictions and may generate unexpected order totals.",
+    "nextStep": "Open the sales channel order list and filter for flagged orders. For each order, examine the discount line to identify who applied the manual discount and compare the applied amount against the planned promotion. Verify the order timeline and location against staff permissions and the promotion eligibility window. If the discount was applied by staff outside the promotion window or without proper configuration, the hypothesis is supported; if the discount aligns with a configured promotion and proper staff permissions, the hypothesis is ruled out.",
+    "uncertainty": "The policy effective dates and specific account terms for manual discount combination exceptions have not been verified for this store; confirmation of eligibility and promotion scope is required before any remediation."
   },
 };
 // Replays the recorded draft only for the exact recorded Tavily packet, after the
@@ -119,7 +120,7 @@ export function recordedRemediation(issue: Issue, packet: ResearchPacket): Remed
   const recorded = RECORDED_RETRIEVALS['shopify-discount-manual'].sources;
   if (issue.kind !== 'discount' || packet.mode !== 'fixture' || packet.proof || JSON.stringify(packet.sources) !== JSON.stringify(recorded)) return null;
   try {
-    return { ...validateRemediation(RECORDED_MANUAL_REMEDIATION.output, packet), mode: 'fixture', model: RECORDED_MANUAL_REMEDIATION.model, fallbackReason: 'Recorded Nemotron-3.5-Lightning draft (request dde82743…, 2026-10-30), replayed offline. No model runs on this hosted demo.' };
+    return { ...validateRemediation(RECORDED_MANUAL_REMEDIATION.output, packet), mode: 'fixture', model: RECORDED_MANUAL_REMEDIATION.model, fallbackReason: 'Recorded Nemotron-3.5-Lightning draft (request 0e8fed4b…, 2026-10-30), replayed offline. No model runs on this hosted demo.' };
   } catch { return null; }
 }
 // Token Factory enforces this shape (json_schema), so citations can only be permitted IDs.
