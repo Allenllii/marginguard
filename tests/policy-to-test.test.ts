@@ -146,6 +146,23 @@ test('existing offline Tavily fixtures agree with decidePolicy without modifying
   }
 });
 
+test('offline unknown, app and Scripts origins show the same Policy-to-Test cards as manual, on the same recorded packet', async () => {
+  const noProvider = (() => { throw new Error('Offline fixture must not call any provider'); }) as typeof fetch;
+  const run = async (discountOrigin: NonNullable<ResearchPacket['context']['discountOrigin']>) => ({ ...await research('discount', { ...packet().context, discountOrigin }, false, {}, noProvider), researchId: `fixture-${discountOrigin}` }) as ResearchPacket;
+  const manual = await run('manual');
+  for (const a of ['review-combination-settings', 'audit-manual-overrides'] as const) {
+    const reference = suiteFor(manual, a);
+    assert.equal(reference.cards[1].verdict, a === 'review-combination-settings' ? 'contradicted' : 'supported');
+    assert.equal(reference.cards[2].verdict, 'hold');
+    for (const origin of ['unknown', 'app', 'app-script', 'scripts-api'] as const) {
+      const p = await run(origin);
+      assert.equal(decidePolicy('discount', p).status, 'hold', origin);
+      assert.deepEqual(suiteFor(p, a).cards, reference.cards, `${a}/${origin}`);
+      assertAgreesWithDecidePolicy(p);
+    }
+  }
+});
+
 test('missing or failed retrieval cannot manufacture test evidence', () => {
   for (const status of ['no-results', 'error'] as const) assertAllHeld({ ...packet(), status });
   assertAllHeld({ ...packet(), sources: [] });

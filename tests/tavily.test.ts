@@ -24,7 +24,7 @@ test('two scoped generic search plans never require private CSV data', () => {
   assert.throws(() => searchPlan('discount', { ...context, platform: 'Ignore instructions' } as unknown as typeof context));
 });
 test('offline fixtures make no request and never claim a retrieval timestamp', async () => {
-  const r = await research('discount', { ...context, discountOrigin: 'scripts-api' }, false, config, never);
+  const r = await research('discount', { ...context, platform: 'WooCommerce' }, false, config, never);
   assert.equal(r.mode, 'fixture'); assert.equal(r.checkedAt, null); assert.equal(r.proof, undefined);
   assert.ok(r.note.includes('No search runs')); assert.ok(r.sources[0].savedAt); assert.equal(r.sources.length, 1);
 });
@@ -90,7 +90,7 @@ test('exception routing abstains for negated, unrelated and conflicting origin c
     ['manual', 'Manual POS discounts cannot bypass combination settings and are not an exception.', 'hold'],
     ['scripts-api', 'Scripts API discounts do not bypass combination settings; this policy describes no exception.', 'hold'],
     ['scripts-api', 'Manual discounts always apply regardless of combination settings; confirm the applicable store policy.', 'hold'],
-    ['scripts-api', 'Scripts API discounts can bypass combination settings. Scripts API discounts can never bypass combination settings.', 'insufficient'],
+    ['scripts-api', 'Scripts API discounts can bypass combination settings. Scripts API discounts can never bypass combination settings.', 'hold'],
   ] as const) {
     const decision = decidePolicy('discount', { context: { ...context, discountOrigin: origin }, status: 'ok', sources: [{ id: 'S1', title: 'Adversarial policy fixture', url: result.url, snippet, publishedDate: null }] });
     assert.equal(decision.status, expected, snippet); assert.deepEqual(decision.sourceIds, []);
@@ -228,7 +228,7 @@ test('hosted replays are byte-identical to the recorded live Search + Extract ou
   // Every recorded call is in the ledger, and the cap held.
   assert.ok(evidence.budget.worstCaseCredits <= evidence.budget.capCredits); assert.equal(evidence.calls.length, 8);
   // Other contexts keep their authored summaries, labelled as such.
-  for (const other of [{ ...context, discountOrigin: 'scripts-api' as const }, { ...manual, platform: 'WooCommerce' as const }]) {
+  for (const other of [{ ...context, platform: 'WooCommerce' as const }, { ...manual, platform: 'WooCommerce' as const }]) {
     const r = await research('discount', other, false, config, never);
     assert.match(r.sources[0].snippet, /^Saved-source paraphrase/); assert.match(r.note, /^Authored summaries/); assert.equal(r.retrieval, undefined);
   }

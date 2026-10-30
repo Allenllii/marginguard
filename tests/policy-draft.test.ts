@@ -72,7 +72,7 @@ test('policy scope statements stay within each supported context and hold for ab
   const app = { ...packet, context: { ...packet.context, discountOrigin: 'scripts-api' as const }, sources: [{ ...packet.sources[0], snippet: 'Scripts API discounts can bypass combination settings.' }] };
   const native = { ...packet, context: { ...packet.context, discountOrigin: 'native' as const }, sources: [{ ...packet.sources[0], snippet: 'Combination settings control eligible code discount classes.' }] };
   const shipping = { ...packet, kind: 'shipping' as const, sources: [{ ...packet.sources[0], snippet: 'Carrier rate rules depend on measured dimensions and billable weight.' }] };
-  assert.match(permittedPolicyStatements(app)[0].statement, /Scripts API exception/);
+  assert.deepEqual(permittedPolicyStatements(app), []); // Shopify Scripts retired 2026-06-30: decidePolicy holds
   assert.match(permittedPolicyStatements(native)[0].statement, /conditions for combining discounts/);
   assert.match(permittedPolicyStatements(shipping)[0].statement, /carrier measurement/);
   assert.deepEqual(permittedPolicyStatements({ ...packet, sources: [] }), []);
