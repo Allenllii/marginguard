@@ -7,5 +7,5 @@ export default function Limits({ items, label = 'Limits' }: { items: ReactNode[]
 
 /** The single site-wide caveat, shown once at the top of each workspace. */
 export function DemoBanner() {
-  return <p className="demo-banner" role="note"><strong>Synthetic store data.</strong> No store connection. Live Tavily search and Nemotron drafts run only when you run MarginGuard locally with your own keys and click; otherwise you see saved results.</p>;
+  return <p className="demo-banner" role="note"><strong>Synthetic store data.</strong> No store connection. Live Tavily search and Nemotron drafts run only when you run MarginGuard locally with your own keys and click; otherwise you see saved results. The manual-discount case replays a recorded live Tavily and Nemotron run from October 30.</p>;
 }

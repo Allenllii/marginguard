@@ -12,7 +12,7 @@ test('Policy-to-Test reuses one fixture packet, changes only the hypothesis, and
   const native = lab.getByRole('article', { name: 'Normal / code', exact: true });
   const manual = lab.getByRole('article', { name: 'Manual / POS / draft', exact: true });
   const unknown = lab.getByRole('article', { name: 'Unknown', exact: true });
-  await expect(native.locator('.ptl-verdict')).toContainText('On hold');
+  await expect(native.locator('.ptl-verdict')).toContainText('Supported for investigation');
   await expect(manual.locator('.ptl-verdict')).toHaveText('Exception challenges remedy');
   await expect(unknown.locator('.ptl-verdict')).toContainText('On hold');
   await expect(lab.locator('.ptl-mode')).toHaveText('Saved result · no live call');
@@ -26,8 +26,8 @@ test('Policy-to-Test reuses one fixture packet, changes only the hypothesis, and
   expect(await page.locator('.policy-input-evidence strong').textContent()).toBe(exposure);
   expect(requests).toHaveLength(count);
   await manual.locator('summary').click();
-  await expect(manual.locator('blockquote')).toContainText('manual POS/draft-order');
-  await expect(manual.getByRole('link')).toHaveAttribute('href', 'https://help.shopify.com/en/manual/discounts/discount-combinations');
+  await expect(manual.locator('blockquote')).toContainText('apply manually in Shopify POS always apply');
+  await expect(manual.getByRole('link')).toHaveAttribute('href', 'https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts');
   await page.getByLabel('Discount origin').selectOption('native');
   await expect(lab).toHaveCount(0);
   await page.getByRole('button', { name: 'Show saved policy result', exact: true }).click();

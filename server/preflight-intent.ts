@@ -1,5 +1,7 @@
-import { isDeepStrictEqual } from 'node:util';
 import { z } from 'zod';
+
+// Key-order-independent equality for plain JSON rule objects (Workers have no node:util).
+const canonical = (v: unknown): string => Array.isArray(v) ? `[${v.map(canonical).join(',')}]` : v && typeof v === 'object' ? `{${Object.keys(v).sort().map(k => `${JSON.stringify(k)}:${canonical((v as Record<string, unknown>)[k])}`).join(',')}}` : JSON.stringify(v);
 import { PREFLIGHT_FIXTURE, validatePreflightInput, type PreflightRule } from '../shared/preflight.js';
 import { BASE_URL, completionControls } from './nebius.js';
 import { boundedJson } from './http.js';
@@ -153,7 +155,7 @@ export async function parsePreflightIntent(
     const values = rules.flatMap(rule => [rule.minSubtotalCents, rule.minItems * 100, rule.type === 'percent' ? rule.basisPoints : rule.type === 'fixed' ? rule.amountCents : 0]);
     if (values.some(value => value !== 0 && !literals.has(value))) return hold('Nemotron proposed a value that does not appear in the campaign text. No rule was applied.', 'MODEL_VALUE_UNGROUNDED');
     const grammar = parseCampaignGrammar(text);
-    if (grammar && !isDeepStrictEqual(grammar, rules)) return hold('Nemotron\'s interpretation differs from the local parser\'s reading of this campaign. No rule was applied; rephrase the campaign or author the rules in the local simulator.', 'MODEL_GRAMMAR_MISMATCH');
+    if (grammar && canonical(grammar) !== canonical(rules)) return hold('Nemotron\'s interpretation differs from the local parser\'s reading of this campaign. No rule was applied; rephrase the campaign or author the rules in the local simulator.', 'MODEL_GRAMMAR_MISMATCH');
     const unmodeledConditions = [...new Set(parsed.unmodeled)];
     const conditions = unmodeledConditions.length ? ` Conditions not simulated: ${unmodeledConditions.join(', ')}.` : '';
     return {

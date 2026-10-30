@@ -36,7 +36,7 @@ try {
   const context = { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'manual' };
   const refused = await (await check('/api/research', { kind: 'discount', context, live: true })).json(); assert.equal(refused.proof, undefined); assert.equal(refused.sources.length, 0);
   const packet = await (await check('/api/research', { kind: 'discount', context, live: false })).json(); assert.equal(packet.mode, 'fixture'); assert.equal(packet.checkedAt, null);
-  const remedy = await (await check('/api/remediate', { csv: demo.csv, issueId: 'discount-stacking', researchId: packet.researchId, live: false })).json(); assert.equal(remedy.mode, 'fixture'); assert.match(remedy.nextStep, /Audit staff\/manual POS/u);
+  const remedy = await (await check('/api/remediate', { csv: demo.csv, issueId: 'discount-stacking', researchId: packet.researchId, live: false })).json(); assert.equal(remedy.mode, 'fixture'); assert.match(remedy.nextStep, /Audit store\/plan eligibility/u);
   const coldWorker = (await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}#cold-isolate`)).default;
   const coldResponse = await coldWorker.fetch(request('/api/remediate', { csv: demo.csv, issueId: 'discount-stacking', researchId: packet.researchId, live: false }), runtime);
   assert.equal(coldResponse.status, 200); assertions++;

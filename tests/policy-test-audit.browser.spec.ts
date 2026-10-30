@@ -131,7 +131,7 @@ test('audit download captures the current dataset, source provenance and all sce
     expect(Object.hasOwn(source, 'sourceRegion')).toBe(true);
   }
   expect(first.evaluation.action).toBe('review-combination-settings');
-  expect(first.evaluation.scenarios.map(card => card.verdict)).toEqual(['hold', 'contradicted', 'hold']);
+  expect(first.evaluation.scenarios.map(card => card.verdict)).toEqual(['supported', 'contradicted', 'hold']);
   expect(first.evaluation.notice).toMatch(/synthetic|counterfactual/i);
   expect(first.evaluation.notice).toMatch(/recovery/i);
 
