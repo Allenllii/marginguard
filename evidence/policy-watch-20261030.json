@@ -1,0 +1,86 @@
+{
+  "description": "One live Tavily Extract call made through server/policy-watch.ts checkPolicyWatch() via createService POST /api/policy-watch/check, from a local operator script. Keys came from an ignored local env file; no key, header or page body is stored. Response and page bodies are identified by SHA-256 only. `check` is the exact lastCheck returned and is replayed verbatim offline (mode relabelled recorded).",
+  "recordedAtUtc": "2026-10-30T05:41:20.422Z",
+  "codeCommit": "6399d81 + v7/watch working tree (server/policy-watch.ts)",
+  "calls": 1,
+  "budget": {
+    "capCredits": 3,
+    "extractCalls": 1,
+    "extractUrls": 2,
+    "reportedCredits": 0,
+    "pricing": "Tavily basic Extract: 1 credit per 5 successful URL extractions."
+  },
+  "request": {
+    "endpoint": "https://api.tavily.com/extract",
+    "body": {
+      "urls": [
+        "https://help.shopify.com/en/manual/discounts/discount-combinations",
+        "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts"
+      ],
+      "extract_depth": "basic",
+      "format": "markdown",
+      "timeout": 10,
+      "include_images": false,
+      "include_favicon": false,
+      "include_usage": true
+    }
+  },
+  "response": {
+    "status": 200,
+    "requestId": null,
+    "bodySha256": "f865ee0f09d36a6b6958db315674a1a3c9098328352dd34c2ac70515e3a629cc",
+    "bodyBytes": 42214,
+    "pages": [
+      {
+        "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+        "rawContentSha256": "0f56c3bb58cbac8172432fd2010e5d3b2ef1b6fc614d68833521bb773776ebbe",
+        "rawContentLength": 38325
+      },
+      {
+        "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+        "rawContentSha256": "e03041ab8c38116f867798736d60f10a0114bf6cc6ba954e7bd6117c0dfe4346",
+        "rawContentLength": 2854
+      }
+    ]
+  },
+  "check": {
+    "mode": "live",
+    "checkedAt": "2026-10-30T05:41:20.617Z",
+    "label": "Live check (request 651f7607…)",
+    "results": [
+      {
+        "id": "shopify-combining-manual",
+        "status": "unchanged",
+        "currentFingerprint": "94c0952b67f6714848f4f754ce562467078aa5ca606b2eaa4901bf48fc7e8477"
+      },
+      {
+        "id": "shopify-pos-manual",
+        "status": "unchanged",
+        "currentFingerprint": "2540e52d57b71bf11e3525e4da127c05a8a6c551c3d87baf665376b1efe26cf0"
+      },
+      {
+        "id": "shopify-combining-native",
+        "status": "unchanged",
+        "currentFingerprint": "69e663eb5ba8085bf0126539c7a86e36b84051239de738bc5da938c2c145fedb"
+      }
+    ],
+    "retrieval": {
+      "steps": [
+        {
+          "op": "extract",
+          "url": "https://help.shopify.com/en/manual/discounts/discount-combinations",
+          "ok": true,
+          "latencyMs": 194,
+          "credits": 0,
+          "requestId": "651f7607-3002-4c6b-bf5e-d12e4f52d6b4"
+        },
+        {
+          "op": "extract",
+          "url": "https://help.shopify.com/en/manual/sell-in-person/shopify-pos/discount-management/combining-discounts",
+          "ok": true,
+          "requestId": "651f7607-3002-4c6b-bf5e-d12e4f52d6b4"
+        }
+      ]
+    }
+  }
+}
