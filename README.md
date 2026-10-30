@@ -4,6 +4,8 @@
 
 [Open the public judge demo](https://marginguard-evidence.liwenzhao0306.chatgpt.site) | [Source: main](https://github.com/Allenllii/marginguard/tree/main) | [Development specification](docs/SPEC.md) | [Release identities](docs/RELEASE.md)
 
+For the 2026-10-30 development-source consolidation and Claude Code continuation, read [the source disposition](docs/SOURCE-CONSOLIDATION.md), [the complete handoff](docs/CLAUDE-HANDOFF.md) and [offline CI scope](docs/CI.md). The source now includes the conservative changed-policy review dossier; this source update does not deploy the Site or release new private evidence. Historical counts below remain attached to their recorded source versions.
+
 MarginGuard helps small ecommerce sellers turn a margin anomaly into a specific next check. It validates an order CSV, calculates exact contribution and rule-based exposure, shows the source rows, and uses policy evidence to qualify a proposed remedy. The primary demonstration redirects an overly generic discount-settings suggestion to a manual-override audit when the applicable Shopify exception supports that change.
 
 ## What the judge demo does

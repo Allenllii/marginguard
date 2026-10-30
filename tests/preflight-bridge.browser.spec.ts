@@ -1,6 +1,7 @@
 import { test, expect, type Page, type Route } from '@playwright/test';
 import { runPreflight } from '../shared/preflight';
 import { readFile } from 'node:fs/promises';
+import { policyReviewDossier } from '../server/preflight-policy-dossier';
 
 // All provider-looking replies below are routed synthetic fixtures. These tests
 // never contact Tavily/Nebius and are not evidence of an actual sponsor call.
@@ -19,6 +20,16 @@ const configuredHealth = {
   tavily: { mode: 'configured', endpoint: 'https://api.tavily.com/search' },
   limits: { daily: 20, total: 100, minute: 2, scope: 'process lifetime', liveSafe: true, enabledUntil: '2026-12-16T00:00:00.000Z' },
 };
+const dossierBody = 'Only when both discount combination settings and merchant eligibility are confirmed can these discounts combine. This is an authored mock for browser testing.';
+function dossierReply() {
+  return { ...held('[EXTRACT_SOURCE_REVIEW_REQUIRED] Unreviewed source requires inspection.'),
+    policy: { mode: 'live', status: 'HOLD', reason: 'Unreviewed mock policy, no proposal permit.', sources: [], reviewEvidence: policyReviewDossier(dossierBody, '2026-10-30T01:00:00.000Z') },
+    http: { maximumAttempts: 4, attempted: 2, blocked: false, unknownOutcomes: 0, traces: [
+      { endpoint: 'search', provider: 'tavily', outcome: 'response', status: 200 },
+      { endpoint: 'extract', provider: 'tavily', outcome: 'response', status: 200 },
+    ] },
+  };
+}
 function proposal(url = policyUrl) {
   return {
     mode: 'live', status: 'NEEDS_CONFIRMATION', reason: 'MOCK_LIVE_PREPARED_RULES', rules: structuredClone(rules),
@@ -276,4 +287,56 @@ test('bridge fixture at 320px: keyboard confirmation and reduced motion retain r
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
   await expect(page.getByRole('region', { name: 'What is left in the worst basket?', exact: true })).toBeFocused();
   await page.screenshot({ path: test.info().outputPath('bridge-fixture-320.png'), fullPage: true });
+});
+
+
+test('unreviewed policy: full held excerpt and fingerprint are visible but cancellation clears it', async ({ page }) => {
+  const mock = await mockBackend(page, { prepare: route => fulfill(route, dossierReply()) });
+  await openBridge(page); await allowLive(page); await prepareButton(page).click();
+  const review = page.getByRole('region', { name: 'Unreviewed policy evidence', exact: true });
+  await expect(review).toBeVisible(); await expect(review).toContainText(dossierBody);
+  await expect(review.getByRole('link', { name: 'Read the complete official policy', exact: true })).toHaveAttribute('href', policyUrl);
+  await noEnabledConfirmation(page);
+  const cancel = page.getByRole('button', { name: 'Cancel preparation', exact: true });
+  await expect(cancel).toBeEnabled(); await cancel.click();
+  await expect(review).toHaveCount(0); expect(mock.preparations).toHaveLength(1); expect(mock.confirmations).toHaveLength(0);
+});
+
+test('unreviewed policy: changing campaign or context cannot retain a stale dossier', async ({ page }) => {
+  const mock = await mockBackend(page, { prepare: route => fulfill(route, dossierReply()) });
+  await openBridge(page); await allowLive(page); await prepareButton(page).click();
+  await expect(page.getByRole('region', { name: 'Unreviewed policy evidence', exact: true })).toBeVisible();
+  await page.getByRole('textbox', { name: 'Campaign description', exact: true }).fill('10% product discount');
+  await expect(page.getByRole('region', { name: 'Unreviewed policy evidence', exact: true })).toHaveCount(0);
+  await allowLive(page); await prepareButton(page).click();
+  await expect(page.getByRole('region', { name: 'Unreviewed policy evidence', exact: true })).toBeVisible();
+  await page.getByRole('checkbox', { name: 'Shopify, US, automatic/code discounts', exact: true }).uncheck();
+  await expect(page.getByRole('region', { name: 'Unreviewed policy evidence', exact: true })).toHaveCount(0);
+  expect(mock.confirmations).toHaveLength(0);
+});
+
+test('unreviewed policy: forged URL or impossible offsets cannot be rendered as review evidence', async ({ page }) => {
+  for (const variant of ['url', 'offset']) {
+    const reply = dossierReply(); const dossier = reply.policy.reviewEvidence!;
+    if (variant === 'url') dossier.url = 'https://evil.example/' as typeof dossier.url;
+    else dossier.quotes[0].end += 1;
+    await mockBackend(page, { prepare: route => fulfill(route, reply) });
+    await openBridge(page); await allowLive(page); await prepareButton(page).click();
+    await expect(page.getByRole('alert')).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Unreviewed policy evidence', exact: true })).toHaveCount(0);
+    await noEnabledConfirmation(page);
+  }
+});
+
+test('unreviewed policy: long fingerprint wraps at 320px with reduced motion and keyboard access', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 }); await page.emulateMedia({ reducedMotion: 'reduce' });
+  await mockBackend(page, { prepare: route => fulfill(route, dossierReply()) });
+  await openBridge(page); await allowLive(page); await prepareButton(page).click();
+  const review = page.getByRole('region', { name: 'Unreviewed policy evidence', exact: true });
+  await expect(review).toBeVisible();
+  const fingerprint = review.getByText('Evidence fingerprint', { exact: true });
+  await fingerprint.focus(); await page.keyboard.press('Enter');
+  await expect(review).toContainText(policyReviewDossier(dossierBody)!.bodySha256);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+  await page.screenshot({ path: test.info().outputPath('unreviewed-policy-320.png'), fullPage: true });
 });

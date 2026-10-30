@@ -17,9 +17,10 @@ export default function PreflightSponsorBridge({ getInput, onConfirmed, active }
   const [context, setContext] = useState(false), [consent, setConsent] = useState(false), [reviewed, setReviewed] = useState(false);
   const [proposal, setProposal] = useState<Proposal | null>(null), [message, setMessage] = useState('Optional policy-assisted preparation. Opening this section sends no request.');
   const [busy, setBusy] = useState(false);
+  const [reviewEvidence, setReviewEvidence] = useState<NonNullable<PreflightBridgeReply['policy']>['reviewEvidence']>();
   const generation = useRef(0), pending = useRef<AbortController | null>(null), panel = useRef<HTMLDetailsElement>(null);
   const livePermit = useRef(false), confirmationPermit = useRef(false);
-  function clear() { generation.current++; pending.current?.abort(); pending.current = null; livePermit.current = false; confirmationPermit.current = false; setBusy(false); setProposal(null); setReviewed(false); setConsent(false); }
+  function clear() { generation.current++; pending.current?.abort(); pending.current = null; livePermit.current = false; confirmationPermit.current = false; setBusy(false); setProposal(null); setReviewEvidence(undefined); setReviewed(false); setConsent(false); }
   useEffect(() => () => { generation.current++; pending.current?.abort(); }, []);
   useEffect(() => { if (!active) { generation.current++; pending.current?.abort(); if (panel.current) panel.current.open = false; } }, [active]);
 
@@ -46,7 +47,7 @@ export default function PreflightSponsorBridge({ getInput, onConfirmed, active }
         body: JSON.stringify({ activity: campaign, context: { platform: 'Shopify', carrier: 'USPS', region: 'US', discountOrigin: 'native' }, live: true }) });
       const value = await response.json(); if (ticket !== generation.current) return;
       if (!response.ok) throw Error(safeBridgeMessage(value.error ?? value.reason, `Preparation held (HTTP ${response.status}). No automatic retry.`));
-      const packet = parsePreflightBridgeReply(value); setMessage(packet.reason);
+      const packet = parsePreflightBridgeReply(value); setMessage(packet.reason); setReviewEvidence(packet.policy?.reviewEvidence);
       if (packet.status === 'NEEDS_CONFIRMATION') setProposal({ mode: 'live', packet, receivedAt: new Date().toISOString() });
       else setMessage(`${packet.mode === 'live' ? 'Live attempt · HOLD' : 'Offline · HOLD'}: ${packet.reason} (${packet.http.attempted} provider attempts)`);
     } catch (failure) { if (ticket === generation.current) setMessage(`HOLD: ${safeBridgeMessage(failure instanceof Error ? failure.message : null, 'Unsupported response or failed request. No automatic retry.')}`); }
@@ -83,8 +84,16 @@ export default function PreflightSponsorBridge({ getInput, onConfirmed, active }
     <div className="pf-bridge-actions"><button type="button" onClick={fixture} disabled={busy}>Preview synthetic proposal</button><button type="button" onClick={checkAvailability} disabled={busy}>Check live availability</button></div>
     <label className="pf-bridge-check"><input type="checkbox" checked={context} onChange={event => { clear(); setContext(event.target.checked); }} />Shopify, US, automatic/code discounts</label>
     <label className="pf-bridge-check"><input type="checkbox" checked={consent} disabled={!available || busy} onChange={event => { livePermit.current = event.target.checked; setConsent(event.target.checked); }} />Allow one live preparation using credits</label>
-    <div className="pf-bridge-actions"><button type="button" onClick={prepare} disabled={busy || !available || !context || !consent}>Prepare with Tavily and NVIDIA</button><button type="button" onClick={() => { clear(); setMessage('Preparation cancelled. Already-sent requests may have consumed credits; no retry was made.'); }} disabled={!busy && !proposal}>Cancel preparation</button></div>
+    <div className="pf-bridge-actions"><button type="button" onClick={prepare} disabled={busy || !available || !context || !consent}>Prepare with Tavily and NVIDIA</button><button type="button" onClick={() => { clear(); setMessage('Preparation cancelled. Already-sent requests may have consumed credits; no retry was made.'); }} disabled={!busy && !proposal && !reviewEvidence}>Cancel preparation</button></div>
     <p className="pf-bridge-message" role={message.startsWith('HOLD:') ? 'alert' : 'status'}>{message}</p>
+    {reviewEvidence ? <section aria-label="Unreviewed policy evidence" className="pf-bridge-proposal">
+      <h3>Policy evidence for review · HOLD</h3>
+      <p>This policy version needs review. Selected excerpts are incomplete; read the full policy and resolve all conflicts. No campaign rules were proposed.</p>
+      {reviewEvidence.quotes.map(quote => <blockquote key={quote.start}><p>{quote.text}</p><p className="pf-help">Received extraction range [{quote.start}, {quote.end}) in UTF-16 code units.</p></blockquote>)}
+      <p><a href={reviewEvidence.url} target="_blank" rel="noopener noreferrer">Read the complete official policy</a> · Retrieved {reviewEvidence.retrievedAt}</p>
+      <p>Confirm the policy version and effective date, store eligibility, combination settings and actual checkout behavior before proceeding.</p>
+      <details><summary>Evidence fingerprint</summary><p>SHA-256: <code>{reviewEvidence.bodySha256}</code> · {reviewEvidence.bodyLength} UTF-16 code units. This fingerprint identifies received text; it does not authenticate the source or establish policy validity.</p></details>
+    </section> : null}
     {proposal && rules ? <section aria-label="Proposed campaign rules" className="pf-bridge-proposal">
       <h3>{proposal.mode === 'fixture' ? 'Offline synthetic proposal' : 'Live server response · NEEDS_CONFIRMATION'}</h3>
       <ol>{rules.map(rule => <li key={rule.id}>{rule.type === 'percent' ? `${rule.basisPoints / 100}% ${rule.scope} discount` : rule.type === 'free_shipping' ? 'Free shipping' : `${rule.amountCents} cents fixed discount`} · minimums {rule.minSubtotalCents} cents / {rule.minItems} items</li>)}</ol>
